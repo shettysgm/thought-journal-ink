@@ -12,11 +12,21 @@ interface HandwritingCanvasProps {
 
 type Tool = 'pen' | 'eraser';
 
+const colors = [
+  { name: 'Black', value: '#1f2937' },
+  { name: 'Blue', value: '#2563eb' },
+  { name: 'Red', value: '#dc2626' },
+  { name: 'Green', value: '#16a34a' },
+  { name: 'Purple', value: '#9333ea' },
+  { name: 'Orange', value: '#ea580c' },
+];
+
 export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState<Tool>('pen');
   const [strokeWidth, setStrokeWidth] = useState(3);
+  const [selectedColor, setSelectedColor] = useState(colors[0].value);
   const [hasContent, setHasContent] = useState(false);
   const [ocrText, setOcrText] = useState<string>('');
   const [isProcessingOCR, setIsProcessingOCR] = useState(false);
@@ -126,7 +136,7 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
     
     if (tool === 'pen') {
       ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = '#1f2937';
+      ctx.strokeStyle = selectedColor;
       ctx.lineWidth = strokeWidth;
     } else {
       ctx.globalCompositeOperation = 'destination-out';
@@ -248,6 +258,29 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
                 <Eraser className="w-4 h-4" />
                 Eraser
               </Button>
+            </div>
+
+            <Separator orientation="vertical" className="h-8" />
+
+            {/* Colors */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Color:</span>
+              <div className="flex gap-1">
+                {colors.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setSelectedColor(color.value)}
+                    className={cn(
+                      "w-6 h-6 rounded-full border-2 transition-all",
+                      selectedColor === color.value 
+                        ? "border-foreground scale-110" 
+                        : "border-border hover:border-muted-foreground"
+                    )}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  />
+                ))}
+              </div>
             </div>
 
             <Separator orientation="vertical" className="h-8" />
