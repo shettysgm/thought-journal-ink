@@ -30,6 +30,9 @@ export type Hit = {
   phrase: string; 
   start: number;
   end: number;
+  confidence?: number;
+  rationale?: string;
+  isAI?: boolean; // Distinguishes AI vs rule-based detection
 };
 
 export type DistortionType = {

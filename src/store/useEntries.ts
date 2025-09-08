@@ -74,20 +74,34 @@ export const useEntries = create<EntriesState>((set, get) => ({
     
     // Process distortions if auto-detect is enabled and we have text
     if (settings.autoDetectDistortions && entryData.text) {
-      const { detectDistortions } = await import('@/lib/distortions');
+      const { analyzeEntryWithContext } = await import('@/lib/hybridDetection');
       const { useDistortions } = await import('./useDistortions');
-      
-      const hits = detectDistortions(entryData.text);
       const { addDistortion } = useDistortions.getState();
       
-      // Save each distortion hit
-      for (const hit of hits) {
-        await addDistortion({
-          entryId: id,
-          createdAt,
-          type: hit.type,
-          phrase: hit.phrase,
-        });
+      try {
+        // Use hybrid detection (AI + rules) with context awareness
+        await analyzeEntryWithContext(
+          id, 
+          entryData.text, 
+          'hybrid',
+          async (distortionData) => {
+            await addDistortion(distortionData);
+          }
+        );
+      } catch (error) {
+        console.warn('Distortion analysis failed:', error);
+        // Fallback to rule-based detection only
+        const { detectDistortions } = await import('@/lib/distortions');
+        const hits = detectDistortions(entryData.text);
+        
+        for (const hit of hits) {
+          await addDistortion({
+            entryId: id,
+            createdAt,
+            type: hit.type,
+            phrase: hit.phrase,
+          });
+        }
       }
     }
     
