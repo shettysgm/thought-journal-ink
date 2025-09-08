@@ -23,6 +23,27 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
 
+  const drawLinedBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Set white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Draw horizontal lines
+    ctx.strokeStyle = '#e5e7eb'; // Light gray lines
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    
+    const lineSpacing = 30; // Space between lines
+    const startY = 40; // Top margin
+    
+    for (let y = startY; y < height - 20; y += lineSpacing) {
+      ctx.moveTo(20, y); // Left margin
+      ctx.lineTo(width - 20, y); // Right margin
+    }
+    
+    ctx.stroke();
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -34,11 +55,9 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
         canvas.width = container.clientWidth;
         canvas.height = Math.min(container.clientHeight, 500);
         
-        // Set white background
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          drawLinedBackground(ctx, canvas.width, canvas.height);
           saveToHistory();
         }
       }
@@ -75,8 +94,7 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (ctx && canvas) {
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawLinedBackground(ctx, canvas.width, canvas.height);
       setHasContent(false);
       setOcrText('');
       saveToHistory();
