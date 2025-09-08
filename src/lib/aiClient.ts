@@ -19,7 +19,7 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const text = simpleRedact(rawText).slice(0, 2000); // local redaction + cap
   const context = await getContextWindow();          // topics, commonTypes, recentPhrases, userGoals
   
-  const response = await fetch("/api/detectDistortions", {
+  const response = await fetch("https://snappy-unified-app-build-755984933994.us-central1.run.app/api/detectDistortions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, context })
