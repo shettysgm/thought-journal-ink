@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -75,17 +75,18 @@ TEXT:
 ${schema}
 `;
 
-    const resp = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // fast+cheap; upgrade as needed
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: { 
+        temperature: 0.2,
+        responseMimeType: "application/json"
+      }
     });
 
-    const json = JSON.parse(resp.choices[0].message.content || "{}");
+    const fullPrompt = `${system}\n\n${prompt}`;
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    const json = JSON.parse(response.text() || "{}");
 
     // Enforce response shape
     const clean = {
