@@ -8,6 +8,8 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 export default function Router() {
+  console.log('Router component rendering');
+  
   return (
     <BrowserRouter>
       <Routes>
