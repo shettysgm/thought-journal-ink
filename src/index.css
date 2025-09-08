@@ -2,95 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* CBT Journal Design System - Therapeutic, calming colors and design tokens
+All colors MUST be HSL for consistency and theming support.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors - soft, calming palette */
+    --background: 215 100% 98%;
+    --foreground: 210 15% 20%;
 
+    /* Card surfaces with subtle elevation */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 15% 20%;
 
+    /* Interactive overlays */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 15% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Calming teal/blue for main actions */
+    --primary: 195 85% 41%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 195 85% 91%;
+    --primary-glow: 195 85% 71%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft blue-gray for supporting actions */
+    --secondary: 210 25% 92%;
+    --secondary-foreground: 210 15% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Light backgrounds and disabled states */
+    --muted: 210 25% 95%;
+    --muted-foreground: 210 10% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Gentle green for positive actions */
+    --accent: 150 60% 88%;
+    --accent-foreground: 150 60% 25%;
+    --accent-strong: 150 60% 45%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Therapeutic color palette */
+    --therapeutic-calm: 200 80% 85%;
+    --therapeutic-growth: 140 50% 85%;
+    --therapeutic-warmth: 35 70% 85%;
+    --therapeutic-focus: 260 30% 85%;
+    --therapeutic-energy: 320 40% 85%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Status colors - gentle and non-alarming */
+    --success: 150 60% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 35 70% 55%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 60% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* Borders and inputs - subtle and soft */
+    --border: 210 25% 88%;
+    --input: 210 25% 90%;
+    --ring: 195 85% 41%;
+
+    /* Design tokens */
+    --radius: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Gradients for beautiful surfaces */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-therapeutic: linear-gradient(135deg, hsl(var(--therapeutic-calm)), hsl(var(--therapeutic-growth)));
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)), hsl(210 25% 99%));
+    
+    /* Shadows for depth */
+    --shadow-soft: 0 2px 10px -2px hsl(var(--primary) / 0.1);
+    --shadow-medium: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+    --shadow-strong: 0 8px 30px -6px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 20px hsl(var(--primary-glow) / 0.3);
+
+    /* Animation timing */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 215 20% 8%;
+    --foreground: 210 40% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 215 20% 10%;
+    --card-foreground: 210 40% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 215 20% 10%;
+    --popover-foreground: 210 40% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 195 85% 61%;
+    --primary-foreground: 215 20% 8%;
+    --primary-light: 195 85% 91%;
+    --primary-glow: 195 85% 71%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 215 25% 15%;
+    --secondary-foreground: 210 40% 85%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 25% 12%;
+    --muted-foreground: 210 15% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 150 60% 25%;
+    --accent-foreground: 150 60% 85%;
+    --accent-strong: 150 60% 45%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --therapeutic-calm: 200 40% 25%;
+    --therapeutic-growth: 140 30% 25%;
+    --therapeutic-warmth: 35 40% 25%;
+    --therapeutic-focus: 260 20% 25%;
+    --therapeutic-energy: 320 25% 25%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --success: 150 60% 55%;
+    --success-foreground: 215 20% 8%;
+    --warning: 35 70% 65%;
+    --warning-foreground: 215 20% 8%;
+    --destructive: 0 60% 65%;
+    --destructive-foreground: 215 20% 8%;
+
+    --border: 215 25% 18%;
+    --input: 215 25% 15%;
+    --ring: 195 85% 61%;
+
+    --sidebar-background: 215 25% 10%;
+    --sidebar-foreground: 210 40% 85%;
+    --sidebar-primary: 195 85% 61%;
+    --sidebar-primary-foreground: 215 20% 8%;
+    --sidebar-accent: 215 25% 15%;
+    --sidebar-accent-foreground: 210 40% 85%;
+    --sidebar-border: 215 25% 15%;
+    --sidebar-ring: 195 85% 61%;
   }
 }
 
