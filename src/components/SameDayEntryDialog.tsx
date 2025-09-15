@@ -63,7 +63,7 @@ export default function SameDayEntryDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Add to Today&apos;s Journal
+            Add to Today's Journal
           </DialogTitle>
         </DialogHeader>
 
