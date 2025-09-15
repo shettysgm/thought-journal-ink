@@ -90,6 +90,7 @@ export default {
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
+        "gradient-secondary": "var(--gradient-secondary)",
         "gradient-therapeutic": "var(--gradient-therapeutic)",
         "gradient-card": "var(--gradient-card)",
       },
