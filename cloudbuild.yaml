@@ -1,0 +1,22 @@
+# Cloud Build config to build and push Docker image from the repo root
+# Adjust substitutions to match your Artifact Registry repo settings
+
+substitutions:
+  _REGION: us-central1
+  _AR_REPO: web
+  _IMAGE: thought-journal
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "-t",
+        "$_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE:$COMMIT_SHA",
+        "-f",
+        "Dockerfile",
+        ".",
+      ]
+
+images:
+  - "$_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE:$COMMIT_SHA"
