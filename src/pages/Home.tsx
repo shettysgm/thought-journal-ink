@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PenTool, Mic, BarChart3, Brain, Settings, Heart } from "lucide-react";
+import { PenTool, Mic, BarChart3, Brain, Settings, Heart, BookOpen } from "lucide-react";
 
 const navigationCards = [
   {
@@ -23,7 +23,7 @@ const navigationCards = [
   {
     title: "My Journal",
     description: "View all your saved entries",
-    icon: BarChart3,
+    icon: BookOpen,
     href: "/journal",
     gradient: "bg-gradient-secondary",
     color: "secondary"
