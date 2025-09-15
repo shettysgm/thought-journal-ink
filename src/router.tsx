@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import HandwritingPage from "./pages/HandwritingPage";
 import VoicePage from "./pages/VoicePage";
+import JournalPage from "./pages/JournalPage";
 import InsightsPage from "./pages/InsightsPage";
 import QuizPage from "./pages/QuizPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -16,6 +17,7 @@ export default function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/handwriting" element={<HandwritingPage />} />
         <Route path="/voice" element={<VoicePage />} />
+        <Route path="/journal" element={<JournalPage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/quiz" element={<QuizPage />} />
         <Route path="/settings" element={<SettingsPage />} />

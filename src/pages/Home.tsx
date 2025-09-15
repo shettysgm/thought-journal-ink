@@ -21,6 +21,14 @@ const navigationCards = [
     color: "therapeutic-growth"
   },
   {
+    title: "My Journal",
+    description: "View all your saved entries",
+    icon: BarChart3,
+    href: "/journal",
+    gradient: "bg-gradient-secondary",
+    color: "secondary"
+  },
+  {
     title: "Insights",
     description: "Track your thought patterns",
     icon: BarChart3,
