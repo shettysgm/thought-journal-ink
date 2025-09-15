@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
+import SameDayEntryDialog from '@/components/SameDayEntryDialog';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -20,7 +21,8 @@ export default function VoicePage() {
   const [interimTranscript, setInterimTranscript] = useState('');
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(true);
-  const { createEntry } = useEntries();
+  const [showSameDayDialog, setShowSameDayDialog] = useState(false);
+  const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,6 +113,28 @@ export default function VoicePage() {
     }
 
     try {
+      // Check if there are entries from today
+      const todaysEntries = useEntries.getState().findTodaysEntries();
+      
+      if (todaysEntries.length > 0) {
+        // Show dialog to let user choose
+        setShowSameDayDialog(true);
+        return;
+      }
+
+      // No entries today, create new one
+      await createNewEntry();
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save your entry. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const createNewEntry = async () => {
+    try {
       await createEntry({
         text: transcript.trim(),
         hasAudio: true,
@@ -127,6 +151,29 @@ export default function VoicePage() {
       toast({
         title: "Save Failed",
         description: "Could not save your entry. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const appendToExistingEntry = async (existingId: string) => {
+    try {
+      await appendToEntry(existingId, {
+        text: transcript.trim(),
+        hasAudio: true,
+        tags: ['voice']
+      });
+
+      toast({
+        title: "Added Successfully", 
+        description: "Your voice content has been added to the existing entry.",
+      });
+
+      clearTranscript();
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not add to the existing entry. Please try again.",
         variant: "destructive"
       });
     }
@@ -268,6 +315,16 @@ export default function VoicePage() {
             </Button>
           </div>
         )}
+        
+        {/* Same Day Entry Dialog */}
+        <SameDayEntryDialog
+          isOpen={showSameDayDialog}
+          onClose={() => setShowSameDayDialog(false)}
+          todaysEntries={findTodaysEntries()}
+          onCreateNew={createNewEntry}
+          onAppendTo={appendToExistingEntry}
+          newEntryType="voice"
+        />
         
       </div>
     </div>

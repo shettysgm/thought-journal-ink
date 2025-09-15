@@ -42,15 +42,25 @@ export default function JournalPage() {
   };
 
   const getEntryIcon = (entry: any) => {
-    if (entry.hasAudio) return <Mic className="w-4 h-4" />;
-    if (entry.hasDrawing) return <PenTool className="w-4 h-4" />;
-    return <FileText className="w-4 h-4" />;
+    const icons = [];
+    if (entry.hasAudio) icons.push(<Mic key="audio" className="w-4 h-4" />);
+    if (entry.hasDrawing) icons.push(<PenTool key="drawing" className="w-4 h-4" />);
+    if (entry.text && !entry.hasAudio && !entry.hasDrawing) icons.push(<FileText key="text" className="w-4 h-4" />);
+    
+    return icons.length > 0 ? (
+      <div className="flex gap-1">
+        {icons}
+      </div>
+    ) : <FileText className="w-4 h-4" />;
   };
 
-  const getEntryType = (entry: any) => {
-    if (entry.hasAudio) return 'Voice';
-    if (entry.hasDrawing) return 'Drawing';
-    return 'Text';
+  const getEntryTypes = (entry: any) => {
+    const types = [];
+    if (entry.hasAudio) types.push('Voice');
+    if (entry.hasDrawing) types.push('Handwriting');
+    if (entry.text && !entry.hasAudio && !entry.hasDrawing) types.push('Text');
+    
+    return types.length > 0 ? types : ['Entry'];
   };
 
   if (loading) {
@@ -162,9 +172,13 @@ export default function JournalPage() {
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
                         {getEntryIcon(entry)}
-                        <Badge variant="secondary" className="text-xs">
-                          {getEntryType(entry)}
-                        </Badge>
+                        <div className="flex gap-1">
+                          {getEntryTypes(entry).map((type, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {type}
+                            </Badge>
+                          ))}
+                        </div>
                         <div className="flex items-center gap-1 text-muted-foreground text-sm">
                           <Calendar className="w-3 h-3" />
                           {format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')}

@@ -8,13 +8,16 @@ import {
 } from '@/lib/idb';
 import { encryptText, decryptText } from '@/lib/crypto';
 import { useSettings } from './useSettings';
+import { format } from 'date-fns';
 
 interface EntriesState {
   entries: JournalEntry[];
   loading: boolean;
   error: string | null;
   loadEntries: () => Promise<void>;
+  findTodaysEntries: () => JournalEntry[];
   createEntry: (entry: Omit<JournalEntry, 'id' | 'createdAt'> & { drawingBlob?: Blob; audioBlob?: Blob }) => Promise<string>;
+  appendToEntry: (existingId: string, newData: Partial<JournalEntry> & { drawingBlob?: Blob; audioBlob?: Blob }) => Promise<string>;
   updateEntry: (id: string, updates: Partial<JournalEntry>) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   getEntry: (id: string) => Promise<JournalEntry | undefined>;
@@ -49,6 +52,58 @@ export const useEntries = create<EntriesState>((set, get) => ({
     } catch (error) {
       set({ error: 'Failed to load entries', loading: false });
     }
+  },
+
+  findTodaysEntries: () => {
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    
+    return get().entries.filter(entry => {
+      const entryDate = new Date(entry.createdAt);
+      return entryDate >= startOfDay && entryDate <= endOfDay;
+    });
+  },
+
+  appendToEntry: async (existingId: string, newData: Partial<JournalEntry> & { drawingBlob?: Blob; audioBlob?: Blob }) => {
+    const existingEntry = await getJournalEntry(existingId);
+    if (!existingEntry) throw new Error('Entry not found');
+    
+    const settings = useSettings.getState();
+    
+    // Combine text content
+    let combinedText = existingEntry.text || '';
+    if (newData.text) {
+      combinedText = combinedText ? `${combinedText}\n\n--- Added ${format(new Date(), 'h:mm a')} ---\n${newData.text}` : newData.text;
+    }
+    
+    // Encrypt combined text if needed
+    if (settings.encryptionEnabled && settings.currentPassphrase && combinedText) {
+      combinedText = await encryptText(combinedText, settings.currentPassphrase);
+    }
+    
+    // Merge entry properties
+    const updatedEntry = {
+      ...existingEntry,
+      text: combinedText,
+      hasAudio: existingEntry.hasAudio || newData.hasAudio || false,
+      hasDrawing: existingEntry.hasDrawing || newData.hasDrawing || false,
+      tags: [...new Set([...(existingEntry.tags || []), ...(newData.tags || [])])],
+    };
+    
+    await saveJournalEntry(updatedEntry);
+    
+    // Update local state
+    set(state => ({
+      entries: state.entries.map(entry => 
+        entry.id === existingId ? { ...updatedEntry, text: settings.encryptionEnabled ? 
+          (existingEntry.text || '') + (newData.text ? `\n\n--- Added ${format(new Date(), 'h:mm a')} ---\n${newData.text}` : '') : 
+          combinedText 
+        } : entry
+      )
+    }));
+    
+    return existingId;
   },
 
   createEntry: async (entryData) => {

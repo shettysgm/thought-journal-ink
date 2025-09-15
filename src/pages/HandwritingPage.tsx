@@ -6,9 +6,12 @@ import { HandwritingCanvas } from '@/components/HandwritingCanvas';
 import { processImage } from '@/lib/ocr';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
+import SameDayEntryDialog from '@/components/SameDayEntryDialog';
 
 export default function HandwritingPage() {
-  const { createEntry } = useEntries();
+  const [showSameDayDialog, setShowSameDayDialog] = useState(false);
+  const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string } | null>(null);
+  const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
   const handleOCR = async (imageBlob: Blob): Promise<string> => {
@@ -25,6 +28,21 @@ export default function HandwritingPage() {
   };
 
   const handleSave = async (imageBlob: Blob, text?: string) => {
+    // Check if there are entries from today
+    const todaysEntries = findTodaysEntries();
+    
+    if (todaysEntries.length > 0) {
+      // Store the pending entry and show dialog
+      setPendingEntry({ imageBlob, text });
+      setShowSameDayDialog(true);
+      return;
+    }
+
+    // No entries today, create new one
+    await createNewEntry(imageBlob, text);
+  };
+
+  const createNewEntry = async (imageBlob: Blob, text?: string) => {
     try {
       await createEntry({
         text: text || '',
@@ -46,6 +64,38 @@ export default function HandwritingPage() {
     }
   };
 
+  const appendToExistingEntry = async (existingId: string) => {
+    if (!pendingEntry) return;
+    
+    try {
+      await appendToEntry(existingId, {
+        text: pendingEntry.text || '',
+        hasDrawing: true,
+        drawingBlob: pendingEntry.imageBlob,
+        tags: ['handwriting']
+      });
+
+      toast({
+        title: "Added Successfully", 
+        description: "Your handwriting has been added to the existing entry.",
+      });
+      
+      setPendingEntry(null);
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not add to the existing entry. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCreateNew = async () => {
+    if (!pendingEntry) return;
+    await createNewEntry(pendingEntry.imageBlob, pendingEntry.text);
+    setPendingEntry(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -65,6 +115,19 @@ export default function HandwritingPage() {
         </header>
 
         <HandwritingCanvas onSave={handleSave} onOCR={handleOCR} />
+        
+        {/* Same Day Entry Dialog */}
+        <SameDayEntryDialog
+          isOpen={showSameDayDialog}
+          onClose={() => {
+            setShowSameDayDialog(false);
+            setPendingEntry(null);
+          }}
+          todaysEntries={findTodaysEntries()}
+          onCreateNew={handleCreateNew}
+          onAppendTo={appendToExistingEntry}
+          newEntryType="handwriting"
+        />
         
       </div>
     </div>
