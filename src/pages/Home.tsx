@@ -25,8 +25,8 @@ const navigationCards = [
     description: "Speak your thoughts aloud",
     icon: Mic,
     href: "/voice",
-    gradient: "bg-gradient-secondary",
-    color: "therapeutic-growth"
+    gradient: "bg-therapeutic-focus",
+    color: "therapeutic-focus"
   },
   {
     title: "My Journal",
@@ -41,8 +41,8 @@ const navigationCards = [
     description: "Track your thought patterns",
     icon: BarChart3,
     href: "/insights", 
-    gradient: "bg-therapeutic-focus",
-    color: "therapeutic-focus"
+    gradient: "bg-therapeutic-growth",
+    color: "therapeutic-growth"
   },
   {
     title: "CBT Quiz",
