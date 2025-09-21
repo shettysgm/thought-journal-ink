@@ -9,10 +9,24 @@ export interface StickerProps {
 // Decorative Elements
 export const HeartSticker = ({ size = 32, color = "#ff6b9d", className }: StickerProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
+    <defs>
+      <linearGradient id={`heartGradient-${color}`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor={color} />
+        <stop offset="100%" stopColor={color === "#ff6b9d" ? "#e91e63" : "#c0392b"} />
+      </linearGradient>
+      <filter id={`heartShadow-${color}`}>
+        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
     <path
       d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      fill={color}
-      stroke="#fff"
+      fill={`url(#heartGradient-${color})`}
+      filter={`url(#heartShadow-${color})`}
+    />
+    <path
+      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09"
+      fill="none"
+      stroke="rgba(255,255,255,0.3)"
       strokeWidth="1"
     />
   </svg>
@@ -20,26 +34,59 @@ export const HeartSticker = ({ size = 32, color = "#ff6b9d", className }: Sticke
 
 export const StarSticker = ({ size = 32, color = "#ffd93d", className }: StickerProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
+    <defs>
+      <linearGradient id={`starGradient-${color}`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fff9c4" />
+        <stop offset="50%" stopColor={color} />
+        <stop offset="100%" stopColor="#e67e22" />
+      </linearGradient>
+      <filter id={`starGlow-${color}`}>
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge> 
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
     <path
       d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-      fill={color}
-      stroke="#fff"
-      strokeWidth="1"
+      fill={`url(#starGradient-${color})`}
+      stroke="#f39c12"
+      strokeWidth="0.5"
+      filter={`url(#starGlow-${color})`}
     />
+    <circle cx="12" cy="10" r="1" fill="rgba(255,255,255,0.8)"/>
   </svg>
 );
 
 export const SunSticker = ({ size = 32, color = "#ffb347", className }: StickerProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
-    <circle cx="12" cy="12" r="5" fill={color} stroke="#fff" strokeWidth="1"/>
-    <line x1="12" y1="1" x2="12" y2="3" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="12" y1="21" x2="12" y2="23" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="1" y1="12" x2="3" y2="12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="21" y1="12" x2="23" y2="12" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    <defs>
+      <radialGradient id={`sunGradient-${color}`}>
+        <stop offset="0%" stopColor="#fff9c4" />
+        <stop offset="70%" stopColor={color} />
+        <stop offset="100%" stopColor="#e67e22" />
+      </radialGradient>
+      <filter id={`sunGlow-${color}`}>
+        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+        <feMerge> 
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g filter={`url(#sunGlow-${color})`}>
+      <line x1="12" y1="1" x2="12" y2="3" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="12" y1="21" x2="12" y2="23" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="1" y1="12" x2="3" y2="12" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="21" y1="12" x2="23" y2="12" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="#f39c12" strokeWidth="2.5" strokeLinecap="round"/>
+    </g>
+    <circle cx="12" cy="12" r="5" fill={`url(#sunGradient-${color})`} stroke="#e67e22" strokeWidth="1"/>
+    <circle cx="10" cy="10" r="0.8" fill="rgba(255,255,255,0.6)"/>
   </svg>
 );
 
@@ -65,24 +112,69 @@ export const RainbowSticker = ({ size = 32, className }: StickerProps) => (
 
 export const FlowerSticker = ({ size = 32, color = "#ff69b4", className }: StickerProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
-    <circle cx="12" cy="12" r="3" fill="#ffd93d"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(0 12 12)"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(60 12 12)"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(120 12 12)"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(180 12 12)"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(240 12 12)"/>
-    <ellipse cx="12" cy="8" rx="2" ry="4" fill={color} transform="rotate(300 12 12)"/>
+    <defs>
+      <radialGradient id={`flowerCenter-${color}`}>
+        <stop offset="0%" stopColor="#fff" />
+        <stop offset="50%" stopColor="#ffd93d" />
+        <stop offset="100%" stopColor="#f39c12" />
+      </radialGradient>
+      <linearGradient id={`petalGradient-${color}`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
+        <stop offset="30%" stopColor={color} />
+        <stop offset="100%" stopColor={color === "#ff69b4" ? "#c0392b" : "#8e44ad"} />
+      </linearGradient>
+    </defs>
+    <g>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(0 12 12)"/>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(60 12 12)"/>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(120 12 12)"/>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(180 12 12)"/>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(240 12 12)"/>
+      <ellipse cx="12" cy="8" rx="2.2" ry="4.2" fill={`url(#petalGradient-${color})`} stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" transform="rotate(300 12 12)"/>
+    </g>
+    <circle cx="12" cy="12" r="3" fill={`url(#flowerCenter-${color})`} stroke="#e67e22" strokeWidth="0.5"/>
+    <circle cx="11" cy="11" r="0.8" fill="rgba(255,255,255,0.6)"/>
   </svg>
 );
 
 export const ButterflySticker = ({ size = 32, className }: StickerProps) => (
   <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
-    <path d="M12 2c0 2-1 3-2 4s-2 2-2 4 1 3 2 4 2 2 2 4" stroke="#8b4513" strokeWidth="1.5" fill="none"/>
-    <ellipse cx="9" cy="8" rx="3" ry="4" fill="#ff6b9d" opacity="0.8"/>
-    <ellipse cx="15" cy="8" rx="3" ry="4" fill="#ff6b9d" opacity="0.8"/>
-    <ellipse cx="9" cy="16" rx="2.5" ry="3" fill="#87ceeb" opacity="0.8"/>
-    <ellipse cx="15" cy="16" rx="2.5" ry="3" fill="#87ceeb" opacity="0.8"/>
-    <circle cx="12" cy="6" r="1" fill="#8b4513"/>
+    <defs>
+      <linearGradient id="butterflyWing1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ff6b9d" />
+        <stop offset="50%" stopColor="#e91e63" />
+        <stop offset="100%" stopColor="#ad1457" />
+      </linearGradient>
+      <linearGradient id="butterflyWing2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#87ceeb" />
+        <stop offset="50%" stopColor="#5dade2" />
+        <stop offset="100%" stopColor="#3498db" />
+      </linearGradient>
+      <filter id="butterflyGlow">
+        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+        <feMerge> 
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g filter="url(#butterflyGlow)">
+      <ellipse cx="9" cy="8" rx="3.2" ry="4.2" fill="url(#butterflyWing1)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+      <ellipse cx="15" cy="8" rx="3.2" ry="4.2" fill="url(#butterflyWing1)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+      <ellipse cx="9" cy="16" rx="2.7" ry="3.2" fill="url(#butterflyWing2)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+      <ellipse cx="15" cy="16" rx="2.7" ry="3.2" fill="url(#butterflyWing2)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+      
+      {/* Wing patterns */}
+      <circle cx="9" cy="7" r="0.8" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="15" cy="7" r="0.8" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="9" cy="15.5" r="0.6" fill="rgba(255,255,255,0.5)"/>
+      <circle cx="15" cy="15.5" r="0.6" fill="rgba(255,255,255,0.5)"/>
+    </g>
+    
+    <path d="M12 2c0 2-1 3-2 4s-2 2-2 4 1 3 2 4 2 2 2 4" stroke="#5d4e75" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <circle cx="12" cy="6" r="1.2" fill="#5d4e75"/>
+    <line x1="11" y1="5" x2="10" y2="4" stroke="#5d4e75" strokeWidth="1" strokeLinecap="round"/>
+    <line x1="13" y1="5" x2="14" y2="4" stroke="#5d4e75" strokeWidth="1" strokeLinecap="round"/>
   </svg>
 );
 

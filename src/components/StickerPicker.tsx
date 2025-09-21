@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Smile, X } from 'lucide-react';
 import { CANVA_STICKERS, StickerProps } from './CanvaSticker';
+import { MODERN_STICKERS } from './ModernStickers';
 
 interface StickerPickerProps {
   selectedStickers: string[];
@@ -33,8 +34,8 @@ const STICKER_CATEGORIES = {
 };
 
 export default function StickerPicker({ selectedStickers, onAddSticker, onRemoveSticker, onStickerClick, mode = 'collection' }: StickerPickerProps) {
-  const [activeCategory, setActiveCategory] = useState<keyof typeof STICKER_CATEGORIES | keyof typeof CANVA_STICKERS>('emotions');
-  const [stickerType, setStickerType] = useState<'emoji' | 'graphic'>('graphic');
+  const [activeCategory, setActiveCategory] = useState<string>('premium');
+  const [stickerType, setStickerType] = useState<'emoji' | 'graphic' | 'modern'>('modern');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleStickerClick = (sticker: string | { id: string; component: any; props: any }) => {
@@ -52,10 +53,27 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
     }
   };
 
-  const currentCategories = stickerType === 'graphic' ? CANVA_STICKERS : STICKER_CATEGORIES;
-  const currentStickers = stickerType === 'graphic' 
-    ? currentCategories[activeCategory as keyof typeof CANVA_STICKERS]?.stickers || []
-    : currentCategories[activeCategory as keyof typeof STICKER_CATEGORIES]?.stickers || [];
+  const getCurrentCategories = () => {
+    if (stickerType === 'modern') return MODERN_STICKERS;
+    if (stickerType === 'graphic') return CANVA_STICKERS;
+    return STICKER_CATEGORIES;
+  };
+
+  const getCurrentStickers = () => {
+    if (stickerType === 'modern') {
+      const category = MODERN_STICKERS[activeCategory as keyof typeof MODERN_STICKERS];
+      return category ? category.stickers : [];
+    }
+    if (stickerType === 'graphic') {
+      const category = CANVA_STICKERS[activeCategory as keyof typeof CANVA_STICKERS];
+      return category ? category.stickers : [];
+    }
+    const category = STICKER_CATEGORIES[activeCategory as keyof typeof STICKER_CATEGORIES];
+    return category ? category.stickers : [];
+  };
+
+  const currentCategories = getCurrentCategories();
+  const currentStickers = getCurrentStickers();
 
   return (
     <div className="space-y-3">
@@ -100,6 +118,18 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
+                variant={stickerType === 'modern' ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setStickerType('modern');
+                  setActiveCategory('premium');
+                }}
+                className="text-xs"
+              >
+                Premium
+              </Button>
+              <Button
+                type="button"
                 variant={stickerType === 'graphic' ? "default" : "outline"}
                 size="sm"
                 onClick={() => {
@@ -126,13 +156,13 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
             
             {/* Category Selection */}
             <div className="flex gap-1 flex-wrap">
-              {Object.entries(currentCategories).map(([key, category]) => (
+              {Object.entries(currentCategories).map(([key, category]: [string, any]) => (
                 <Button
                   key={key}
                   type="button"
                   variant={activeCategory === key ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setActiveCategory(key as any)}
+                  onClick={() => setActiveCategory(key)}
                   className="text-xs"
                 >
                   {category.name}
@@ -141,9 +171,9 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-6 gap-3">
+            <div className="grid grid-cols-5 gap-3">
               {currentStickers.map((sticker: any) => {
-                const isGraphicSticker = stickerType === 'graphic';
+                const isGraphicSticker = stickerType === 'graphic' || stickerType === 'modern';
                 const stickerId = isGraphicSticker ? sticker.id : sticker;
                 const isSelected = mode === 'collection' && selectedStickers.includes(stickerId);
                 
@@ -154,12 +184,12 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
                     variant={isSelected ? "default" : "ghost"}
                     size="sm"
                     onClick={() => handleStickerClick(sticker)}
-                    className="h-12 w-12 p-1 hover:scale-110 transition-transform border border-border/20 hover:border-border/60"
+                    className="h-14 w-14 p-1 hover:scale-110 transition-transform border border-border/20 hover:border-border/60 bg-gradient-to-br from-background to-muted/30"
                   >
                     {isGraphicSticker ? (
-                      <sticker.component size={24} {...sticker.props} />
+                      <sticker.component size={stickerType === 'modern' ? 32 : 24} {...sticker.props} />
                     ) : (
-                      <span className="text-lg">{sticker}</span>
+                      <span className="text-xl">{sticker}</span>
                     )}
                   </Button>
                 );
