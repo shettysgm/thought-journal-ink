@@ -7,10 +7,12 @@ import { processImage } from '@/lib/ocr';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import SameDayEntryDialog from '@/components/SameDayEntryDialog';
+import StickerPicker from '@/components/StickerPicker';
 
 export default function HandwritingPage() {
   const [showSameDayDialog, setShowSameDayDialog] = useState(false);
-  const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string } | null>(null);
+  const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string; stickers?: string[] } | null>(null);
+  const [stickers, setStickers] = useState<string[]>([]);
   const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
@@ -33,7 +35,7 @@ export default function HandwritingPage() {
     
     if (todaysEntries.length > 0) {
       // Store the pending entry and show dialog
-      setPendingEntry({ imageBlob, text });
+      setPendingEntry({ imageBlob, text, stickers });
       setShowSameDayDialog(true);
       return;
     }
@@ -48,7 +50,8 @@ export default function HandwritingPage() {
         text: text || '',
         hasDrawing: true,
         drawingBlob: imageBlob,
-        tags: ['handwriting']
+        tags: ['handwriting'],
+        stickers
       });
 
       toast({
@@ -72,7 +75,8 @@ export default function HandwritingPage() {
         text: pendingEntry.text || '',
         hasDrawing: true,
         drawingBlob: pendingEntry.imageBlob,
-        tags: ['handwriting']
+        tags: ['handwriting'],
+        stickers: pendingEntry.stickers || []
       });
 
       toast({
@@ -92,8 +96,19 @@ export default function HandwritingPage() {
 
   const handleCreateNew = async () => {
     if (!pendingEntry) return;
+    setStickers(pendingEntry.stickers || []);
     await createNewEntry(pendingEntry.imageBlob, pendingEntry.text);
     setPendingEntry(null);
+  };
+
+  const handleAddSticker = (sticker: string) => {
+    if (!stickers.includes(sticker)) {
+      setStickers([...stickers, sticker]);
+    }
+  };
+
+  const handleRemoveSticker = (sticker: string) => {
+    setStickers(stickers.filter(s => s !== sticker));
   };
 
   return (
@@ -115,6 +130,13 @@ export default function HandwritingPage() {
         </header>
 
         <HandwritingCanvas onSave={handleSave} onOCR={handleOCR} />
+        
+        {/* Stickers Section */}
+        <StickerPicker
+          selectedStickers={stickers}
+          onAddSticker={handleAddSticker}
+          onRemoveSticker={handleRemoveSticker}
+        />
         
         {/* Same Day Entry Dialog */}
         <SameDayEntryDialog

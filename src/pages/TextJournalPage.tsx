@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { useEntries } from '@/store/useEntries';
 import { format } from 'date-fns';
+import StickerPicker from '@/components/StickerPicker';
 
 export default function TextJournalPage() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function TextJournalPage() {
   const [text, setText] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
+  const [stickers, setStickers] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -35,6 +37,16 @@ export default function TextJournalPage() {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleAddSticker = (sticker: string) => {
+    if (!stickers.includes(sticker)) {
+      setStickers([...stickers, sticker]);
+    }
+  };
+
+  const handleRemoveSticker = (sticker: string) => {
+    setStickers(stickers.filter(s => s !== sticker));
+  };
+
   const handleSave = async () => {
     if (!text.trim()) {
       toast({
@@ -50,6 +62,7 @@ export default function TextJournalPage() {
       await createEntry({
         text: text.trim(),
         tags: [...tags, 'text'],
+        stickers,
         hasAudio: false,
         hasDrawing: false
       });
@@ -72,7 +85,7 @@ export default function TextJournalPage() {
   };
 
   const handleDiscard = () => {
-    if (text.trim() || tags.length > 0) {
+    if (text.trim() || tags.length > 0 || stickers.length > 0) {
       if (confirm('Are you sure you want to discard this entry?')) {
         navigate('/');
       }
@@ -178,6 +191,13 @@ export default function TextJournalPage() {
                 </div>
               )}
             </div>
+
+            {/* Stickers Section */}
+            <StickerPicker
+              selectedStickers={stickers}
+              onAddSticker={handleAddSticker}
+              onRemoveSticker={handleRemoveSticker}
+            />
 
             {/* Writing Tips */}
             <div className="bg-muted/30 rounded-lg p-4 space-y-2">

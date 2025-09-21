@@ -7,6 +7,7 @@ export type JournalEntry = {
   hasDrawing?: boolean;
   hasAudio?: boolean;
   tags?: string[];
+  stickers?: string[];         // emoji stickers
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
 };
 
