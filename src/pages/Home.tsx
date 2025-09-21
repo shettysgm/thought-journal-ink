@@ -64,30 +64,30 @@ export default function Home() {
         {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Heart className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">CBT Journal</h1>
+            <Heart className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground">CBT Journal</h1>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             A private, secure space to explore your thoughts, identify patterns, and practice healthier thinking habits.
           </p>
         </header>
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {navigationCards.map((card) => {
             const IconComponent = card.icon;
             return (
               <Link key={card.href} to={card.href} className="group">
                 <Card className="h-full transition-all duration-300 hover:shadow-medium hover:-translate-y-1 border-0 shadow-soft">
-                  <CardContent className="p-8 text-center space-y-4">
-                    <div className={`w-16 h-16 rounded-xl ${card.gradient} flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300`}>
-                      <IconComponent className="w-8 h-8 text-primary-foreground" />
+                  <CardContent className="p-4 md:p-8 text-center space-y-3 md:space-y-4">
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${card.gradient} flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-card-foreground mb-2">
+                      <h3 className="text-lg md:text-xl font-semibold text-card-foreground mb-2">
                         {card.title}
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-sm md:text-base text-muted-foreground">
                         {card.description}
                       </p>
                     </div>
@@ -101,7 +101,7 @@ export default function Home() {
         {/* Quick Actions */}
         <div className="flex justify-center gap-4 pt-4">
           <Link to="/settings">
-            <Button variant="outline" size="lg" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 md:text-base">
               <Settings className="w-4 h-4" />
               Settings
             </Button>
