@@ -24,6 +24,8 @@ export default function JournalPage() {
   const { entries, loading, loadEntries, deleteEntry } = useEntries();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const entriesPerPage = 10;
 
   useEffect(() => {
     loadEntries();
@@ -37,6 +39,19 @@ export default function JournalPage() {
     return entry.text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
            entry.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = startIndex + entriesPerPage;
+  const paginatedEntries = filteredEntries
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(startIndex, endIndex);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this entry?')) {
@@ -106,15 +121,24 @@ export default function JournalPage() {
           </div>
         </header>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search your entries..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search and Results Info */}
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search your entries..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          {filteredEntries.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredEntries.length)} of {filteredEntries.length} entries
+              {searchTerm && ` matching "${searchTerm}"`}
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -176,10 +200,9 @@ export default function JournalPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {filteredEntries
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .map((entry) => (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              {paginatedEntries.map((entry) => (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
@@ -241,7 +264,35 @@ export default function JournalPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </div>
         )}
         
