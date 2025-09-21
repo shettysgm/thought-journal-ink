@@ -18,7 +18,7 @@ const navigationCards = [
     icon: PenTool,
     href: "/handwriting",
     gradient: "bg-gradient-therapeutic",
-    color: "therapeutic-calm"
+    color: "therapeutic-warmth"
   },
   {
     title: "Voice Journal", 
