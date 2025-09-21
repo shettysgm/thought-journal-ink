@@ -9,6 +9,17 @@ import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
+function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(blob);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [blob]);
+  if (!url) return null;
+  return <img src={url} alt={alt} loading="lazy" className="w-full max-h-40 object-contain rounded-md mb-3" />;
+}
+
 export default function JournalPage() {
   const { entries, loading, loadEntries, deleteEntry } = useEntries();
   const { toast } = useToast();
@@ -199,6 +210,11 @@ export default function JournalPage() {
                             }
                           </p>
                         </div>
+                      )}
+
+                      {/* Handwriting preview */}
+                      {entry.hasDrawing && (entry as any).drawingBlob && (
+                        <BlobImage blob={(entry as any).drawingBlob} alt="Handwriting preview" />
                       )}
 
                       {/* Tags */}

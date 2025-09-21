@@ -89,6 +89,8 @@ export const useEntries = create<EntriesState>((set, get) => ({
       text: combinedText,
       hasAudio: existingEntry.hasAudio || newData.hasAudio || false,
       hasDrawing: existingEntry.hasDrawing || newData.hasDrawing || false,
+      drawingBlob: newData.drawingBlob ?? (existingEntry as any).drawingBlob,
+      audioBlob: newData.audioBlob ?? (existingEntry as any).audioBlob,
       tags: [...new Set([...(existingEntry.tags || []), ...(newData.tags || [])])],
     };
     
