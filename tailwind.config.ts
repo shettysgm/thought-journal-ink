@@ -93,6 +93,11 @@ export default {
         "gradient-secondary": "var(--gradient-secondary)",
         "gradient-therapeutic": "var(--gradient-therapeutic)",
         "gradient-card": "var(--gradient-card)",
+        "therapeutic-warmth": "linear-gradient(135deg, hsl(var(--therapeutic-warmth)), hsl(var(--therapeutic-warmth)))",
+        "therapeutic-focus": "linear-gradient(135deg, hsl(var(--therapeutic-focus)), hsl(var(--therapeutic-focus)))",
+        "therapeutic-energy": "linear-gradient(135deg, hsl(var(--therapeutic-energy)), hsl(var(--therapeutic-energy)))",
+        "therapeutic-growth": "linear-gradient(135deg, hsl(var(--therapeutic-growth)), hsl(var(--therapeutic-growth)))",
+        "therapeutic-calm": "linear-gradient(135deg, hsl(var(--therapeutic-calm)), hsl(var(--therapeutic-calm)))",
       },
       transitionTimingFunction: {
         smooth: "var(--transition-smooth)",
