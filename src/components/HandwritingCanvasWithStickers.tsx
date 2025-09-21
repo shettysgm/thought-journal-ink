@@ -174,9 +174,17 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
     };
   };
 
-  const handleCanvasClick = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (currentTool === 'sticker' && selectedSticker) {
-      const pos = getEventPos(e);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const pos = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+      
       const newSticker: StickerPlacement = {
         sticker: selectedSticker,
         x: pos.x,
@@ -195,8 +203,8 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
   };
 
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    // Don't start drawing in sticker mode
     if (currentTool === 'sticker') {
-      handleCanvasClick(e);
       return;
     }
 
@@ -409,11 +417,14 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
         <div className="border-2 border-dashed border-border rounded-lg overflow-hidden">
           <canvas
             ref={canvasRef}
-            className="w-full h-96 cursor-crosshair touch-none"
+            className={`w-full h-96 touch-none ${
+              currentTool === 'sticker' ? 'cursor-pointer' : 'cursor-crosshair'
+            }`}
             onPointerDown={startDrawing}
             onPointerMove={draw}
             onPointerUp={stopDrawing}
             onPointerLeave={stopDrawing}
+            onClick={handleCanvasClick}
           />
         </div>
 
