@@ -19,7 +19,6 @@ export default function TextJournalPage() {
   const [text, setText] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
-  const [stickers, setStickers] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -36,16 +35,6 @@ export default function TextJournalPage() {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
-  const handleAddSticker = (sticker: string) => {
-    if (!stickers.includes(sticker)) {
-      setStickers([...stickers, sticker]);
-    }
-  };
-
-  const handleRemoveSticker = (sticker: string) => {
-    setStickers(stickers.filter(s => s !== sticker));
   };
 
   const handleInsertSticker = (stickerId: string, stickerData?: any) => {
@@ -108,7 +97,6 @@ export default function TextJournalPage() {
       await createEntry({
         text: text.trim(),
         tags: [...tags, 'text'],
-        stickers,
         hasAudio: false,
         hasDrawing: false
       });
@@ -131,7 +119,7 @@ export default function TextJournalPage() {
   };
 
   const handleDiscard = () => {
-    if (text.trim() || tags.length > 0 || stickers.length > 0) {
+    if (text.trim() || tags.length > 0) {
       if (confirm('Are you sure you want to discard this entry?')) {
         navigate('/');
       }
@@ -241,23 +229,8 @@ export default function TextJournalPage() {
 
             {/* Inline Stickers */}
             <StickerPicker
-              selectedStickers={[]}
-              onAddSticker={() => {}}
-              onRemoveSticker={() => {}}
               onStickerClick={handleInsertSticker}
-              mode="inline"
             />
-
-            {/* Mood Stickers Collection */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">Mood Stickers (optional)</label>
-              <StickerPicker
-                selectedStickers={stickers}
-                onAddSticker={handleAddSticker}
-                onRemoveSticker={handleRemoveSticker}
-                mode="collection"
-              />
-            </div>
 
             {/* Writing Tips */}
             <div className="bg-muted/30 rounded-lg p-4 space-y-2">

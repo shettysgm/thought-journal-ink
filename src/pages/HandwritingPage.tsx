@@ -20,8 +20,7 @@ interface StickerPlacement {
 
 export default function HandwritingPage() {
   const [showSameDayDialog, setShowSameDayDialog] = useState(false);
-  const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string; stickers?: string[] } | null>(null);
-  const [stickers, setStickers] = useState<string[]>([]);
+  const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string } | null>(null);
   const [selectedSticker, setSelectedSticker] = useState<string>('');
   const [selectedStickerData, setSelectedStickerData] = useState<any>(null);
   const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
@@ -46,7 +45,7 @@ export default function HandwritingPage() {
     
     if (todaysEntries.length > 0) {
       // Store the pending entry and show dialog
-      setPendingEntry({ imageBlob, text, stickers });
+      setPendingEntry({ imageBlob, text });
       setShowSameDayDialog(true);
       return;
     }
@@ -61,8 +60,7 @@ export default function HandwritingPage() {
         text: text || '',
         hasDrawing: true,
         drawingBlob: imageBlob,
-        tags: ['handwriting'],
-        stickers
+        tags: ['handwriting']
       });
 
       toast({
@@ -86,8 +84,7 @@ export default function HandwritingPage() {
         text: pendingEntry.text || '',
         hasDrawing: true,
         drawingBlob: pendingEntry.imageBlob,
-        tags: ['handwriting'],
-        stickers: pendingEntry.stickers || []
+        tags: ['handwriting']
       });
 
       toast({
@@ -107,19 +104,8 @@ export default function HandwritingPage() {
 
   const handleCreateNew = async () => {
     if (!pendingEntry) return;
-    setStickers(pendingEntry.stickers || []);
     await createNewEntry(pendingEntry.imageBlob, pendingEntry.text);
     setPendingEntry(null);
-  };
-
-  const handleAddSticker = (sticker: string) => {
-    if (!stickers.includes(sticker)) {
-      setStickers([...stickers, sticker]);
-    }
-  };
-
-  const handleRemoveSticker = (sticker: string) => {
-    setStickers(stickers.filter(s => s !== sticker));
   };
 
   const handleStickerSelect = (stickerId: string, stickerData?: any) => {
@@ -155,23 +141,8 @@ export default function HandwritingPage() {
         
         {/* Sticker Picker for Canvas Placement */}
         <StickerPicker
-          selectedStickers={[]}
-          onAddSticker={() => {}}
-          onRemoveSticker={() => {}}
           onStickerClick={handleStickerSelect}
-          mode="inline"
         />
-        
-        {/* Mood Stickers Collection */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-foreground">Mood Stickers (optional)</label>
-          <StickerPicker
-            selectedStickers={stickers}
-            onAddSticker={handleAddSticker}
-            onRemoveSticker={handleRemoveSticker}
-            mode="collection"
-          />
-        </div>
         
         {/* Same Day Entry Dialog */}
         <SameDayEntryDialog

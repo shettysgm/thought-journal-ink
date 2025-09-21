@@ -7,11 +7,7 @@ import { CANVA_STICKERS, StickerProps } from './CanvaSticker';
 import { MODERN_STICKERS } from './ModernStickers';
 
 interface StickerPickerProps {
-  selectedStickers: string[];
-  onAddSticker: (sticker: string) => void;
-  onRemoveSticker: (sticker: string) => void;
-  onStickerClick?: (sticker: string, stickerData?: any) => void; // For inline insertion
-  mode?: 'collection' | 'inline'; // collection = add to list, inline = insert directly
+  onStickerClick: (sticker: string, stickerData?: any) => void; // For inline insertion only
 }
 
 const STICKER_CATEGORIES = {
@@ -33,24 +29,14 @@ const STICKER_CATEGORIES = {
   }
 };
 
-export default function StickerPicker({ selectedStickers, onAddSticker, onRemoveSticker, onStickerClick, mode = 'collection' }: StickerPickerProps) {
+export default function StickerPicker({ onStickerClick }: StickerPickerProps) {
   const [activeCategory, setActiveCategory] = useState<string>('premium');
   const [stickerType, setStickerType] = useState<'emoji' | 'graphic' | 'modern'>('modern');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleStickerClick = (sticker: string | { id: string; component: any; props: any }) => {
     const stickerId = typeof sticker === 'string' ? sticker : sticker.id;
-    
-    if (mode === 'inline' && onStickerClick) {
-      onStickerClick(stickerId, typeof sticker === 'object' ? sticker : undefined);
-      return;
-    }
-    
-    if (selectedStickers.includes(stickerId)) {
-      onRemoveSticker(stickerId);
-    } else {
-      onAddSticker(stickerId);
-    }
+    onStickerClick(stickerId, typeof sticker === 'object' ? sticker : undefined);
   };
 
   const getCurrentCategories = () => {
@@ -86,32 +72,15 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
         className="w-full gap-2"
       >
         <Smile className="w-4 h-4" />
-        {isExpanded ? 'Hide Stickers' : (mode === 'inline' ? 'Insert Stickers' : 'Add Stickers')}
+        {isExpanded ? 'Hide Stickers' : 'Insert Stickers'}
       </Button>
-
-      {/* Selected Stickers - only show in collection mode */}
-      {mode === 'collection' && selectedStickers.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedStickers.map((sticker) => (
-            <Badge
-              key={sticker}
-              variant="secondary"
-              className="text-lg cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
-              onClick={() => onRemoveSticker(sticker)}
-            >
-              {sticker}
-              <X className="w-3 h-3 ml-1" />
-            </Badge>
-          ))}
-        </div>
-      )}
 
       {/* Sticker Picker */}
       {isExpanded && (
         <Card className="border-2 border-dashed border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">
-              {mode === 'inline' ? 'Click to Insert Stickers' : 'Choose Stickers'}
+              Click to Insert Stickers
             </CardTitle>
             
             {/* Sticker Type Toggle */}
@@ -175,13 +144,12 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
               {currentStickers.map((sticker: any) => {
                 const isGraphicSticker = stickerType === 'graphic' || stickerType === 'modern';
                 const stickerId = isGraphicSticker ? sticker.id : sticker;
-                const isSelected = mode === 'collection' && selectedStickers.includes(stickerId);
                 
                 return (
                   <Button
                     key={stickerId}
                     type="button"
-                    variant={isSelected ? "default" : "ghost"}
+                    variant="ghost"
                     size="sm"
                     onClick={() => handleStickerClick(sticker)}
                     className="h-14 w-14 p-1 hover:scale-110 transition-transform border border-border/20 hover:border-border/60 bg-gradient-to-br from-background to-muted/30"

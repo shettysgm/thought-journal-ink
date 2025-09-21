@@ -104,7 +104,7 @@ export default function TextWithStickers({ text, className }: TextWithStickersPr
           const StickerComponent = part.stickerData.component;
           return (
             <span key={part.key} className="inline-block align-middle mx-1">
-              <StickerComponent size={20} {...part.stickerData.props} />
+              <StickerComponent size={28} {...part.stickerData.props} />
             </span>
           );
         }
