@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import TextWithStickers from '@/components/TextWithStickers';
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -237,12 +238,14 @@ export default function JournalPage() {
                       {/* Content */}
                       {entry.text && (
                         <div className="bg-muted/30 rounded-lg p-4 mb-3">
-                          <p className="text-foreground whitespace-pre-wrap">
-                            {entry.text.length > 300 && !expandedEntries.has(entry.id)
-                              ? entry.text.substring(0, 300)
-                              : entry.text
-                            }
-                          </p>
+                          <div className="text-foreground">
+                            <TextWithStickers
+                              text={entry.text.length > 300 && !expandedEntries.has(entry.id)
+                                ? entry.text.substring(0, 300)
+                                : entry.text
+                              }
+                            />
+                          </div>
                           {entry.text.length > 300 && (
                             <Button
                               variant="ghost"
@@ -259,6 +262,43 @@ export default function JournalPage() {
                       {/* Handwriting preview */}
                       {entry.hasDrawing && (entry as any).drawingBlob && (
                         <BlobImage blob={(entry as any).drawingBlob} alt="Handwriting preview" />
+                      )}
+
+                      {/* Stickers Display */}
+                      {entry.stickers && entry.stickers.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <span className="text-sm text-muted-foreground mr-2">Mood:</span>
+                          {entry.stickers.map((stickerId: string, index: number) => {
+                            // Map sticker IDs back to emojis for display
+                            const stickerMap: { [key: string]: string } = {
+                              'heart-pink': '💗',
+                              'heart-red': '❤️', 
+                              'heart-purple': '💜',
+                              'sun': '☀️',
+                              'cloud': '☁️',
+                              'rainbow': '🌈',
+                              'flower-pink': '🌸',
+                              'flower-purple': '🌺',
+                              'butterfly': '🦋',
+                              'star-yellow': '⭐',
+                              'star-pink': '💖',
+                              'crown': '👑',
+                              'diamond': '💎',
+                              'bubble-blue': '💬',
+                              'bubble-green': '💭',
+                              'arrow-purple': '↗️',
+                              'arrow-orange': '➡️',
+                              'thumbs-up': '👍'
+                            };
+                            const displaySticker = stickerMap[stickerId] || stickerId;
+                            
+                            return (
+                              <Badge key={index} variant="outline" className="text-base">
+                                {displaySticker}
+                              </Badge>
+                            );
+                          })}
+                        </div>
                       )}
 
                       {/* Tags */}
