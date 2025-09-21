@@ -21,6 +21,7 @@ export default function TextJournalPage() {
   const [currentTag, setCurrentTag] = useState('');
   const [stickers, setStickers] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && currentTag.trim()) {
@@ -45,6 +46,23 @@ export default function TextJournalPage() {
 
   const handleRemoveSticker = (sticker: string) => {
     setStickers(stickers.filter(s => s !== sticker));
+  };
+
+  const handleInsertSticker = (sticker: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const newText = text.substring(0, start) + sticker + text.substring(end);
+    
+    setText(newText);
+    
+    // Restore cursor position after the inserted sticker
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + sticker.length, start + sticker.length);
+    }, 0);
   };
 
   const handleSave = async () => {
@@ -148,7 +166,8 @@ export default function TextJournalPage() {
             {/* Text Input */}
             <div className="space-y-2">
               <Textarea
-                placeholder="Start typing your thoughts here... Express yourself freely and honestly. This is your safe space."
+                ref={textareaRef}
+                placeholder="Start typing your thoughts here... Express yourself freely and honestly. This is your safe space. Use the sticker picker below to add emojis inline! 😊"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className="min-h-[300px] resize-none text-base leading-relaxed"
@@ -192,12 +211,25 @@ export default function TextJournalPage() {
               )}
             </div>
 
-            {/* Stickers Section */}
+            {/* Inline Stickers */}
             <StickerPicker
-              selectedStickers={stickers}
-              onAddSticker={handleAddSticker}
-              onRemoveSticker={handleRemoveSticker}
+              selectedStickers={[]}
+              onAddSticker={() => {}}
+              onRemoveSticker={() => {}}
+              onStickerClick={handleInsertSticker}
+              mode="inline"
             />
+
+            {/* Mood Stickers Collection */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground">Mood Stickers (optional)</label>
+              <StickerPicker
+                selectedStickers={stickers}
+                onAddSticker={handleAddSticker}
+                onRemoveSticker={handleRemoveSticker}
+                mode="collection"
+              />
+            </div>
 
             {/* Writing Tips */}
             <div className="bg-muted/30 rounded-lg p-4 space-y-2">

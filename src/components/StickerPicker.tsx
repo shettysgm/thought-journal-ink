@@ -8,6 +8,8 @@ interface StickerPickerProps {
   selectedStickers: string[];
   onAddSticker: (sticker: string) => void;
   onRemoveSticker: (sticker: string) => void;
+  onStickerClick?: (sticker: string) => void; // For inline insertion
+  mode?: 'collection' | 'inline'; // collection = add to list, inline = insert directly
 }
 
 const STICKER_CATEGORIES = {
@@ -29,11 +31,16 @@ const STICKER_CATEGORIES = {
   }
 };
 
-export default function StickerPicker({ selectedStickers, onAddSticker, onRemoveSticker }: StickerPickerProps) {
+export default function StickerPicker({ selectedStickers, onAddSticker, onRemoveSticker, onStickerClick, mode = 'collection' }: StickerPickerProps) {
   const [activeCategory, setActiveCategory] = useState<keyof typeof STICKER_CATEGORIES>('emotions');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleStickerClick = (sticker: string) => {
+    if (mode === 'inline' && onStickerClick) {
+      onStickerClick(sticker);
+      return;
+    }
+    
     if (selectedStickers.includes(sticker)) {
       onRemoveSticker(sticker);
     } else {
@@ -52,11 +59,11 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
         className="w-full gap-2"
       >
         <Smile className="w-4 h-4" />
-        {isExpanded ? 'Hide Stickers' : 'Add Stickers'}
+        {isExpanded ? 'Hide Stickers' : (mode === 'inline' ? 'Insert Stickers' : 'Add Stickers')}
       </Button>
 
-      {/* Selected Stickers */}
-      {selectedStickers.length > 0 && (
+      {/* Selected Stickers - only show in collection mode */}
+      {mode === 'collection' && selectedStickers.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedStickers.map((sticker) => (
             <Badge
@@ -76,7 +83,9 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
       {isExpanded && (
         <Card className="border-2 border-dashed border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Choose Stickers</CardTitle>
+            <CardTitle className="text-lg">
+              {mode === 'inline' ? 'Click to Insert Stickers' : 'Choose Stickers'}
+            </CardTitle>
             <div className="flex gap-1 flex-wrap">
               {Object.entries(STICKER_CATEGORIES).map(([key, category]) => (
                 <Button
@@ -98,7 +107,7 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
                 <Button
                   key={sticker}
                   type="button"
-                  variant={selectedStickers.includes(sticker) ? "default" : "ghost"}
+                  variant={mode === 'collection' && selectedStickers.includes(sticker) ? "default" : "ghost"}
                   size="sm"
                   onClick={() => handleStickerClick(sticker)}
                   className="text-lg h-10 w-10 p-0 hover:scale-110 transition-transform"

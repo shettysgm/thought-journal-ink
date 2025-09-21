@@ -2,17 +2,25 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HandwritingCanvas } from '@/components/HandwritingCanvas';
+import HandwritingCanvasWithStickers from '@/components/HandwritingCanvasWithStickers';
 import { processImage } from '@/lib/ocr';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import SameDayEntryDialog from '@/components/SameDayEntryDialog';
 import StickerPicker from '@/components/StickerPicker';
 
+interface StickerPlacement {
+  sticker: string;
+  x: number;
+  y: number;
+  id: string;
+}
+
 export default function HandwritingPage() {
   const [showSameDayDialog, setShowSameDayDialog] = useState(false);
   const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string; stickers?: string[] } | null>(null);
   const [stickers, setStickers] = useState<string[]>([]);
+  const [selectedSticker, setSelectedSticker] = useState<string>('');
   const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
@@ -29,7 +37,7 @@ export default function HandwritingPage() {
     }
   };
 
-  const handleSave = async (imageBlob: Blob, text?: string) => {
+  const handleSave = async (imageBlob: Blob, text?: string, stickerPlacements?: StickerPlacement[]) => {
     // Check if there are entries from today
     const todaysEntries = findTodaysEntries();
     
@@ -111,6 +119,10 @@ export default function HandwritingPage() {
     setStickers(stickers.filter(s => s !== sticker));
   };
 
+  const handleStickerSelect = (sticker: string) => {
+    setSelectedSticker(sticker);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -129,14 +141,32 @@ export default function HandwritingPage() {
           </div>
         </header>
 
-        <HandwritingCanvas onSave={handleSave} onOCR={handleOCR} />
-        
-        {/* Stickers Section */}
-        <StickerPicker
-          selectedStickers={stickers}
-          onAddSticker={handleAddSticker}
-          onRemoveSticker={handleRemoveSticker}
+        {/* Canvas with Sticker Support */}
+        <HandwritingCanvasWithStickers 
+          onSave={handleSave} 
+          onOCR={handleOCR}
+          selectedSticker={selectedSticker}
         />
+        
+        {/* Sticker Picker for Canvas Placement */}
+        <StickerPicker
+          selectedStickers={[]}
+          onAddSticker={() => {}}
+          onRemoveSticker={() => {}}
+          onStickerClick={handleStickerSelect}
+          mode="inline"
+        />
+        
+        {/* Mood Stickers Collection */}
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">Mood Stickers (optional)</label>
+          <StickerPicker
+            selectedStickers={stickers}
+            onAddSticker={handleAddSticker}
+            onRemoveSticker={handleRemoveSticker}
+            mode="collection"
+          />
+        </div>
         
         {/* Same Day Entry Dialog */}
         <SameDayEntryDialog
