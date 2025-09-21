@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm pkg set dependencies.date-fns='^3.6.0' && npm install --no-audit --no-fund
 
 # Copy source and build
 COPY . .
