@@ -48,20 +48,48 @@ export default function TextJournalPage() {
     setStickers(stickers.filter(s => s !== sticker));
   };
 
-  const handleInsertSticker = (sticker: string) => {
+  const handleInsertSticker = (stickerId: string, stickerData?: any) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
+    let stickerText = stickerId;
+    
+    // For graphic stickers, use a placeholder or convert to text representation
+    if (stickerData) {
+      // Create a text representation for graphic stickers in text mode
+      const stickerMap: { [key: string]: string } = {
+        'heart-pink': '💗',
+        'heart-red': '❤️', 
+        'heart-purple': '💜',
+        'sun': '☀️',
+        'cloud': '☁️',
+        'rainbow': '🌈',
+        'flower-pink': '🌸',
+        'flower-purple': '🌺',
+        'butterfly': '🦋',
+        'star-yellow': '⭐',
+        'star-pink': '💖',
+        'crown': '👑',
+        'diamond': '💎',
+        'bubble-blue': '💬',
+        'bubble-green': '💭',
+        'arrow-purple': '↗️',
+        'arrow-orange': '➡️',
+        'thumbs-up': '👍'
+      };
+      stickerText = stickerMap[stickerId] || `[${stickerId}]`;
+    }
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const newText = text.substring(0, start) + sticker + text.substring(end);
+    const newText = text.substring(0, start) + stickerText + text.substring(end);
     
     setText(newText);
     
     // Restore cursor position after the inserted sticker
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + sticker.length, start + sticker.length);
+      textarea.setSelectionRange(start + stickerText.length, start + stickerText.length);
     }, 0);
   };
 

@@ -24,17 +24,20 @@ interface StickerPlacement {
   x: number;
   y: number;
   id: string;
+  isGraphic?: boolean;
+  stickerData?: any;
 }
 
 interface HandwritingCanvasWithStickersProps {
   onSave: (imageBlob: Blob, text?: string, stickers?: StickerPlacement[]) => Promise<void>;
   onOCR: (imageBlob: Blob) => Promise<string>;
   selectedSticker?: string;
+  selectedStickerData?: any;
 }
 
 const colors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
 
-export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedSticker }: HandwritingCanvasWithStickersProps) {
+export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedSticker, selectedStickerData }: HandwritingCanvasWithStickersProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [currentTool, setCurrentTool] = useState<Tool>('pen');
   const [strokeWidth, setStrokeWidth] = useState(3);
@@ -78,10 +81,30 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
     
     // Redraw stickers
     stickerPlacements.forEach(placement => {
-      ctx.font = '32px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(placement.sticker, placement.x, placement.y);
+      if (placement.isGraphic && placement.stickerData) {
+        // For graphic stickers, we'll draw a placeholder circle with text
+        ctx.save();
+        ctx.fillStyle = '#f0f0f0';
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(placement.x, placement.y, 16, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📎', placement.x, placement.y);
+        ctx.restore();
+      } else {
+        // Regular emoji stickers
+        ctx.font = '32px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(placement.sticker, placement.x, placement.y);
+      }
     });
   }, [drawLinedBackground, stickerPlacements]);
 
@@ -158,7 +181,9 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
         sticker: selectedSticker,
         x: pos.x,
         y: pos.y,
-        id: Date.now().toString()
+        id: Date.now().toString(),
+        isGraphic: !!selectedStickerData,
+        stickerData: selectedStickerData
       };
       
       setStickerPlacements(prev => [...prev, newSticker]);
@@ -234,11 +259,31 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
         tempCtx.drawImage(canvas, 0, 0);
         
         // Draw stickers on top
-        tempCtx.font = '32px Arial';
-        tempCtx.textAlign = 'center';
-        tempCtx.textBaseline = 'middle';
         stickerPlacements.forEach(placement => {
-          tempCtx.fillText(placement.sticker, placement.x, placement.y);
+          if (placement.isGraphic && placement.stickerData) {
+            // For graphic stickers, draw a visual representation
+            tempCtx.save();
+            tempCtx.fillStyle = '#ff6b9d';
+            tempCtx.strokeStyle = '#fff';
+            tempCtx.lineWidth = 2;
+            tempCtx.beginPath();
+            tempCtx.arc(placement.x, placement.y, 16, 0, 2 * Math.PI);
+            tempCtx.fill();
+            tempCtx.stroke();
+            
+            tempCtx.fillStyle = '#fff';
+            tempCtx.font = '16px Arial';
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillText('♥', placement.x, placement.y);
+            tempCtx.restore();
+          } else {
+            // Regular emoji stickers
+            tempCtx.font = '32px Arial';
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillText(placement.sticker, placement.x, placement.y);
+          }
         });
       }
       
@@ -282,7 +327,7 @@ export default function HandwritingCanvasWithStickers({ onSave, onOCR, selectedS
     if (selectedSticker) {
       setCurrentTool('sticker');
     }
-  }, [selectedSticker]);
+  }, [selectedSticker, selectedStickerData]);
 
   return (
     <Card className="w-full shadow-soft">

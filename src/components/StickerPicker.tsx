@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Smile, X } from 'lucide-react';
+import { CANVA_STICKERS, StickerProps } from './CanvaSticker';
 
 interface StickerPickerProps {
   selectedStickers: string[];
   onAddSticker: (sticker: string) => void;
   onRemoveSticker: (sticker: string) => void;
-  onStickerClick?: (sticker: string) => void; // For inline insertion
+  onStickerClick?: (sticker: string, stickerData?: any) => void; // For inline insertion
   mode?: 'collection' | 'inline'; // collection = add to list, inline = insert directly
 }
 
@@ -32,21 +33,29 @@ const STICKER_CATEGORIES = {
 };
 
 export default function StickerPicker({ selectedStickers, onAddSticker, onRemoveSticker, onStickerClick, mode = 'collection' }: StickerPickerProps) {
-  const [activeCategory, setActiveCategory] = useState<keyof typeof STICKER_CATEGORIES>('emotions');
+  const [activeCategory, setActiveCategory] = useState<keyof typeof STICKER_CATEGORIES | keyof typeof CANVA_STICKERS>('emotions');
+  const [stickerType, setStickerType] = useState<'emoji' | 'graphic'>('graphic');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleStickerClick = (sticker: string) => {
+  const handleStickerClick = (sticker: string | { id: string; component: any; props: any }) => {
+    const stickerId = typeof sticker === 'string' ? sticker : sticker.id;
+    
     if (mode === 'inline' && onStickerClick) {
-      onStickerClick(sticker);
+      onStickerClick(stickerId, typeof sticker === 'object' ? sticker : undefined);
       return;
     }
     
-    if (selectedStickers.includes(sticker)) {
-      onRemoveSticker(sticker);
+    if (selectedStickers.includes(stickerId)) {
+      onRemoveSticker(stickerId);
     } else {
-      onAddSticker(sticker);
+      onAddSticker(stickerId);
     }
   };
+
+  const currentCategories = stickerType === 'graphic' ? CANVA_STICKERS : STICKER_CATEGORIES;
+  const currentStickers = stickerType === 'graphic' 
+    ? currentCategories[activeCategory as keyof typeof CANVA_STICKERS]?.stickers || []
+    : currentCategories[activeCategory as keyof typeof STICKER_CATEGORIES]?.stickers || [];
 
   return (
     <div className="space-y-3">
@@ -86,14 +95,44 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
             <CardTitle className="text-lg">
               {mode === 'inline' ? 'Click to Insert Stickers' : 'Choose Stickers'}
             </CardTitle>
+            
+            {/* Sticker Type Toggle */}
+            <div className="flex gap-2 mb-3">
+              <Button
+                type="button"
+                variant={stickerType === 'graphic' ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setStickerType('graphic');
+                  setActiveCategory('hearts');
+                }}
+                className="text-xs"
+              >
+                Graphics
+              </Button>
+              <Button
+                type="button"
+                variant={stickerType === 'emoji' ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setStickerType('emoji');
+                  setActiveCategory('emotions');
+                }}
+                className="text-xs"
+              >
+                Emojis
+              </Button>
+            </div>
+            
+            {/* Category Selection */}
             <div className="flex gap-1 flex-wrap">
-              {Object.entries(STICKER_CATEGORIES).map(([key, category]) => (
+              {Object.entries(currentCategories).map(([key, category]) => (
                 <Button
                   key={key}
                   type="button"
                   variant={activeCategory === key ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setActiveCategory(key as keyof typeof STICKER_CATEGORIES)}
+                  onClick={() => setActiveCategory(key as any)}
                   className="text-xs"
                 >
                   {category.name}
@@ -102,19 +141,29 @@ export default function StickerPicker({ selectedStickers, onAddSticker, onRemove
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-8 gap-2">
-              {STICKER_CATEGORIES[activeCategory].stickers.map((sticker) => (
-                <Button
-                  key={sticker}
-                  type="button"
-                  variant={mode === 'collection' && selectedStickers.includes(sticker) ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleStickerClick(sticker)}
-                  className="text-lg h-10 w-10 p-0 hover:scale-110 transition-transform"
-                >
-                  {sticker}
-                </Button>
-              ))}
+            <div className="grid grid-cols-6 gap-3">
+              {currentStickers.map((sticker: any) => {
+                const isGraphicSticker = stickerType === 'graphic';
+                const stickerId = isGraphicSticker ? sticker.id : sticker;
+                const isSelected = mode === 'collection' && selectedStickers.includes(stickerId);
+                
+                return (
+                  <Button
+                    key={stickerId}
+                    type="button"
+                    variant={isSelected ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => handleStickerClick(sticker)}
+                    className="h-12 w-12 p-1 hover:scale-110 transition-transform border border-border/20 hover:border-border/60"
+                  >
+                    {isGraphicSticker ? (
+                      <sticker.component size={24} {...sticker.props} />
+                    ) : (
+                      <span className="text-lg">{sticker}</span>
+                    )}
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

@@ -14,6 +14,8 @@ interface StickerPlacement {
   x: number;
   y: number;
   id: string;
+  isGraphic?: boolean;
+  stickerData?: any;
 }
 
 export default function HandwritingPage() {
@@ -21,6 +23,7 @@ export default function HandwritingPage() {
   const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string; stickers?: string[] } | null>(null);
   const [stickers, setStickers] = useState<string[]>([]);
   const [selectedSticker, setSelectedSticker] = useState<string>('');
+  const [selectedStickerData, setSelectedStickerData] = useState<any>(null);
   const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
@@ -119,8 +122,9 @@ export default function HandwritingPage() {
     setStickers(stickers.filter(s => s !== sticker));
   };
 
-  const handleStickerSelect = (sticker: string) => {
-    setSelectedSticker(sticker);
+  const handleStickerSelect = (stickerId: string, stickerData?: any) => {
+    setSelectedSticker(stickerId);
+    setSelectedStickerData(stickerData);
   };
 
   return (
@@ -146,6 +150,7 @@ export default function HandwritingPage() {
           onSave={handleSave} 
           onOCR={handleOCR}
           selectedSticker={selectedSticker}
+          selectedStickerData={selectedStickerData}
         />
         
         {/* Sticker Picker for Canvas Placement */}
