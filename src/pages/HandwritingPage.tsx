@@ -28,17 +28,29 @@ export default function HandwritingPage() {
   };
 
   const handleSave = async (imageBlob: Blob, text?: string) => {
-    // Check if there are entries from today
-    const todaysEntries = findTodaysEntries();
+    // Check if there are recent entries (last 3 days)
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
     
-    if (todaysEntries.length > 0) {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    
+    const recentEntries = findTodaysEntries().concat(
+      // Get entries from last 3 days (excluding today)
+      useEntries.getState().entries.filter(entry => {
+        const entryDate = new Date(entry.createdAt);
+        return entryDate >= threeDaysAgo && entryDate < startOfToday;
+      })
+    );
+    
+    if (recentEntries.length > 0) {
       // Store the pending entry and show dialog
       setPendingEntry({ imageBlob, text });
       setShowSameDayDialog(true);
       return;
     }
 
-    // No entries today, create new one
+    // No recent entries, create new one
     await createNewEntry(imageBlob, text);
   };
 
@@ -116,14 +128,28 @@ export default function HandwritingPage() {
 
         <HandwritingCanvas onSave={handleSave} onOCR={handleOCR} />
         
-        {/* Same Day Entry Dialog */}
+        {/* Recent Entry Dialog */}
         <SameDayEntryDialog
           isOpen={showSameDayDialog}
           onClose={() => {
             setShowSameDayDialog(false);
             setPendingEntry(null);
           }}
-          todaysEntries={findTodaysEntries()}
+          todaysEntries={(() => {
+            const threeDaysAgo = new Date();
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+            
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            
+            const todaysEntries = findTodaysEntries();
+            const recentEntries = useEntries.getState().entries.filter(entry => {
+              const entryDate = new Date(entry.createdAt);
+              return entryDate >= threeDaysAgo && entryDate < startOfToday;
+            });
+            
+            return [...todaysEntries, ...recentEntries].slice(0, 5); // Show max 5 recent entries
+          })()}
           onCreateNew={handleCreateNew}
           onAppendTo={appendToExistingEntry}
           newEntryType="handwriting"

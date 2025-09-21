@@ -63,13 +63,13 @@ export default function SameDayEntryDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Add to Today's Journal
+            Add to Recent Entry?
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            You already have {todaysEntries.length} entry{todaysEntries.length > 1 ? 'ies' : ''} from today. 
+            You have {todaysEntries.length} recent journal entr{todaysEntries.length === 1 ? 'y' : 'ies'}. 
             Would you like to add your {newEntryType} content to an existing entry or create a new one?
           </p>
 
@@ -103,7 +103,7 @@ export default function SameDayEntryDialog({
                         ))}
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(entry.createdAt), 'h:mm a')}
+                        {format(new Date(entry.createdAt), 'MMM d • h:mm a')}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
