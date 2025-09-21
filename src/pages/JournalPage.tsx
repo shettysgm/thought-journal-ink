@@ -25,6 +25,7 @@ export default function JournalPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const entriesPerPage = 10;
 
   useEffect(() => {
@@ -69,6 +70,16 @@ export default function JournalPage() {
         });
       }
     }
+  };
+
+  const toggleExpanded = (entryId: string) => {
+    const newExpanded = new Set(expandedEntries);
+    if (newExpanded.has(entryId)) {
+      newExpanded.delete(entryId);
+    } else {
+      newExpanded.add(entryId);
+    }
+    setExpandedEntries(newExpanded);
   };
 
   const getEntryIcon = (entry: any) => {
@@ -227,11 +238,21 @@ export default function JournalPage() {
                       {entry.text && (
                         <div className="bg-muted/30 rounded-lg p-4 mb-3">
                           <p className="text-foreground whitespace-pre-wrap">
-                            {entry.text.length > 300 
-                              ? `${entry.text.substring(0, 300)}...` 
+                            {entry.text.length > 300 && !expandedEntries.has(entry.id)
+                              ? entry.text.substring(0, 300)
                               : entry.text
                             }
                           </p>
+                          {entry.text.length > 300 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleExpanded(entry.id)}
+                              className="mt-2 p-0 h-auto text-primary hover:text-primary/80"
+                            >
+                              {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
+                            </Button>
+                          )}
                         </div>
                       )}
 
