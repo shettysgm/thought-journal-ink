@@ -58,8 +58,8 @@ export default function Home() {
   console.log('Home component rendering');
   
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
-      <div className="max-w-4xl mx-auto space-y-8" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      <div className="max-w-4xl mx-auto space-y-8" style={{ backgroundColor: 'transparent', padding: '20px', borderRadius: '8px' }}>
         
         {/* Header */}
         <header className="text-center space-y-4 pt-8">
@@ -78,10 +78,10 @@ export default function Home() {
             const IconComponent = card.icon;
             return (
               <Link key={card.href} to={card.href} className="group">
-                <Card className="h-full transition-all duration-300 hover:shadow-medium hover:-translate-y-1 border-0 shadow-soft">
+                <Card className="h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-border bg-card shadow-md">
                   <CardContent className="p-4 md:p-8 text-center space-y-3 md:space-y-4">
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${card.gradient} flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300`}>
-                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" />
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${card.gradient} flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white" />
                     </div>
                     <div>
                       <h3 className="text-lg md:text-xl font-semibold text-card-foreground mb-2">
