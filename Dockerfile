@@ -45,8 +45,8 @@ RUN printf '%s\n' \
 ENV PORT=8080
 EXPOSE 8080
 
-# Container healthcheck (Cloud Run uses its own too)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+# Remove healthcheck for Cloud Run (it has its own)
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
