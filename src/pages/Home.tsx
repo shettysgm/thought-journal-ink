@@ -33,8 +33,8 @@ const navigationCards = [
     description: "View all your saved entries",
     icon: BookOpen,
     href: "/journal",
-    gradient: "bg-gradient-secondary",
-    color: "secondary"
+    gradient: "bg-therapeutic-energy",
+    color: "therapeutic-energy"
   },
   {
     title: "Insights",
@@ -49,8 +49,8 @@ const navigationCards = [
     description: "Practice identifying distortions",
     icon: Brain,
     href: "/quiz",
-    gradient: "bg-therapeutic-energy", 
-    color: "therapeutic-energy"
+    gradient: "bg-gradient-secondary", 
+    color: "secondary"
   }
 ];
 
