@@ -48,6 +48,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
         })
       );
       
+      console.log('Loaded entries from IndexedDB:', decryptedEntries);
       set({ entries: decryptedEntries, loading: false });
     } catch (error) {
       set({ error: 'Failed to load entries', loading: false });
@@ -107,6 +108,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
   },
 
   createEntry: async (entryData) => {
+    console.log('Creating entry with data:', entryData);
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
     
@@ -126,6 +128,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
     };
     
     await saveJournalEntry(entry);
+    console.log('Entry saved to IndexedDB:', entry);
     
     // Process distortions if auto-detect is enabled and we have text
     if (settings.autoDetectDistortions && entryData.text) {
