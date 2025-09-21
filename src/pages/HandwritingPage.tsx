@@ -2,27 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import HandwritingCanvasWithStickers from '@/components/HandwritingCanvasWithStickers';
+import { HandwritingCanvas } from '@/components/HandwritingCanvas';
 import { processImage } from '@/lib/ocr';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import SameDayEntryDialog from '@/components/SameDayEntryDialog';
-import StickerPicker from '@/components/StickerPicker';
-
-interface StickerPlacement {
-  sticker: string;
-  x: number;
-  y: number;
-  id: string;
-  isGraphic?: boolean;
-  stickerData?: any;
-}
 
 export default function HandwritingPage() {
   const [showSameDayDialog, setShowSameDayDialog] = useState(false);
   const [pendingEntry, setPendingEntry] = useState<{ imageBlob: Blob; text?: string } | null>(null);
-  const [selectedSticker, setSelectedSticker] = useState<string>('');
-  const [selectedStickerData, setSelectedStickerData] = useState<any>(null);
   const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
   const { toast } = useToast();
 
@@ -39,7 +27,7 @@ export default function HandwritingPage() {
     }
   };
 
-  const handleSave = async (imageBlob: Blob, text?: string, stickerPlacements?: StickerPlacement[]) => {
+  const handleSave = async (imageBlob: Blob, text?: string) => {
     // Check if there are entries from today
     const todaysEntries = findTodaysEntries();
     
@@ -108,11 +96,6 @@ export default function HandwritingPage() {
     setPendingEntry(null);
   };
 
-  const handleStickerSelect = (stickerId: string, stickerData?: any) => {
-    setSelectedSticker(stickerId);
-    setSelectedStickerData(stickerData);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -131,18 +114,7 @@ export default function HandwritingPage() {
           </div>
         </header>
 
-        {/* Canvas with Sticker Support */}
-        <HandwritingCanvasWithStickers 
-          onSave={handleSave} 
-          onOCR={handleOCR}
-          selectedSticker={selectedSticker}
-          selectedStickerData={selectedStickerData}
-        />
-        
-        {/* Sticker Picker for Canvas Placement */}
-        <StickerPicker
-          onStickerClick={handleStickerSelect}
-        />
+        <HandwritingCanvas onSave={handleSave} onOCR={handleOCR} />
         
         {/* Same Day Entry Dialog */}
         <SameDayEntryDialog
