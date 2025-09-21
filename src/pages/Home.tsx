@@ -17,7 +17,7 @@ const navigationCards = [
     description: "Write with your finger or Apple Pencil",
     icon: PenTool,
     href: "/handwriting",
-    gradient: "bg-gradient-therapeutic",
+    gradient: "bg-therapeutic-warmth",
     color: "therapeutic-warmth"
   },
   {
