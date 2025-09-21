@@ -1,9 +1,17 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PenTool, Mic, BarChart3, Brain, Settings, Heart, BookOpen } from "lucide-react";
+import { PenTool, Mic, BarChart3, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 
 const navigationCards = [
+  {
+    title: "Text Journal",
+    description: "Type your thoughts and feelings",
+    icon: Type,
+    href: "/text",
+    gradient: "bg-gradient-primary",
+    color: "primary"
+  },
   {
     title: "Handwriting Journal",
     description: "Write with your finger or Apple Pencil",
@@ -17,7 +25,7 @@ const navigationCards = [
     description: "Speak your thoughts aloud",
     icon: Mic,
     href: "/voice",
-    gradient: "bg-gradient-primary",
+    gradient: "bg-gradient-secondary",
     color: "therapeutic-growth"
   },
   {
