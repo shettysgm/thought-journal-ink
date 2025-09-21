@@ -18,10 +18,14 @@ export default function JournalPage() {
     loadEntries();
   }, [loadEntries]);
 
-  const filteredEntries = entries.filter(entry =>
-    entry.text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    entry.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredEntries = entries.filter(entry => {
+    // If no search term, show all entries
+    if (!searchTerm.trim()) return true;
+    
+    // Otherwise, filter by text or tags
+    return entry.text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           entry.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this entry?')) {
