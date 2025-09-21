@@ -39,12 +39,12 @@ All colors MUST be HSL for consistency and theming support.
     --accent-foreground: 150 60% 25%;
     --accent-strong: 150 60% 45%;
 
-    /* Therapeutic color palette */
-    --therapeutic-calm: 200 80% 85%;
-    --therapeutic-growth: 140 50% 85%;
-    --therapeutic-warmth: 35 70% 85%;
-    --therapeutic-focus: 260 30% 85%;
-    --therapeutic-energy: 320 40% 85%;
+    /* Therapeutic color palette - More distinct colors for better differentiation */
+    --therapeutic-calm: 200 75% 60%;      /* Calming blue */
+    --therapeutic-growth: 140 65% 55%;    /* Growth green */
+    --therapeutic-warmth: 35 80% 65%;     /* Warm orange */
+    --therapeutic-focus: 260 60% 70%;     /* Focus purple */
+    --therapeutic-energy: 320 70% 68%;    /* Energy pink */
 
     /* Status colors - gentle and non-alarming */
     --success: 150 60% 45%;
@@ -115,11 +115,12 @@ All colors MUST be HSL for consistency and theming support.
     --accent-foreground: 150 60% 85%;
     --accent-strong: 150 60% 45%;
 
-    --therapeutic-calm: 200 40% 25%;
-    --therapeutic-growth: 140 30% 25%;
-    --therapeutic-warmth: 35 40% 25%;
-    --therapeutic-focus: 260 20% 25%;
-    --therapeutic-energy: 320 25% 25%;
+    /* Dark mode therapeutic colors - Adjusted for better contrast */
+    --therapeutic-calm: 200 60% 45%;      /* Darker blue for dark mode */
+    --therapeutic-growth: 140 50% 40%;    /* Darker green for dark mode */
+    --therapeutic-warmth: 35 65% 50%;     /* Darker orange for dark mode */
+    --therapeutic-focus: 260 45% 55%;     /* Darker purple for dark mode */
+    --therapeutic-energy: 320 55% 53%;    /* Darker pink for dark mode */
 
     --success: 150 60% 55%;
     --success-foreground: 215 20% 8%;
