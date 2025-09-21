@@ -20,17 +20,32 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const text = simpleRedact(rawText).slice(0, 2000); // local redaction + cap
   const context = await getContextWindow();          // topics, commonTypes, recentPhrases, userGoals
   
-  const response = await fetch(getDetectDistortionsUrl(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, context })
-  });
+  // Add timeout to prevent hanging
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
   
-  if (!response.ok) {
-    throw new Error("AI detection failed");
+  try {
+    const response = await fetch(getDetectDistortionsUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, context }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`AI detection failed with status: ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error("AI detection timeout");
+    }
+    throw error;
   }
-  
-  return response.json();
 }
 
 // Analyze text and persist distortion metadata

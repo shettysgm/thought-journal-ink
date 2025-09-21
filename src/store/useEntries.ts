@@ -129,43 +129,11 @@ export const useEntries = create<EntriesState>((set, get) => ({
       text,
     };
     
+    console.log('Saving entry to IndexedDB...');
     await saveJournalEntry(entry);
     console.log('Entry saved to IndexedDB:', entry);
     
-    // Process distortions if auto-detect is enabled and we have text
-    if (settings.autoDetectDistortions && entryData.text) {
-      const { analyzeEntryWithContext } = await import('@/lib/hybridDetection');
-      const { useDistortions } = await import('./useDistortions');
-      const { addDistortion } = useDistortions.getState();
-      
-      try {
-        // Use hybrid detection (AI + rules) with context awareness
-        await analyzeEntryWithContext(
-          id, 
-          entryData.text, 
-          'hybrid',
-          async (distortionData) => {
-            await addDistortion(distortionData);
-          }
-        );
-      } catch (error) {
-        console.warn('Distortion analysis failed:', error);
-        // Fallback to rule-based detection only
-        const { detectDistortions } = await import('@/lib/distortions');
-        const hits = detectDistortions(entryData.text);
-        
-        for (const hit of hits) {
-          await addDistortion({
-            entryId: id,
-            createdAt,
-            type: hit.type,
-            phrase: hit.phrase,
-          });
-        }
-      }
-    }
-    
-    // Add to local state (with decrypted text for display)
+    // Add to local state first (with decrypted text for display)
     const displayEntry = { ...entry };
     if (settings.encryptionEnabled && entryData.text) {
       displayEntry.text = entryData.text; // Keep original text for display
@@ -177,6 +145,50 @@ export const useEntries = create<EntriesState>((set, get) => ({
       )
     }));
     
+    // Process distortions asynchronously (don't block entry creation)
+    if (settings.autoDetectDistortions && entryData.text) {
+      console.log('Starting distortion analysis...');
+      // Run distortion analysis in the background without blocking
+      setTimeout(async () => {
+        const { analyzeEntryWithContext } = await import('@/lib/hybridDetection');
+        const { useDistortions } = await import('./useDistortions');
+        const { addDistortion } = useDistortions.getState();
+        
+        try {
+          console.log('Running hybrid distortion detection...');
+          await analyzeEntryWithContext(
+            id, 
+            entryData.text, 
+            'hybrid',
+            async (distortionData) => {
+              await addDistortion(distortionData);
+            }
+          );
+          console.log('Distortion analysis completed successfully');
+        } catch (error) {
+          console.warn('Distortion analysis failed, using fallback:', error);
+          // Fallback to rule-based detection only
+          try {
+            const { detectDistortions } = await import('@/lib/distortions');
+            const hits = detectDistortions(entryData.text);
+            
+            for (const hit of hits) {
+              await addDistortion({
+                entryId: id,
+                createdAt,
+                type: hit.type,
+                phrase: hit.phrase,
+              });
+            }
+            console.log('Fallback rule-based detection completed');
+          } catch (fallbackError) {
+            console.error('Even fallback detection failed:', fallbackError);
+          }
+        }
+      }, 100); // Small delay to ensure entry creation completes first
+    }
+    
+    console.log('Entry creation completed, returning ID:', id);
     return id;
   },
 
