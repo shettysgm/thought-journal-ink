@@ -7,7 +7,7 @@ export type DetectionMethod = 'hybrid' | 'rules-only' | 'ai-only';
 // Combine rule-based and AI detection results
 export async function hybridDetection(
   text: string, 
-  method: DetectionMethod = 'hybrid'
+  method: DetectionMethod = 'ai-only'
 ): Promise<{ hits: Hit[]; reframes?: any[] }> {
   
   if (method === 'rules-only') {
@@ -84,7 +84,7 @@ function deduplicateHits(hits: Hit[]): Hit[] {
 export async function analyzeEntryWithContext(
   entryId: string,
   text: string,
-  method: DetectionMethod = 'hybrid',
+  method: DetectionMethod = 'ai-only',
   saveDistortionFn: (distortion: any) => Promise<void>
 ): Promise<{ hits: Hit[]; reframes?: any[] }> {
   

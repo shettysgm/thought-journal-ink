@@ -159,7 +159,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
           await analyzeEntryWithContext(
             id, 
             entryData.text, 
-            'hybrid',
+            'ai-only',
             async (distortionData) => {
               await addDistortion(distortionData);
             }
