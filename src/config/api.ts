@@ -9,7 +9,7 @@ const getBackendUrl = () => {
 
 export const API_CONFIG = {
   get BACKEND_URL() { return getBackendUrl(); },
-  DETECT_DISTORTIONS_ENDPOINT: "/api/detectDistortions" 
+  DETECT_DISTORTIONS_ENDPOINT: "" 
 } as const;
 
 export const getDetectDistortionsUrl = () => 
