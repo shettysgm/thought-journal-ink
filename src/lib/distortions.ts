@@ -3,14 +3,16 @@ import { Hit, DistortionType } from '@/types';
 // Cognitive distortion detection rules
 export const DISTORTION_RULES: Record<string, RegExp[]> = {
   "All-or-Nothing": [
-    /\balways\b/gi,
-    /\bnever\b/gi,
+    /I (always|never) (fail|mess up|do this|make mistakes|get it wrong)/gi,
+    /nothing (ever goes|works|goes right)/gi,
+    /everything (is|goes) (wrong|bad|terrible)/gi,
+    /everyone (hates|thinks|always|never)/gi,
+    /I('m| am) (always|never) (wrong|right|good|bad)/gi,
     /ruined everything/gi,
     /total failure/gi,
     /completely (useless|incompetent|worthless)/gi,
-    /\beveryone\b/gi,
-    /\bnothing\b/gi,
-    /\bperfect\b/gi
+    /either (perfect|terrible)/gi,
+    /all or nothing/gi
   ],
   "Mind Reading": [
     /they (must|probably) (think|hate)/gi,
