@@ -16,8 +16,10 @@ export async function hybridDetection(
   }
   
   if (method === 'ai-only') {
+    console.log('🤖 Attempting AI-only detection for text:', text.slice(0, 100) + '...');
     try {
       const { distortions, reframes } = await detectWithAI(text);
+      console.log('🤖 AI detection successful, found', distortions.length, 'distortions');
       const hits: Hit[] = distortions.map(d => ({
         type: d.type,
         phrase: d.span,
@@ -30,7 +32,7 @@ export async function hybridDetection(
       
       return { hits, reframes };
     } catch (error) {
-      console.warn('AI detection failed, falling back to rules:', error);
+      console.error('❌ AI detection failed, falling back to rules:', error);
       const hits = ruleBasedDetect(text);
       return { hits: hits.map(hit => ({ ...hit, isAI: false })) };
     }
