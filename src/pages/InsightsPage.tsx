@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 import { useDistortions } from '@/store/useDistortions';
+import { TestEndpoint } from '@/components/TestEndpoint';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
 
@@ -181,6 +182,9 @@ export default function InsightsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Test Endpoint Component */}
+        <TestEndpoint />
 
         {filteredDistortions.length === 0 ? (
           <Card className="shadow-medium">
