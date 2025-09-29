@@ -8,12 +8,12 @@ const getBackendUrl = () => {
 };
 
 const getEndpoint = () => {
-  // Allow optional override via env, but default to empty to use base URL only
+  // Allow optional override via env; default to API path used by backend
   if (typeof window !== 'undefined' && (window as any).ENV?.VITE_DETECT_ENDPOINT !== undefined) {
-    return (window as any).ENV.VITE_DETECT_ENDPOINT || "";
+    return (window as any).ENV.VITE_DETECT_ENDPOINT || "/api/detectDistortions";
   }
-  // Fallback - use base URL only
-  return "";
+  // Fallback to the default endpoint path
+  return "/api/detectDistortions";
 };
 
 export const API_CONFIG = {
