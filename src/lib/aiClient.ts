@@ -29,8 +29,9 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const configured = getDetectDistortionsUrl();
   const candidates = [
     configured,
-    base,
     `${base}/api/detectDistortions`,
+    `${base}/detectDistortions`,
+    base,
   ].filter((v, i, a) => !!v && a.indexOf(v) === i);
 
   try {
