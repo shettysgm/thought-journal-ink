@@ -17,12 +17,12 @@ export type DetectResponse = {
 };
 
 export async function detectWithAI(rawText: string): Promise<DetectResponse> {
-  const text = simpleRedact(rawText).slice(0, 2000); // local redaction + cap
-  const context = await getContextWindow();          // topics, commonTypes, recentPhrases, userGoals
+  const text = simpleRedact(rawText); // Redact but send full text
+  const context = await getContextWindow();
   
   // Add timeout to prevent hanging
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
   
   // Use the full URL with endpoint path
   const url = getDetectDistortionsUrl();
