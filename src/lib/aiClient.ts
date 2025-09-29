@@ -38,7 +38,23 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
       throw new Error(`AI detection failed with status: ${response.status}`);
     }
     
-    return response.json();
+    const data = await response.json();
+    // Normalize response from backend: support both array of items or legacy object shape
+    if (Array.isArray(data)) {
+      const distortions = data.map((item: any) => ({
+        type: String(item.type || ""),
+        span: String(item.span || ""),
+        rationale: "",
+        confidence: 0.75,
+      }));
+      const reframes = data.filter((i: any) => i?.reframe).map((i: any) => ({
+        span: String(i.span || ""),
+        suggestion: String(i.reframe || ""),
+        socratic: "",
+      }));
+      return { distortions, reframes } as DetectResponse;
+    }
+    return data as DetectResponse;
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
