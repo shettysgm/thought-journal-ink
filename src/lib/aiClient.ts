@@ -48,6 +48,14 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
 
     clearTimeout(timeoutId);
     const data = await response.json();
+    
+    console.debug("[AI Detect] Response received:", data);
+    
+    // Validate response structure
+    if (!data) {
+      throw new Error("Empty response from AI endpoint");
+    }
+    
     if (Array.isArray(data)) {
       const distortions = data.map((item: any) => ({
         type: String(item.type || ""),
@@ -60,9 +68,18 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
         suggestion: String(i.reframe || ""),
         socratic: "",
       }));
-      return { distortions, reframes } as DetectResponse;
+      return { distortions, reframes };
     }
-    return data as DetectResponse;
+    
+    // Expect object with distortions array
+    if (data.distortions && Array.isArray(data.distortions)) {
+      return {
+        distortions: data.distortions,
+        reframes: data.reframes || []
+      };
+    }
+    
+    throw new Error(`Unexpected response format: ${JSON.stringify(data).slice(0, 200)}`);
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
