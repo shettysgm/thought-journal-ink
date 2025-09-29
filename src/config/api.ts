@@ -9,8 +9,8 @@ const getBackendUrl = () => {
 };
 
 const getEndpoint = () => {
-  // No additional endpoint path - use the backend URL directly
-  return "";
+  // Use the correct API endpoint path
+  return "/api/generate";
 };
 
 export const API_CONFIG = {

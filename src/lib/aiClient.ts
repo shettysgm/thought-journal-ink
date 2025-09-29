@@ -24,15 +24,20 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
   
-  // Use only the exact backend URL specified
-  const url = API_CONFIG.BACKEND_URL;
+  // Use the full URL with endpoint path
+  const url = getDetectDistortionsUrl();
 
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, context }),
+      body: JSON.stringify({ 
+        prompt: text,
+        gcpProject: "apt-gear-425423-i9",
+        region: "us-central1",
+        model: "gemini-2.0-flash"
+      }),
       signal: controller.signal
     });
 
