@@ -8,11 +8,12 @@ const getBackendUrl = () => {
 };
 
 const getEndpoint = () => {
-  if (typeof window !== 'undefined' && (window as any).ENV?.VITE_DETECT_ENDPOINT) {
-    return (window as any).ENV.VITE_DETECT_ENDPOINT;
+  // Allow optional override via env, but default to empty to use base URL only
+  if (typeof window !== 'undefined' && (window as any).ENV?.VITE_DETECT_ENDPOINT !== undefined) {
+    return (window as any).ENV.VITE_DETECT_ENDPOINT || "";
   }
-  // Fallback - set your endpoint path here
-  return "/api/detectDistortions";
+  // Fallback - use base URL only
+  return "";
 };
 
 export const API_CONFIG = {
