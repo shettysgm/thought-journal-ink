@@ -21,19 +21,23 @@ interface CBTJournalDB extends DBSchema {
 }
 
 let db: IDBPDatabase<CBTJournalDB> | null = null;
+let initPromise: Promise<IDBPDatabase<CBTJournalDB>> | null = null;
 
 export async function initDB(): Promise<IDBPDatabase<CBTJournalDB>> {
   if (db) return db;
   
-  db = await openDB<CBTJournalDB>('cbt_journal_db', 1, {
-    upgrade(db) {
+  // If there's already an initialization in progress, wait for it
+  if (initPromise) return initPromise;
+  
+  initPromise = openDB<CBTJournalDB>('cbt_journal_db', 1, {
+    upgrade(database) {
       // Journal entries store
-      const journalStore = db.createObjectStore('journal_entries', {
+      const journalStore = database.createObjectStore('journal_entries', {
         keyPath: 'id',
       });
       
       // Distortion metadata store with indexes
-      const metaStore = db.createObjectStore('distortion_meta', {
+      const metaStore = database.createObjectStore('distortion_meta', {
         keyPath: 'id',
       });
       metaStore.createIndex('by-entry', 'entryId');
@@ -41,19 +45,44 @@ export async function initDB(): Promise<IDBPDatabase<CBTJournalDB>> {
       metaStore.createIndex('by-date', 'createdAt');
       
       // Settings store
-      db.createObjectStore('settings', {
+      database.createObjectStore('settings', {
         keyPath: 'id',
       });
     },
+    blocked() {
+      console.warn('IndexedDB upgrade blocked');
+    },
+    blocking() {
+      console.warn('IndexedDB upgrade blocking');
+    },
+    terminated() {
+      console.warn('IndexedDB connection terminated');
+      db = null;
+      initPromise = null;
+    }
   });
   
-  return db;
+  try {
+    db = await initPromise;
+    return db;
+  } catch (error) {
+    initPromise = null;
+    throw error;
+  }
 }
 
 // Journal entries CRUD
 export async function saveJournalEntry(entry: JournalEntry & { drawingBlob?: Blob; audioBlob?: Blob }) {
-  const database = await initDB();
-  await database.put('journal_entries', entry);
+  try {
+    const database = await initDB();
+    await database.put('journal_entries', entry);
+  } catch (error) {
+    // If database connection failed, reset and retry once
+    db = null;
+    initPromise = null;
+    const database = await initDB();
+    await database.put('journal_entries', entry);
+  }
 }
 
 export async function getJournalEntry(id: string) {
