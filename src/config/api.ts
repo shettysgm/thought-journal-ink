@@ -7,9 +7,17 @@ const getBackendUrl = () => {
   return "https://vertex-gemini-content-creator-755984933994.us-central1.run.app";
 };
 
+const getEndpoint = () => {
+  if (typeof window !== 'undefined' && (window as any).ENV?.VITE_DETECT_ENDPOINT) {
+    return (window as any).ENV.VITE_DETECT_ENDPOINT;
+  }
+  // Fallback - set your endpoint path here
+  return "/api/detectDistortions";
+};
+
 export const API_CONFIG = {
   get BACKEND_URL() { return getBackendUrl(); },
-  DETECT_DISTORTIONS_ENDPOINT: "" 
+  get DETECT_DISTORTIONS_ENDPOINT() { return getEndpoint(); }
 } as const;
 
 export const getDetectDistortionsUrl = () => 
