@@ -25,7 +25,9 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
   
   try {
-    const response = await fetch(getDetectDistortionsUrl(), {
+    const url = getDetectDistortionsUrl();
+    console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, context }),
