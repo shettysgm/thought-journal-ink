@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getDetectDistortionsUrl } from '@/config/api';
 
 export const TestEndpoint = () => {
   const [testing, setTesting] = useState(false);
@@ -20,7 +21,7 @@ export const TestEndpoint = () => {
       }
     };
 
-    const url = "https://vertex-gemini-content-creator-755984933994.us-central1.run.app/api/detectDistortions";
+    const url = getDetectDistortionsUrl();
     
     try {
       console.log("Testing endpoint:", url);
