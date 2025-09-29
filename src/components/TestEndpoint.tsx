@@ -12,13 +12,10 @@ export const TestEndpoint = () => {
     setResult(null);
     
     const testPayload = {
-      text: "I always fail at everything. This is terrible and I'll never get better.",
-      context: {
-        topics: [],
-        commonTypes: [],
-        recentPhrases: [],
-        userGoals: []
-      }
+      prompt: "I always fail at everything. This is terrible and I'll never get better.",
+      gcpProject: "apt-gear-425423-i9",
+      region: "us-central1",
+      model: "gemini-2.0-flash"
     };
 
     const url = getDetectDistortionsUrl();
