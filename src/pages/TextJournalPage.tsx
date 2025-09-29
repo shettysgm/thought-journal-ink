@@ -108,6 +108,7 @@ export default function TextJournalPage() {
 
       navigate('/journal');
     } catch (error) {
+      console.error('TextJournalPage save error:', error);
       toast({
         title: "Save Failed",
         description: "Could not save your entry. Please try again.",

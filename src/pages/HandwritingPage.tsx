@@ -68,6 +68,7 @@ export default function HandwritingPage() {
         description: "Your handwriting has been saved and analyzed.",
       });
     } catch (error) {
+      console.error('HandwritingPage save error:', error);
       toast({
         title: "Save Failed", 
         description: "Could not save your entry. Please try again.",

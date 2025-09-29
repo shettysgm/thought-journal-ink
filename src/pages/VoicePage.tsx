@@ -125,6 +125,7 @@ export default function VoicePage() {
       // No entries today, create new one
       await createNewEntry();
     } catch (error) {
+      console.error('VoicePage save error:', error);
       toast({
         title: "Save Failed",
         description: "Could not save your entry. Please try again.",
