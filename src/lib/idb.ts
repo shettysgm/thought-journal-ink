@@ -20,55 +20,51 @@ interface CBTJournalDB extends DBSchema {
   };
 }
 
-let db: IDBPDatabase<CBTJournalDB> | null = null;
-let initPromise: Promise<IDBPDatabase<CBTJournalDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<CBTJournalDB>> | null = null;
 
 export async function initDB(): Promise<IDBPDatabase<CBTJournalDB>> {
-  if (db) return db;
-  
-  // If there's already an initialization in progress, wait for it
-  if (initPromise) return initPromise;
-  
-  initPromise = openDB<CBTJournalDB>('cbt_journal_db', 1, {
-    upgrade(database) {
-      // Journal entries store
-      const journalStore = database.createObjectStore('journal_entries', {
-        keyPath: 'id',
-      });
-      
-      // Distortion metadata store with indexes
-      const metaStore = database.createObjectStore('distortion_meta', {
-        keyPath: 'id',
-      });
-      metaStore.createIndex('by-entry', 'entryId');
-      metaStore.createIndex('by-type', 'type');
-      metaStore.createIndex('by-date', 'createdAt');
-      
-      // Settings store
-      database.createObjectStore('settings', {
-        keyPath: 'id',
-      });
-    },
-    blocked() {
-      console.warn('IndexedDB upgrade blocked');
-    },
-    blocking() {
-      console.warn('IndexedDB upgrade blocking');
-    },
-    terminated() {
-      console.warn('IndexedDB connection terminated');
-      db = null;
-      initPromise = null;
-    }
-  });
-  
-  try {
-    db = await initPromise;
-    return db;
-  } catch (error) {
-    initPromise = null;
-    throw error;
+  // Always return the same promise to prevent multiple simultaneous opens
+  if (!dbPromise) {
+    dbPromise = openDB<CBTJournalDB>('cbt_journal_db', 1, {
+      upgrade(database) {
+        // Journal entries store
+        if (!database.objectStoreNames.contains('journal_entries')) {
+          database.createObjectStore('journal_entries', {
+            keyPath: 'id',
+          });
+        }
+        
+        // Distortion metadata store with indexes
+        if (!database.objectStoreNames.contains('distortion_meta')) {
+          const metaStore = database.createObjectStore('distortion_meta', {
+            keyPath: 'id',
+          });
+          metaStore.createIndex('by-entry', 'entryId');
+          metaStore.createIndex('by-type', 'type');
+          metaStore.createIndex('by-date', 'createdAt');
+        }
+        
+        // Settings store
+        if (!database.objectStoreNames.contains('settings')) {
+          database.createObjectStore('settings', {
+            keyPath: 'id',
+          });
+        }
+      },
+      blocked() {
+        console.warn('IndexedDB upgrade blocked');
+      },
+      blocking() {
+        console.warn('IndexedDB upgrade blocking');
+      },
+      terminated() {
+        console.warn('IndexedDB connection terminated, will reconnect on next access');
+        dbPromise = null;
+      }
+    });
   }
+  
+  return dbPromise;
 }
 
 // Journal entries CRUD
@@ -78,8 +74,8 @@ export async function saveJournalEntry(entry: JournalEntry & { drawingBlob?: Blo
     await database.put('journal_entries', entry);
   } catch (error) {
     // If database connection failed, reset and retry once
-    db = null;
-    initPromise = null;
+    console.warn('Database error, retrying:', error);
+    dbPromise = null;
     const database = await initDB();
     await database.put('journal_entries', entry);
   }
