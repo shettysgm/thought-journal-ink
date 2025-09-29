@@ -32,7 +32,7 @@ export async function hybridDetection(
       
       return { hits, reframes };
     } catch (error) {
-      console.error('❌ AI detection failed, falling back to rules:', error);
+      console.warn('⚠️ AI detection unavailable, using pattern matching instead');
       const hits = ruleBasedDetect(text);
       return { hits: hits.map(hit => ({ ...hit, isAI: false })) };
     }
