@@ -200,9 +200,9 @@ export default function TextJournalPage() {
                         {segment.text}
                       </span>
                       <div className="pointer-events-none absolute left-0 top-full mt-2 z-50 hidden group-hover:block">
-                        <div className="rounded-lg border bg-popover text-popover-foreground shadow-lg p-3 max-w-md w-80">
+                        <div className="rounded-lg border bg-popover text-popover-foreground shadow-lg p-4 w-96 max-w-[calc(100vw-2rem)]">
                           <div className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">💡 Reframe</div>
-                          <p className="text-sm text-foreground">{segment.reframe}</p>
+                          <p className="text-sm text-foreground whitespace-normal break-words">{segment.reframe}</p>
                         </div>
                       </div>
                     </span>
