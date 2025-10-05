@@ -47,7 +47,7 @@ export default function TextJournalPage() {
         
         if (response.reframes && response.reframes.length > 0) {
           const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span.slice(0, 100),
+            span: r.span, // keep full span for accurate inline replace
             type: "Mind Reading" as const,
             reframe: r.suggestion
           }));
@@ -80,21 +80,78 @@ export default function TextJournalPage() {
     setEditingIndex(null);
   };
 
+  // --- Inline replacement helpers (Grammarly-style) ---
+  const normalize = (s: string) => s
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const getSentenceBounds = (src: string, pos: number) => {
+    let start = pos;
+    let end = pos;
+    while (start > 0 && !/[.!?\n]/.test(src[start - 1])) start--;
+    while (end < src.length && !/[.!?\n]/.test(src[end])) end++;
+    if (end < src.length) end++; // include punctuation
+    return { start, end };
+  };
+
+  const replaceInline = (src: string, span: string, replacement: string): { out: string; ok: boolean } => {
+    // 1) Direct match
+    const idx = src.indexOf(span);
+    if (idx !== -1) {
+      return { out: src.slice(0, idx) + replacement + src.slice(idx + span.length), ok: true };
+    }
+
+    // 2) Try normalized quotes/spacing
+    const normSpan = normalize(span);
+    const normSrc = normalize(src);
+    const normIdx = normSrc.indexOf(normSpan);
+    if (normIdx !== -1) {
+      // Fallback to sentence replacement using approx position
+      // Map normIdx back by searching a seed in original
+      const seed = normSpan.slice(0, Math.min(40, normSpan.length));
+      const origSeedIdx = src.toLowerCase().indexOf(seed.toLowerCase());
+      const pos = origSeedIdx !== -1 ? origSeedIdx : Math.max(0, Math.min(src.length - 1, normIdx));
+      const { start, end } = getSentenceBounds(src, pos);
+      return { out: src.slice(0, start) + replacement + src.slice(end), ok: true };
+    }
+
+    // 3) Seed-based search with first N words
+    const words = span.split(/\s+/).filter(Boolean);
+    for (const n of [8, 6, 5, 4, 3]) {
+      if (words.length >= n) {
+        const seed = words.slice(0, n).join(' ');
+        const i = src.toLowerCase().indexOf(seed.toLowerCase());
+        if (i !== -1) {
+          const { start, end } = getSentenceBounds(src, i);
+          return { out: src.slice(0, start) + replacement + src.slice(end), ok: true };
+        }
+      }
+    }
+
+    return { out: src, ok: false };
+  };
+
   const handleAcceptLiveReframe = (index: number) => {
     const detection = liveDetections[index];
     const reframeText = editedReframes[index] || detection.reframe;
-    
-    // Replace the original span with the reframe in the text
-    const updatedText = text.replace(detection.span, reframeText);
-    setText(updatedText);
-    
-    // Mark as accepted
-    setAcceptedIndices(prev => new Set(prev).add(index));
-    
-    toast({
-      title: "Reframe Applied",
-      description: "Your thought has been reframed in the text above."
-    });
+
+    const { out, ok } = replaceInline(text, detection.span, reframeText);
+    if (ok) {
+      setText(out);
+      setAcceptedIndices(prev => new Set(prev).add(index));
+      toast({
+        title: "Reframe Applied",
+        description: "Your thought has been reframed in the text above."
+      });
+    } else {
+      toast({
+        title: "Couldn't apply automatically",
+        description: "We couldn't find the exact phrase. You can copy the reframe above.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -130,7 +187,7 @@ export default function TextJournalPage() {
         // Convert reframes to Detection format
         if (response.reframes && response.reframes.length > 0) {
           const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span.slice(0, 100), // Limit span to 100 chars
+            span: r.span, // keep full span for accurate inline replace
             type: "Mind Reading" as const, // Default type, can be enhanced later
             reframe: r.suggestion
           }));
@@ -363,9 +420,9 @@ export default function TextJournalPage() {
                                 <span className="text-xs text-primary font-medium">✓ Applied</span>
                               )}
                             </div>
-                            <p className="text-sm text-foreground font-medium">
-                              "{detection.span}"
-                            </p>
+                          <p className="text-sm text-foreground font-medium">
+                            "{detection.span.length > 140 ? detection.span.slice(0, 140) + '…' : detection.span}"
+                          </p>
                           </div>
                         </div>
                         
