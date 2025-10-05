@@ -84,22 +84,18 @@ export function AIInsights({ reframes = [], contextInfo }: AIInsightsProps) {
           </CardHeader>
           <CardContent className="space-y-3">
             {reframes.map((reframe, index) => (
-              <div key={index} className="space-y-2">
-                {reframe.suggestion.split('\n').map((line, lineIndex) => {
-                  const trimmedLine = line.trim();
-                  if (!trimmedLine) return null;
-                  
-                  // Check if line contains a distortion pattern
-                  const isDistortionLine = trimmedLine.match(/shows|demonstrates|reflects/i);
-                  
-                  return (
-                    <div key={lineIndex} className="p-3 bg-muted/50 rounded-lg">
-                      <p className="text-sm leading-relaxed">
-                        {trimmedLine}
-                      </p>
-                    </div>
-                  );
-                }).filter(Boolean)}
+              <div key={index} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                {reframe.socratic && (
+                  <Badge variant="secondary" className="text-xs">
+                    {reframe.socratic}
+                  </Badge>
+                )}
+                <p className="text-sm italic text-muted-foreground">
+                  "{reframe.span}"
+                </p>
+                <p className="text-sm font-medium leading-relaxed">
+                  {reframe.suggestion}
+                </p>
               </div>
             ))}
           </CardContent>
