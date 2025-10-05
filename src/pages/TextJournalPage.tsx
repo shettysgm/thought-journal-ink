@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, X, AlertCircle, Edit2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, X, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,10 +28,6 @@ export default function TextJournalPage() {
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editedReframes, setEditedReframes] = useState<{ [key: number]: string }>({});
-  const [acceptedIndices, setAcceptedIndices] = useState<Set<number>>(new Set());
-
 
   // Debounced detection as user types
   useEffect(() => {
@@ -47,7 +43,7 @@ export default function TextJournalPage() {
         
         if (response.reframes && response.reframes.length > 0) {
           const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span, // keep full span for accurate inline replace
+            span: r.span,
             type: "Mind Reading" as const,
             reframe: r.suggestion
           }));
@@ -66,92 +62,39 @@ export default function TextJournalPage() {
     return () => clearTimeout(timeoutId);
   }, [text]);
 
-  const handleEditReframe = (index: number) => {
-    setEditingIndex(index);
-    if (!editedReframes[index]) {
-      setEditedReframes(prev => ({
-        ...prev,
-        [index]: liveDetections[index].reframe
-      }));
-    }
-  };
-
-  const handleSaveEdit = (index: number) => {
-    setEditingIndex(null);
-  };
-
-  // --- Inline replacement helpers (Grammarly-style) ---
-  const normalize = (s: string) => s
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  const getSentenceBounds = (src: string, pos: number) => {
-    let start = pos;
-    let end = pos;
-    while (start > 0 && !/[.!?\n]/.test(src[start - 1])) start--;
-    while (end < src.length && !/[.!?\n]/.test(src[end])) end++;
-    if (end < src.length) end++; // include punctuation
-    return { start, end };
-  };
-
-  const replaceInline = (src: string, span: string, replacement: string): { out: string; ok: boolean } => {
-    // 1) Direct match
-    const idx = src.indexOf(span);
-    if (idx !== -1) {
-      return { out: src.slice(0, idx) + replacement + src.slice(idx + span.length), ok: true };
-    }
-
-    // 2) Try normalized quotes/spacing
-    const normSpan = normalize(span);
-    const normSrc = normalize(src);
-    const normIdx = normSrc.indexOf(normSpan);
-    if (normIdx !== -1) {
-      // Fallback to sentence replacement using approx position
-      // Map normIdx back by searching a seed in original
-      const seed = normSpan.slice(0, Math.min(40, normSpan.length));
-      const origSeedIdx = src.toLowerCase().indexOf(seed.toLowerCase());
-      const pos = origSeedIdx !== -1 ? origSeedIdx : Math.max(0, Math.min(src.length - 1, normIdx));
-      const { start, end } = getSentenceBounds(src, pos);
-      return { out: src.slice(0, start) + replacement + src.slice(end), ok: true };
-    }
-
-    // 3) Seed-based search with first N words
-    const words = span.split(/\s+/).filter(Boolean);
-    for (const n of [8, 6, 5, 4, 3]) {
-      if (words.length >= n) {
-        const seed = words.slice(0, n).join(' ');
-        const i = src.toLowerCase().indexOf(seed.toLowerCase());
-        if (i !== -1) {
-          const { start, end } = getSentenceBounds(src, i);
-          return { out: src.slice(0, start) + replacement + src.slice(end), ok: true };
+  // Render highlighted text for overlay
+  const renderHighlightedText = () => {
+    if (liveDetections.length === 0) return text;
+    
+    const segments: { text: string; isHighlight: boolean }[] = [];
+    let lastIndex = 0;
+    
+    // Sort detections by position to avoid overlap issues
+    const sortedDetections = [...liveDetections].sort((a, b) => {
+      const aIndex = text.indexOf(a.span);
+      const bIndex = text.indexOf(b.span);
+      return aIndex - bIndex;
+    });
+    
+    sortedDetections.forEach(detection => {
+      const index = text.indexOf(detection.span, lastIndex);
+      if (index !== -1 && index >= lastIndex) {
+        // Add text before highlight
+        if (index > lastIndex) {
+          segments.push({ text: text.slice(lastIndex, index), isHighlight: false });
         }
+        // Add highlighted text
+        segments.push({ text: detection.span, isHighlight: true });
+        lastIndex = index + detection.span.length;
       }
+    });
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      segments.push({ text: text.slice(lastIndex), isHighlight: false });
     }
-
-    return { out: src, ok: false };
-  };
-
-  const handleAcceptLiveReframe = (index: number) => {
-    const detection = liveDetections[index];
-    const reframeText = editedReframes[index] || detection.reframe;
-
-    const { out, ok } = replaceInline(text, detection.span, reframeText);
-    if (ok) {
-      setText(out);
-      setAcceptedIndices(prev => new Set(prev).add(index));
-      toast({
-        title: "Reframe Applied",
-        description: "Your thought has been reframed in the text above."
-      });
-    } else {
-      toast({
-        title: "Couldn't apply automatically",
-        description: "We couldn't find the exact phrase. You can copy the reframe above.",
-        variant: "destructive"
-      });
-    }
+    
+    return segments;
   };
 
   const handleSave = async () => {
@@ -187,8 +130,8 @@ export default function TextJournalPage() {
         // Convert reframes to Detection format
         if (response.reframes && response.reframes.length > 0) {
           const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span, // keep full span for accurate inline replace
-            type: "Mind Reading" as const, // Default type, can be enhanced later
+            span: r.span,
+            type: "Mind Reading" as const,
             reframe: r.suggestion
           }));
           
@@ -351,16 +294,46 @@ export default function TextJournalPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             
-            {/* Text Input */}
+            {/* Text Input with Grammarly-style highlighting */}
             <div className="space-y-2">
-              <Textarea
-                ref={textareaRef}
-                placeholder="Start typing your thoughts here... Express yourself freely and honestly. This is your safe space."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="min-h-[300px] resize-none text-base leading-relaxed"
-                autoFocus
-              />
+              <div className="relative">
+                {/* Highlight overlay */}
+                <div 
+                  className="absolute inset-0 p-3 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent overflow-hidden rounded-md border border-transparent"
+                  style={{ 
+                    font: 'inherit',
+                    letterSpacing: 'inherit',
+                    wordSpacing: 'inherit'
+                  }}
+                  aria-hidden="true"
+                >
+                  {(() => {
+                    const highlighted = renderHighlightedText();
+                    if (typeof highlighted === 'string') {
+                      return highlighted;
+                    }
+                    return highlighted.map((segment, i) => (
+                      segment.isHighlight ? (
+                        <span key={i} className="bg-primary/20 rounded px-0.5">
+                          {segment.text}
+                        </span>
+                      ) : (
+                        <span key={i}>{segment.text}</span>
+                      )
+                    ));
+                  })()}
+                </div>
+                
+                {/* Actual textarea */}
+                <Textarea
+                  ref={textareaRef}
+                  placeholder="Start typing your thoughts here... Express yourself freely and honestly. This is your safe space."
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  className="min-h-[300px] resize-none text-base leading-relaxed relative bg-transparent"
+                  autoFocus
+                />
+              </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{text.length} characters</span>
                 <span>{text.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
@@ -381,109 +354,48 @@ export default function TextJournalPage() {
           </CardContent>
         </Card>
 
-        {/* Real-time Distortion Detection */}
-        {text.trim().length > 20 && (
+        {/* Real-time Thought Pattern Detection */}
+        {text.trim().length > 20 && liveDetections.length > 0 && (
           <Card className="shadow-soft border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <AlertCircle className="w-5 h-5 text-primary" />
-                Would you like to reframe your thoughts?
+                Thought Patterns Detected
                 {isDetecting && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
               </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                We've highlighted potential cognitive distortions above. Review the suggestions below.
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isDetecting && liveDetections.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Analyzing your thoughts...</p>
-              ) : liveDetections.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Keep writing... We'll help you identify thought patterns.</p>
-              ) : (
-                <div className="space-y-4">
-                  {liveDetections.map((detection, index) => {
-                    const isAccepted = acceptedIndices.has(index);
-                    
-                    return (
-                      <div 
-                        key={index} 
-                        className={`rounded-lg p-4 space-y-3 transition-all ${
-                          isAccepted 
-                            ? 'bg-primary/10 border border-primary/30' 
-                            : 'bg-muted/30'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm rounded-full bg-primary/10 text-primary px-3 py-1 font-bold">
-                                {detection.type}
-                              </span>
-                              {isAccepted && (
-                                <span className="text-xs text-primary font-medium">✓ Applied</span>
-                              )}
-                            </div>
-                          <p className="text-sm text-foreground font-medium">
-                            "{detection.span.length > 140 ? detection.span.slice(0, 140) + '…' : detection.span}"
-                          </p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Reframe Suggestion
-                            </label>
-                            {editingIndex !== index && !isAccepted && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditReframe(index)}
-                                className="h-7 text-xs gap-1"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                                Edit
-                              </Button>
-                            )}
-                          </div>
-                          
-                          {editingIndex === index ? (
-                            <div className="space-y-2">
-                              <Textarea
-                                value={editedReframes[index] || detection.reframe}
-                                onChange={(e) => setEditedReframes(prev => ({
-                                  ...prev,
-                                  [index]: e.target.value
-                                }))}
-                                className="min-h-[80px] text-sm"
-                              />
-                              <Button
-                                size="sm"
-                                onClick={() => handleSaveEdit(index)}
-                                className="w-full"
-                              >
-                                Save Edit
-                              </Button>
-                            </div>
-                          ) : (
-                            <>
-                              <p className="text-sm text-foreground bg-background/50 rounded p-3">
-                                {editedReframes[index] || detection.reframe}
-                              </p>
-                              {!isAccepted && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleAcceptLiveReframe(index)}
-                                  className="w-full"
-                                >
-                                  Accept & Replace in Text
-                                </Button>
-                              )}
-                            </>
-                          )}
-                        </div>
+              <div className="space-y-4">
+                {liveDetections.map((detection, index) => (
+                  <div 
+                    key={index} 
+                    className="rounded-lg p-4 space-y-3 bg-muted/30"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 space-y-2">
+                        <span className="text-sm rounded-full bg-primary/10 text-primary px-3 py-1 font-bold inline-block">
+                          {detection.type}
+                        </span>
+                        <p className="text-sm text-foreground/70 font-medium italic">
+                          "{detection.span.length > 140 ? detection.span.slice(0, 140) + '…' : detection.span}"
+                        </p>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        💡 Reframe Suggestion
+                      </label>
+                      <p className="text-sm text-foreground bg-background/50 rounded p-3">
+                        {detection.reframe}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
