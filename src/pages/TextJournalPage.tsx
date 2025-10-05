@@ -182,6 +182,10 @@ export default function TextJournalPage() {
       });
       
       console.log('Reframe accepted:', reframe);
+      
+      // Close dialog and navigate after accepting
+      setShowReframeReview(false);
+      navigate('/journal');
     } catch (error) {
       console.error('Failed to save reframe:', error);
       toast({
