@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, X, AlertCircle, Edit2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +25,59 @@ export default function TextJournalPage() {
   const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
   const [isProcessingReframes, setIsProcessingReframes] = useState(false);
 
+  // Real-time detection state
+  const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editedReframes, setEditedReframes] = useState<{ [key: number]: string }>({});
+
+
+  // Debounced detection as user types
+  useEffect(() => {
+    if (!text.trim() || text.trim().length < 20) {
+      setLiveDetections([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsDetecting(true);
+      try {
+        const response = await detectWithAI(text.trim());
+        
+        if (response.reframes && response.reframes.length > 0) {
+          const detectionsList: Detection[] = response.reframes.map(r => ({
+            span: r.span.slice(0, 100),
+            type: "Mind Reading" as const,
+            reframe: r.suggestion
+          }));
+          setLiveDetections(detectionsList);
+        } else {
+          setLiveDetections([]);
+        }
+      } catch (error) {
+        console.error('Real-time detection error:', error);
+        setLiveDetections([]);
+      } finally {
+        setIsDetecting(false);
+      }
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [text]);
+
+  const handleEditReframe = (index: number) => {
+    setEditingIndex(index);
+    if (!editedReframes[index]) {
+      setEditedReframes(prev => ({
+        ...prev,
+        [index]: liveDetections[index].reframe
+      }));
+    }
+  };
+
+  const handleSaveEdit = (index: number) => {
+    setEditingIndex(null);
+  };
 
   const handleSave = async () => {
     if (!text.trim()) {
@@ -252,6 +305,88 @@ export default function TextJournalPage() {
             
           </CardContent>
         </Card>
+
+        {/* Real-time Distortion Detection */}
+        {text.trim().length > 20 && (
+          <Card className="shadow-soft border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <AlertCircle className="w-5 h-5 text-primary" />
+                Would you like to reframe your thoughts?
+                {isDetecting && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isDetecting && liveDetections.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Analyzing your thoughts...</p>
+              ) : liveDetections.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Keep writing... We'll help you identify thought patterns.</p>
+              ) : (
+                <div className="space-y-4">
+                  {liveDetections.map((detection, index) => (
+                    <div key={index} className="bg-muted/30 rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm rounded-full bg-primary/10 text-primary px-3 py-1 font-bold">
+                              {detection.type}
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground font-medium">
+                            "{detection.span}"
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Reframe Suggestion
+                          </label>
+                          {editingIndex !== index && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditReframe(index)}
+                              className="h-7 text-xs gap-1"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              Edit
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {editingIndex === index ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editedReframes[index] || detection.reframe}
+                              onChange={(e) => setEditedReframes(prev => ({
+                                ...prev,
+                                [index]: e.target.value
+                              }))}
+                              className="min-h-[80px] text-sm"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleSaveEdit(index)}
+                              className="w-full"
+                            >
+                              Save Edit
+                            </Button>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-foreground bg-background/50 rounded p-3">
+                            {editedReframes[index] || detection.reframe}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* CBT Reframe Review Dialog */}
         <CBTReframeReview
