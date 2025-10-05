@@ -24,8 +24,11 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
 
+  console.log('HighlightedTextWithReframes:', { textLength: text?.length, reframesCount: reframes?.length, reframes });
+
   // If no reframes, just render plain text with stickers
   if (!reframes || reframes.length === 0) {
+    console.log('No reframes, rendering plain text');
     return <TextWithStickers text={text} />;
   }
 
@@ -72,6 +75,7 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
   const segments = buildSegments();
 
   const handleMouseEnter = (e: React.MouseEvent, index: number) => {
+    console.log('Mouse enter:', index, reframes[index]);
     const rect = e.currentTarget.getBoundingClientRect();
     setHoverPosition({
       x: rect.left + window.scrollX,
@@ -81,6 +85,7 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
   };
 
   const handleMouseLeave = () => {
+    console.log('Mouse leave');
     setHoveredIndex(null);
   };
 
