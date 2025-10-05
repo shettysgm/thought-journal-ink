@@ -122,7 +122,7 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
                 <div className="mt-1">{icon}</div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm rounded-full bg-muted px-2 py-0.5">{d.type}</span>
+                    <span className="text-sm rounded-full bg-muted px-2 py-0.5 font-bold">{d.type}</span>
                     <span className="text-xs text-muted-foreground">From: "{d.span}"</span>
                   </div>
 
