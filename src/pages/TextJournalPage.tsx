@@ -113,7 +113,7 @@ export default function TextJournalPage() {
   const renderHighlightedText = () => {
     if (liveDetections.length === 0) return text;
     
-    const segments: { text: string; isHighlight: boolean; reframe?: string }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string }[] = [];
     let lastIndex = 0;
     
     const sortedDetections = [...liveDetections].sort((a, b) => {
@@ -128,7 +128,12 @@ export default function TextJournalPage() {
         if (index > lastIndex) {
           segments.push({ text: text.slice(lastIndex, index), isHighlight: false });
         }
-        segments.push({ text: detection.span, isHighlight: true, reframe: detection.reframe });
+        segments.push({ 
+          text: detection.span, 
+          isHighlight: true, 
+          reframe: detection.reframe,
+          type: detection.type 
+        });
         lastIndex = index + detection.span.length;
       }
     });
@@ -206,8 +211,14 @@ export default function TextJournalPage() {
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                          <div className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Reframe</div>
-                          <p className="text-sm text-foreground">{segment.reframe}</p>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                                {segment.type}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground">{segment.reframe}</p>
+                          </div>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
