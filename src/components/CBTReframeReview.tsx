@@ -161,7 +161,7 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
                       }
                       disabled={busy}
                     >
-                      <Pencil className="mr-2 h-4 w-4" /> {items[i].editing ? "Cancel" : "Edit"}
+                      <Pencil className="mr-2 h-4 w-4" /> {state.editing ? "Cancel" : "Edit"}
                     </Button>
                     {state.accepted && (
                       <span className="text-xs text-green-700">Saved</span>
