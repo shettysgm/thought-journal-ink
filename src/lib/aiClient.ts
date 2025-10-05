@@ -29,11 +29,20 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
 
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
+    
+    // Create a concise prompt with length constraints
+    const enhancedPrompt = `As a CBT therapist, provide a brief, supportive response to this journal entry. Keep your response to MAXIMUM 6 sentences. Be empathetic and focus on the most important cognitive patterns.
+
+Journal entry:
+${text}
+
+Remember: Maximum 6 sentences. Be concise and supportive.`;
+    
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        prompt: text,
+        prompt: enhancedPrompt,
         gcpProject: "apt-gear-425423-i9",
         region: "us-central1",
         model: "gemini-2.0-flash"
