@@ -175,11 +175,11 @@ export default function TextJournalPage() {
 
         {/* Document-style editor */}
         <div className="px-6 py-8">
-          <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)]">
+          <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible">
             
             {/* Highlight overlay */}
             <div 
-              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent overflow-hidden rounded-lg z-10"
+              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
               style={{ 
                 font: 'inherit',
                 letterSpacing: 'inherit',
