@@ -16,7 +16,7 @@ import { detectWithAI } from '@/lib/aiClient';
 export default function TextJournalPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createEntry, updateEntry } = useEntries();
+  const { createEntry, updateEntry, getEntry } = useEntries();
   
   const [text, setText] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -160,7 +160,6 @@ export default function TextJournalPage() {
     
     setIsProcessingReframes(true);
     try {
-      // Get current detections
       const detection = detections[index];
       const reframe = {
         span: detection.span,
@@ -168,9 +167,11 @@ export default function TextJournalPage() {
         socratic: detection.type
       };
       
-      // Update entry with this reframe
+      // Merge with any existing reframes on the entry
+      const current = await getEntry(savedEntryId);
+      const existing = current?.reframes ?? [];
       await updateEntry(savedEntryId, {
-        reframes: [reframe]
+        reframes: [...existing, reframe]
       });
       
       console.log('Reframe accepted:', reframe);
@@ -191,6 +192,9 @@ export default function TextJournalPage() {
     
     setIsProcessingReframes(true);
     try {
+      const current = await getEntry(savedEntryId);
+      const existing = current?.reframes ?? [];
+
       const reframes = acceptedItems.map(item => {
         const detection = detections[item.index];
         return {
@@ -200,7 +204,7 @@ export default function TextJournalPage() {
         };
       });
       
-      await updateEntry(savedEntryId, { reframes });
+      await updateEntry(savedEntryId, { reframes: [...existing, ...reframes] });
       
       toast({
         title: "Reframes Saved",

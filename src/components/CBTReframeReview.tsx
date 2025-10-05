@@ -194,13 +194,13 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
-          {allAccepted ? "All reframes accepted." : "Review and accept the reframes you want to keep."}
+          {items.length > 0 && allAccepted ? "All reframes accepted." : "Review and accept the reframes you want to keep."}
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
             Close
           </Button>
-          <Button onClick={handleAcceptAll} disabled={busy || allAccepted}>
+          <Button onClick={handleAcceptAll} disabled={busy || (items.length > 0 && allAccepted)}>
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />} Accept All
           </Button>
         </div>
