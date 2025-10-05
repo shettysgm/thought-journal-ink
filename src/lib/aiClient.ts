@@ -47,15 +47,19 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
     }
 
     clearTimeout(timeoutId);
-    const data = await response.json();
+    const responseData = await response.json();
     
-    console.debug("[AI Detect] Response received:", data);
+    console.debug("[AI Detect] Response received:", responseData);
+    
+    // Handle Vertex AI response format: { data: { result: "..." } }
+    const data = responseData?.data || responseData;
     
     // Validate response structure
     if (!data) {
       throw new Error("Empty response from AI endpoint");
     }
     
+    // If data contains distortions (structured format)
     if (Array.isArray(data)) {
       const distortions = data.map((item: any) => ({
         type: String(item.type || ""),
@@ -71,11 +75,23 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
       return { distortions, reframes };
     }
     
-    // Expect object with distortions array
     if (data.distortions && Array.isArray(data.distortions)) {
       return {
         distortions: data.distortions,
         reframes: data.reframes || []
+      };
+    }
+    
+    // If data.result contains conversational text (Vertex AI format)
+    if (data.result && typeof data.result === 'string') {
+      // Return empty distortions since this is a conversational response
+      return {
+        distortions: [],
+        reframes: [{
+          span: text.slice(0, 100), // First 100 chars as context
+          suggestion: data.result,
+          socratic: ""
+        }]
       };
     }
     
