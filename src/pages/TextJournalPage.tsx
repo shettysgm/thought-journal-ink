@@ -66,7 +66,7 @@ export default function TextJournalPage() {
   const renderHighlightedText = () => {
     if (liveDetections.length === 0) return text;
     
-    const segments: { text: string; isHighlight: boolean }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string }[] = [];
     let lastIndex = 0;
     
     // Sort detections by position to avoid overlap issues
@@ -84,7 +84,7 @@ export default function TextJournalPage() {
           segments.push({ text: text.slice(lastIndex, index), isHighlight: false });
         }
         // Add highlighted text
-        segments.push({ text: detection.span, isHighlight: true });
+        segments.push({ text: detection.span, isHighlight: true, reframe: detection.reframe });
         lastIndex = index + detection.span.length;
       }
     });
@@ -303,7 +303,7 @@ export default function TextJournalPage() {
               <div className="relative">
                 {/* Highlight overlay */}
                 <div 
-                  className="absolute inset-0 p-3 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent overflow-hidden rounded-md border border-transparent"
+                  className="absolute inset-0 p-3 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent overflow-hidden rounded-md border border-transparent z-10"
                   style={{ 
                     font: 'inherit',
                     letterSpacing: 'inherit',
@@ -316,13 +316,21 @@ export default function TextJournalPage() {
                     if (typeof highlighted === 'string') {
                       return highlighted;
                     }
-                    return highlighted.map((segment, i) => (
+                    return highlighted.map((segment: any, i: number) => (
                       segment.isHighlight ? (
-                        <span key={i} className="bg-primary/20 rounded px-0.5">
-                          {segment.text}
+                        <span key={i} className="group relative inline pointer-events-auto">
+                          <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors">
+                            {segment.text}
+                          </span>
+                          <div className="pointer-events-none absolute left-0 top-full mt-1 z-50 hidden group-hover:block">
+                            <div className="rounded-md border bg-popover text-popover-foreground shadow-md p-2 max-w-xs">
+                              <div className="text-[10px] font-semibold text-primary uppercase tracking-wide">Reframe</div>
+                              <p className="text-xs text-foreground">{segment.reframe}</p>
+                            </div>
+                          </div>
                         </span>
                       ) : (
-                        <span key={i}>{segment.text}</span>
+                        <span key={i} className="pointer-events-none">{segment.text}</span>
                       )
                     ));
                   })()}
