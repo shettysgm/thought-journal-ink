@@ -30,13 +30,18 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Create a concise prompt with length constraints
-    const enhancedPrompt = `As a CBT therapist, provide a brief, supportive response to this journal entry. Keep your response to MAXIMUM 6 sentences. Be empathetic and focus on the most important cognitive patterns.
+    // Create a concise CBT reframe prompt
+    const enhancedPrompt = `Identify cognitive distortions in this journal entry and provide CBT reframes. For each distortion found:
+1. Name the specific distortion (e.g., "mind reading", "catastrophizing", "all-or-nothing thinking")
+2. Offer an alternative, balanced thought that challenges it
+
+Keep your response to MAXIMUM 6 sentences total. Be compassionate but concise. Avoid therapist language — write as if suggesting a different perspective to a friend.
 
 Journal entry:
 ${text}
 
-Remember: Maximum 6 sentences. Be concise and supportive.`;
+Example format: "Your thought 'X' shows [distortion name]. A more balanced view might be: [alternative thought]."`;
+
     
     const response = await fetch(url, {
       method: "POST",
