@@ -108,7 +108,7 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
 
       <ul className="flex flex-col gap-3">
         {detections.map((d, i) => {
-          const state = items[i];
+          const state = items[i] || { reframe: d.reframe, editing: false, accepted: false };
           const icon = TypeIcon[d.type];
           const wc = wordCount(state.reframe);
           const overLimit = wc > 15;
