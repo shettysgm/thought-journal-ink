@@ -79,29 +79,27 @@ export function AIInsights({ reframes = [], contextInfo }: AIInsightsProps) {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Lightbulb className="w-4 h-4 text-primary" />
-              AI-Powered Reframes
+              CBT Reframes
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {reframes.map((reframe, index) => (
-              <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
-                <p className="text-sm font-medium italic">
-                  "{reframe.span}"
-                </p>
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-xs font-medium text-primary">Reframe:</span>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {reframe.suggestion}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-xs font-medium text-primary">Reflect:</span>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {reframe.socratic}
-                    </p>
-                  </div>
-                </div>
+              <div key={index} className="space-y-2">
+                {reframe.suggestion.split('\n').map((line, lineIndex) => {
+                  const trimmedLine = line.trim();
+                  if (!trimmedLine) return null;
+                  
+                  // Check if line contains a distortion pattern
+                  const isDistortionLine = trimmedLine.match(/shows|demonstrates|reflects/i);
+                  
+                  return (
+                    <div key={lineIndex} className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-sm leading-relaxed">
+                        {trimmedLine}
+                      </p>
+                    </div>
+                  );
+                }).filter(Boolean)}
               </div>
             ))}
           </CardContent>
