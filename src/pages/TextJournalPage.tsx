@@ -6,21 +6,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
 import { format } from 'date-fns';
 import StickerPicker from '@/components/StickerPicker';
+import CBTReframeReview, { Detection } from '@/components/CBTReframeReview';
+import { detectWithAI } from '@/lib/aiClient';
 
 export default function TextJournalPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createEntry } = useEntries();
+  const { createEntry, updateEntry } = useEntries();
   
   const [text, setText] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  
+  // CBT Reframe Review state
+  const [showReframeReview, setShowReframeReview] = useState(false);
+  const [detections, setDetections] = useState<Detection[]>([]);
+  const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
+  const [isProcessingReframes, setIsProcessingReframes] = useState(false);
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && currentTag.trim()) {
@@ -94,7 +102,7 @@ export default function TextJournalPage() {
 
     setIsSaving(true);
     try {
-      await createEntry({
+      const entryId = await createEntry({
         text: text.trim(),
         tags: [...tags, 'text'],
         hasAudio: false,
@@ -103,10 +111,38 @@ export default function TextJournalPage() {
 
       toast({
         title: "Entry Saved",
-        description: "Your journal entry has been saved successfully."
+        description: "Analyzing for thought patterns..."
       });
 
-      navigate('/journal');
+      setSavedEntryId(entryId);
+
+      // Try to detect distortions and show reframe review
+      try {
+        const response = await detectWithAI(text.trim());
+        
+        // Convert reframes to Detection format
+        if (response.reframes && response.reframes.length > 0) {
+          const detectionsList: Detection[] = response.reframes.map(r => ({
+            span: r.span.slice(0, 100), // Limit span to 100 chars
+            type: "Mind Reading" as const, // Default type, can be enhanced later
+            reframe: r.suggestion
+          }));
+          
+          setDetections(detectionsList);
+          setShowReframeReview(true);
+        } else {
+          // No reframes found, just navigate
+          navigate('/journal');
+        }
+      } catch (aiError) {
+        console.error('AI detection error:', aiError);
+        // Still save entry, just skip reframe review
+        toast({
+          title: "Entry Saved",
+          description: "Your entry was saved, but we couldn't analyze it right now."
+        });
+        navigate('/journal');
+      }
     } catch (error) {
       console.error('TextJournalPage save error:', error);
       toast({
@@ -116,6 +152,73 @@ export default function TextJournalPage() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAcceptReframe = async (index: number, acceptedText: string) => {
+    if (!savedEntryId) return;
+    
+    setIsProcessingReframes(true);
+    try {
+      // Get current detections
+      const detection = detections[index];
+      const reframe = {
+        span: detection.span,
+        suggestion: acceptedText,
+        socratic: detection.type
+      };
+      
+      // Update entry with this reframe
+      await updateEntry(savedEntryId, {
+        reframes: [reframe]
+      });
+      
+      console.log('Reframe accepted:', reframe);
+    } catch (error) {
+      console.error('Failed to save reframe:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save the reframe.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingReframes(false);
+    }
+  };
+
+  const handleAcceptAllReframes = async (acceptedItems: { index: number; text: string }[]) => {
+    if (!savedEntryId) return;
+    
+    setIsProcessingReframes(true);
+    try {
+      const reframes = acceptedItems.map(item => {
+        const detection = detections[item.index];
+        return {
+          span: detection.span,
+          suggestion: item.text,
+          socratic: detection.type
+        };
+      });
+      
+      await updateEntry(savedEntryId, { reframes });
+      
+      toast({
+        title: "Reframes Saved",
+        description: "Your thought reframes have been saved."
+      });
+      
+      // Close dialog and navigate
+      setShowReframeReview(false);
+      navigate('/journal');
+    } catch (error) {
+      console.error('Failed to save reframes:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save the reframes.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingReframes(false);
     }
   };
 
@@ -246,6 +349,22 @@ export default function TextJournalPage() {
             
           </CardContent>
         </Card>
+
+        {/* CBT Reframe Review Dialog */}
+        <CBTReframeReview
+          open={showReframeReview}
+          onOpenChange={(open) => {
+            setShowReframeReview(open);
+            if (!open && savedEntryId) {
+              // If user closes without accepting, navigate to journal
+              navigate('/journal');
+            }
+          }}
+          detections={detections}
+          onAccept={handleAcceptReframe}
+          onAcceptAll={handleAcceptAllReframes}
+          busy={isProcessingReframes}
+        />
 
       </div>
     </div>
