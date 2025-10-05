@@ -30,18 +30,17 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Create a structured CBT reframe prompt
-    const enhancedPrompt = `Identify cognitive distortions in this journal entry and provide CBT reframes in JSON format.
+    // Create a concise CBT reframe prompt
+    const enhancedPrompt = `Identify cognitive distortions in this journal entry and provide CBT reframes. For each distortion found:
+1. Name the specific distortion (e.g., "mind reading", "catastrophizing", "all-or-nothing thinking")
+2. Offer an alternative, balanced thought that challenges it
 
-Return a JSON array where each object has:
-- "span": the exact distorted thought from the entry
-- "type": the distortion type (e.g., "Mind Reading", "Catastrophizing", "All-or-Nothing", "Overgeneralization")
-- "reframe": a balanced alternative thought (one concise sentence)
+Keep your response to MAXIMUM 6 sentences total. Be compassionate but concise. Avoid therapist language — write as if suggesting a different perspective to a friend.
 
 Journal entry:
 ${text}
 
-Return ONLY valid JSON array, no other text. Maximum 4-5 distortions.`;
+Example format: "Your thought 'X' shows [distortion name]. A more balanced view might be: [alternative thought]."`;
 
     
     const response = await fetch(url, {
@@ -99,28 +98,11 @@ Return ONLY valid JSON array, no other text. Maximum 4-5 distortions.`;
     
     // If data.result contains conversational text (Vertex AI format)
     if (data.result && typeof data.result === 'string') {
-      try {
-        // Try to parse as JSON array
-        const parsed = JSON.parse(data.result);
-        if (Array.isArray(parsed)) {
-          return {
-            distortions: [],
-            reframes: parsed.map((item: any) => ({
-              span: String(item.span || ""),
-              suggestion: String(item.reframe || ""),
-              socratic: String(item.type || "")
-            }))
-          };
-        }
-      } catch {
-        // If not JSON, treat as plain text
-      }
-      
       // Return empty distortions since this is a conversational response
       return {
         distortions: [],
         reframes: [{
-          span: text.slice(0, 100),
+          span: text.slice(0, 100), // First 100 chars as context
           suggestion: data.result,
           socratic: ""
         }]
