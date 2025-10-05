@@ -156,7 +156,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
         
         try {
           console.log('Running hybrid distortion detection...');
-          await analyzeEntryWithContext(
+          const { hits, reframes } = await analyzeEntryWithContext(
             id, 
             entryData.text, 
             'ai-only',
@@ -164,7 +164,12 @@ export const useEntries = create<EntriesState>((set, get) => ({
               await addDistortion(distortionData);
             }
           );
-          console.log('Distortion analysis completed successfully');
+          console.log('Distortion analysis completed, reframes:', reframes);
+          
+          // Store reframes with the entry
+          if (reframes && reframes.length > 0) {
+            await get().updateEntry(id, { reframes });
+          }
         } catch (error) {
           console.warn('Distortion analysis failed, using fallback:', error);
           // Fallback to rule-based detection only

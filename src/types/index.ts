@@ -9,6 +9,11 @@ export type JournalEntry = {
   tags?: string[];
   stickers?: string[];         // emoji stickers
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
+  reframes?: Array<{           // AI-generated reframes
+    span: string;
+    suggestion: string;
+    socratic: string;
+  }>;
 };
 
 export type DistortionMeta = {

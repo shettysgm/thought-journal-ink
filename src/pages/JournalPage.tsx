@@ -9,6 +9,7 @@ import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import TextWithStickers from '@/components/TextWithStickers';
+import { AIInsights } from '@/components/AIInsights';
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -309,6 +310,13 @@ export default function JournalPage() {
                               #{tag}
                             </Badge>
                           ))}
+                        </div>
+                      )}
+
+                      {/* AI Reframes */}
+                      {entry.reframes && entry.reframes.length > 0 && (
+                        <div className="mt-4">
+                          <AIInsights reframes={entry.reframes} />
                         </div>
                       )}
                     </div>
