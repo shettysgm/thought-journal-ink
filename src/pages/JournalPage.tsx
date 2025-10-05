@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import TextWithStickers from '@/components/TextWithStickers';
+import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { AIInsights } from '@/components/AIInsights';
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
@@ -240,11 +240,12 @@ export default function JournalPage() {
                       {entry.text && (
                         <div className="bg-muted/30 rounded-lg p-4 mb-3">
                           <div className="text-foreground">
-                            <TextWithStickers
+                            <HighlightedTextWithReframes
                               text={entry.text.length > 300 && !expandedEntries.has(entry.id)
                                 ? entry.text.substring(0, 300)
                                 : entry.text
                               }
+                              reframes={entry.reframes}
                             />
                           </div>
                           {entry.text.length > 300 && (
