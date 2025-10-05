@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Detection = {
   span: string;
@@ -195,17 +196,21 @@ export default function TextJournalPage() {
                 }
                 return highlighted.map((segment: any, i: number) => (
                   segment.isHighlight ? (
-                    <span key={i} className="group relative inline pointer-events-auto">
-                      <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
-                        {segment.text}
-                      </span>
-                      <div className="pointer-events-none absolute left-0 top-full mt-2 z-50 hidden group-hover:block">
-                        <div className="rounded-lg border bg-popover text-popover-foreground shadow-lg p-4 w-96 max-w-[calc(100vw-2rem)]">
-                          <div className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">💡 Reframe</div>
-                          <p className="text-sm text-foreground whitespace-normal break-words">{segment.reframe}</p>
-                        </div>
-                      </div>
-                    </span>
+                    <TooltipProvider delayDuration={100} key={`prov-${i}`}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline pointer-events-auto">
+                            <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
+                              {segment.text}
+                            </span>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                          <div className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Reframe</div>
+                          <p className="text-sm text-foreground">{segment.reframe}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ) : (
                     <span key={i} className="pointer-events-none">{segment.text}</span>
                   )
