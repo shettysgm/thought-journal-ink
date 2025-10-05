@@ -88,14 +88,15 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
   const allAccepted = items.every((i) => i.accepted);
 
   const handleAccept = async (i: number) => {
-    const text = clampReframe(items[i].reframe);
+    const baseReframe = items[i]?.reframe ?? detections[i]?.reframe ?? "";
+    const text = clampReframe(baseReframe);
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, accepted: true, editing: false, reframe: text } : it)));
     await onAccept?.(i, text);
   };
 
   const handleAcceptAll = async () => {
-    const payload = items.map((it, idx) => ({ index: idx, text: clampReframe(it.reframe) }));
-    setItems((prev) => prev.map((it) => ({ ...it, accepted: true, editing: false, reframe: clampReframe(it.reframe) })));
+    const payload = detections.map((d, idx) => ({ index: idx, text: clampReframe(items[idx]?.reframe ?? d.reframe) }));
+    setItems((prev) => prev.map((it, idx) => ({ ...it, accepted: true, editing: false, reframe: clampReframe(items[idx]?.reframe ?? detections[idx]?.reframe ?? it.reframe) })));
     await onAcceptAll?.(payload);
   };
 
