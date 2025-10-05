@@ -30,6 +30,7 @@ export default function TextJournalPage() {
   const [isDetecting, setIsDetecting] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedReframes, setEditedReframes] = useState<{ [key: number]: string }>({});
+  const [acceptedIndices, setAcceptedIndices] = useState<Set<number>>(new Set());
 
 
   // Debounced detection as user types
@@ -77,6 +78,23 @@ export default function TextJournalPage() {
 
   const handleSaveEdit = (index: number) => {
     setEditingIndex(null);
+  };
+
+  const handleAcceptLiveReframe = (index: number) => {
+    const detection = liveDetections[index];
+    const reframeText = editedReframes[index] || detection.reframe;
+    
+    // Replace the original span with the reframe in the text
+    const updatedText = text.replace(detection.span, reframeText);
+    setText(updatedText);
+    
+    // Mark as accepted
+    setAcceptedIndices(prev => new Set(prev).add(index));
+    
+    toast({
+      title: "Reframe Applied",
+      description: "Your thought has been reframed in the text above."
+    });
   };
 
   const handleSave = async () => {
@@ -323,65 +341,90 @@ export default function TextJournalPage() {
                 <p className="text-sm text-muted-foreground">Keep writing... We'll help you identify thought patterns.</p>
               ) : (
                 <div className="space-y-4">
-                  {liveDetections.map((detection, index) => (
-                    <div key={index} className="bg-muted/30 rounded-lg p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm rounded-full bg-primary/10 text-primary px-3 py-1 font-bold">
-                              {detection.type}
-                            </span>
+                  {liveDetections.map((detection, index) => {
+                    const isAccepted = acceptedIndices.has(index);
+                    
+                    return (
+                      <div 
+                        key={index} 
+                        className={`rounded-lg p-4 space-y-3 transition-all ${
+                          isAccepted 
+                            ? 'bg-primary/10 border border-primary/30' 
+                            : 'bg-muted/30'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm rounded-full bg-primary/10 text-primary px-3 py-1 font-bold">
+                                {detection.type}
+                              </span>
+                              {isAccepted && (
+                                <span className="text-xs text-primary font-medium">✓ Applied</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground font-medium">
+                              "{detection.span}"
+                            </p>
                           </div>
-                          <p className="text-sm text-foreground font-medium">
-                            "{detection.span}"
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Reframe Suggestion
-                          </label>
-                          {editingIndex !== index && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditReframe(index)}
-                              className="h-7 text-xs gap-1"
-                            >
-                              <Edit2 className="w-3 h-3" />
-                              Edit
-                            </Button>
-                          )}
                         </div>
                         
-                        {editingIndex === index ? (
-                          <div className="space-y-2">
-                            <Textarea
-                              value={editedReframes[index] || detection.reframe}
-                              onChange={(e) => setEditedReframes(prev => ({
-                                ...prev,
-                                [index]: e.target.value
-                              }))}
-                              className="min-h-[80px] text-sm"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => handleSaveEdit(index)}
-                              className="w-full"
-                            >
-                              Save Edit
-                            </Button>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                              Reframe Suggestion
+                            </label>
+                            {editingIndex !== index && !isAccepted && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditReframe(index)}
+                                className="h-7 text-xs gap-1"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                                Edit
+                              </Button>
+                            )}
                           </div>
-                        ) : (
-                          <p className="text-sm text-foreground bg-background/50 rounded p-3">
-                            {editedReframes[index] || detection.reframe}
-                          </p>
-                        )}
+                          
+                          {editingIndex === index ? (
+                            <div className="space-y-2">
+                              <Textarea
+                                value={editedReframes[index] || detection.reframe}
+                                onChange={(e) => setEditedReframes(prev => ({
+                                  ...prev,
+                                  [index]: e.target.value
+                                }))}
+                                className="min-h-[80px] text-sm"
+                              />
+                              <Button
+                                size="sm"
+                                onClick={() => handleSaveEdit(index)}
+                                className="w-full"
+                              >
+                                Save Edit
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-sm text-foreground bg-background/50 rounded p-3">
+                                {editedReframes[index] || detection.reframe}
+                              </p>
+                              {!isAccepted && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleAcceptLiveReframe(index)}
+                                  className="w-full"
+                                >
+                                  Accept & Replace in Text
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
