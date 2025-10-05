@@ -30,17 +30,27 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Create a concise CBT reframe prompt
-    const enhancedPrompt = `Identify cognitive distortions in this journal entry and provide CBT reframes. For each distortion found:
-1. Name the specific distortion (e.g., "mind reading", "catastrophizing", "all-or-nothing thinking")
-2. Offer an alternative, balanced thought that challenges it
+    // Request structured JSON response
+    const enhancedPrompt = `Analyze this journal entry for cognitive distortions and return ONLY a JSON array. No explanations or extra text.
 
-Keep your response to MAXIMUM 6 sentences total. Be compassionate but concise. Avoid therapist language — write as if suggesting a different perspective to a friend.
+Format:
+[
+  {
+    "span": "exact phrase from entry showing distortion",
+    "type": "Mind Reading" or "Catastrophizing" or "All-or-Nothing" etc.,
+    "reframe": "brief compassionate alternative thought"
+  }
+]
+
+Rules:
+- Return ONLY the JSON array
+- Keep spans under 15 words
+- Keep reframes under 20 words
+- Use compassionate, friendly language
+- If no distortions found, return []
 
 Journal entry:
-${text}
-
-Example format: "Your thought 'X' shows [distortion name]. A more balanced view might be: [alternative thought]."`;
+${text}`;
 
     
     const response = await fetch(url, {
