@@ -98,37 +98,21 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
           }
 
           return (
-            <span
-              key={i}
-              className="bg-primary/20 rounded px-0.5 cursor-pointer hover:bg-primary/30 transition-colors relative"
-              onMouseEnter={(e) => handleMouseEnter(e, segment.index!)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <TextWithStickers text={segment.text} />
+            <span key={i} className="relative group inline">
+              <span className="bg-primary/20 rounded px-0.5 cursor-pointer hover:bg-primary/30 transition-colors">
+                <TextWithStickers text={segment.text} />
+              </span>
+              <div className="pointer-events-none absolute left-0 top-full mt-1 z-50 hidden group-hover:block">
+                <Card className="p-3 shadow-lg border-primary/20 max-w-sm">
+                  <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
+                  <p className="text-sm text-foreground">{segment.reframe}</p>
+                </Card>
+              </div>
             </span>
           );
         })}
       </div>
 
-      {/* Hover overlay */}
-      {hoveredIndex !== null && (
-        <Card
-          className="fixed z-50 max-w-sm p-3 shadow-lg border-primary/20 animate-in fade-in-0 zoom-in-95"
-          style={{
-            left: `${hoverPosition.x}px`,
-            top: `${hoverPosition.y}px`,
-          }}
-        >
-          <div className="space-y-2">
-            <div className="text-xs font-semibold text-primary uppercase tracking-wide">
-              💡 Reframe Suggestion
-            </div>
-            <p className="text-sm text-foreground">
-              {reframes[hoveredIndex]?.suggestion}
-            </p>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
