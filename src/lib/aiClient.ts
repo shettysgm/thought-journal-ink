@@ -106,13 +106,41 @@ ${text}`;
       };
     }
     
-    // If data.result contains conversational text (Vertex AI format)
+    // If data.result contains JSON string (Vertex AI format)
     if (data.result && typeof data.result === 'string') {
-      // Return empty distortions since this is a conversational response
+      // Strip markdown code blocks if present
+      let jsonStr = data.result.trim();
+      if (jsonStr.startsWith('```json')) {
+        jsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+      } else if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/^```\n?/, '').replace(/\n?```$/, '');
+      }
+      
+      try {
+        const parsed = JSON.parse(jsonStr);
+        if (Array.isArray(parsed)) {
+          const distortions = parsed.map((item: any) => ({
+            type: String(item.type || ""),
+            span: String(item.span || ""),
+            rationale: "",
+            confidence: 0.75,
+          }));
+          const reframes = parsed.map((item: any) => ({
+            span: String(item.span || ""),
+            suggestion: String(item.reframe || ""),
+            socratic: "",
+          }));
+          return { distortions, reframes };
+        }
+      } catch (e) {
+        console.error("Failed to parse JSON from result:", e);
+      }
+      
+      // Fallback: treat as plain text
       return {
         distortions: [],
         reframes: [{
-          span: text.slice(0, 100), // First 100 chars as context
+          span: text.slice(0, 100),
           suggestion: data.result,
           socratic: ""
         }]
