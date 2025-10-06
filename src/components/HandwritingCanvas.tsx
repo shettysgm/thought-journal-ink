@@ -181,13 +181,34 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
     });
   };
 
+  const getOcrBlob = (): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        resolve(new Blob());
+        return;
+      }
+      const scale = 2;
+      const off = document.createElement('canvas');
+      off.width = canvas.width * scale;
+      off.height = canvas.height * scale;
+      const ctx = off.getContext('2d');
+      if (!ctx) {
+        resolve(new Blob());
+        return;
+      }
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(canvas, 0, 0, off.width, off.height);
+      off.toBlob((blob) => resolve(blob || new Blob()), 'image/png');
+    });
+  };
   const handleOCR = async () => {
     if (!hasContent) return;
     
     setIsProcessingOCR(true);
     try {
-      const blob = await getCanvasBlob();
-      const text = await onOCR(blob);
+      const ocrBlob = await getOcrBlob();
+      const text = await onOCR(ocrBlob);
       setOcrText(text);
     } catch (error) {
       console.error('OCR failed:', error);
@@ -202,13 +223,14 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
     setIsSaving(true);
     try {
       const blob = await getCanvasBlob();
+      const ocrBlob = await getOcrBlob();
       
       // Auto-run OCR if not already done
       let textToSave = ocrText;
       if (!textToSave && hasContent) {
         setIsProcessingOCR(true);
         try {
-          textToSave = await onOCR(blob);
+          textToSave = await onOCR(ocrBlob);
           setOcrText(textToSave);
         } catch (error) {
           console.error('Auto-OCR failed:', error);
