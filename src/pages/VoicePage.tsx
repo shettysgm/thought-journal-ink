@@ -91,8 +91,30 @@ export default function VoicePage() {
       setIsRecording(true);
     };
 
-    recognitionInstance.onend = () => {
+    recognitionInstance.onend = async () => {
       setIsRecording(false);
+      // Force a final save when recording stops
+      try {
+        if ((transcript || '').trim() && transcript !== lastSavedText) {
+          if (!entryId) {
+            const newId = await createEntry({
+              text: transcript.trim(),
+              tags: ['voice'],
+              hasAudio: true,
+              hasDrawing: false
+            });
+            setEntryId(newId);
+            console.log('Created voice entry on stop:', newId);
+          } else {
+            await updateEntry(entryId, { text: transcript.trim() });
+            console.log('Updated voice entry on stop:', entryId);
+          }
+          setLastSavedText(transcript);
+          setSaveStatus('saved');
+        }
+      } catch (e) {
+        console.error('Save on stop failed:', e);
+      }
     };
 
     recognitionInstance.onresult = (event: any) => {
