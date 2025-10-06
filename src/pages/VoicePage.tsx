@@ -350,11 +350,15 @@ export default function VoicePage() {
         </header>
 
         {/* Recording controls - floating button */}
-        <div className="fixed bottom-8 right-8 z-30">
+        <div
+          className="fixed z-50"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)', right: 'calc(env(safe-area-inset-right, 0px) + 2rem)' }}
+        >
           {!isRecording ? (
             <Button
               onClick={startRecording}
               size="lg"
+              aria-label="Start recording"
               className="w-16 h-16 rounded-full shadow-lg bg-gradient-primary hover:shadow-glow transition-all duration-300"
             >
               <Mic className="w-6 h-6" />
@@ -363,6 +367,7 @@ export default function VoicePage() {
             <Button
               onClick={stopRecording}
               size="lg"
+              aria-label="Stop recording"
               variant="destructive"
               className="w-16 h-16 rounded-full shadow-lg animate-pulse"
             >
