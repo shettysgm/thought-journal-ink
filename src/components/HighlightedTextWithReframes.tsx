@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import React from 'react';
 import TextWithStickers from './TextWithStickers';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type Reframe = {
   span: string;
@@ -21,9 +22,6 @@ type HighlightSegment = {
 };
 
 export default function HighlightedTextWithReframes({ text, reframes = [] }: Props) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-
   console.log('HighlightedTextWithReframes:', { textLength: text?.length, reframesCount: reframes?.length, reframes });
 
   // If no reframes, just render plain text with stickers
@@ -74,45 +72,47 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
 
   const segments = buildSegments();
 
-  const handleMouseEnter = (e: React.MouseEvent, index: number) => {
-    console.log('Mouse enter:', index, reframes[index]);
-    const rect = e.currentTarget.getBoundingClientRect();
-    setHoverPosition({
-      x: rect.left + window.scrollX,
-      y: rect.bottom + window.scrollY + 4
-    });
-    setHoveredIndex(index);
-  };
-
-  const handleMouseLeave = () => {
-    console.log('Mouse leave');
-    setHoveredIndex(null);
-  };
-
   return (
-    <div className="relative">
-      <div className="whitespace-pre-wrap break-words">
-        {segments.map((segment, i) => {
-          if (!segment.isHighlight) {
-            return <TextWithStickers key={i} text={segment.text} />;
-          }
+    <TooltipProvider delayDuration={0}>
+      <div className="relative">
+        <div className="whitespace-pre-wrap break-words">
+          {segments.map((segment, i) => {
+            if (!segment.isHighlight) {
+              return <TextWithStickers key={i} text={segment.text} />;
+            }
 
-          return (
-            <span key={i} className="relative group inline">
-              <span className="bg-primary/20 rounded px-0.5 cursor-pointer hover:bg-primary/30 transition-colors">
-                <TextWithStickers text={segment.text} />
-              </span>
-              <div className="pointer-events-none absolute left-0 top-full mt-1 z-50 hidden group-hover:block">
-                <Card className="p-3 shadow-lg border-primary/20 max-w-sm">
-                  <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
-                  <p className="text-sm text-foreground">{segment.reframe}</p>
-                </Card>
-              </div>
-            </span>
-          );
-        })}
+            return (
+              <Tooltip key={i}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help align-baseline"
+                        aria-label={`CBT Reframe: ${segment.reframe}`}
+                      >
+                        <TextWithStickers text={segment.text} />
+                      </button>
+                    </TooltipTrigger>
+                  </PopoverTrigger>
+                  <PopoverContent side="bottom" align="start" className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
+                      <p className="text-sm text-foreground">{segment.reframe}</p>
+                    </div>
+                  </PopoverContent>
+                  <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
+                      <p className="text-sm text-foreground">{segment.reframe}</p>
+                    </div>
+                  </TooltipContent>
+                </Popover>
+              </Tooltip>
+            );
+          })}
+        </div>
       </div>
-
-    </div>
+    </TooltipProvider>
   );
 }
