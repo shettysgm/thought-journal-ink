@@ -56,7 +56,7 @@ export default function HandwritingPage() {
 
   const createNewEntry = async (imageBlob: Blob, text?: string) => {
     try {
-      await createEntry({
+      const entryId = await createEntry({
         text: text || '',
         hasDrawing: true,
         drawingBlob: imageBlob,
@@ -65,8 +65,16 @@ export default function HandwritingPage() {
 
       toast({
         title: "Saved Successfully",
-        description: "Your handwriting has been saved and analyzed.",
+        description: "Analyzing handwriting for CBT patterns...",
       });
+      
+      // Show follow-up toast after brief delay
+      setTimeout(() => {
+        toast({
+          title: "Analysis Complete",
+          description: "Check Journal to see CBT highlights on your entry.",
+        });
+      }, 3000);
     } catch (error) {
       console.error('HandwritingPage save error:', error);
       toast({
