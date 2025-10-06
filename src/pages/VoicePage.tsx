@@ -250,27 +250,25 @@ export default function VoicePage() {
     return segments.map((segment: any, i: number) => {
       if (segment.isHighlight) {
         return (
-          <TooltipProvider delayDuration={100} key={`highlight-${i}`}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline">
-                  <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
-                    {segment.text}
-                  </span>
+          <Tooltip key={`highlight-${i}`}>
+            <TooltipTrigger asChild>
+              <span className="inline">
+                <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help" title={`${segment.type}: ${segment.reframe}`}>
+                  {segment.text}
                 </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                      {segment.type}
-                    </span>
-                  </div>
-                  <p className="text-sm text-foreground">{segment.reframe}</p>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                    {segment.type}
+                  </span>
                 </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                <p className="text-sm text-foreground">{segment.reframe}</p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         );
       }
       
@@ -286,7 +284,8 @@ export default function VoicePage() {
   };
 
   if (!isSupported) {
-    return (
+  return (
+    <TooltipProvider delayDuration={0}>
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto">
           <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -311,11 +310,13 @@ export default function VoicePage() {
           </div>
         </div>
       </div>
+      </TooltipProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <TooltipProvider delayDuration={0}>
+      <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto">
         
         {/* Minimal header */}
@@ -413,5 +414,6 @@ export default function VoicePage() {
         
       </div>
     </div>
+      </TooltipProvider>
   );
 }
