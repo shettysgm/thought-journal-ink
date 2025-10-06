@@ -151,6 +151,7 @@ export default function VoicePage() {
           });
           setEntryId(newId);
           console.log('Created new voice entry for today:', newId);
+          toast({ title: 'Voice entry saved', description: 'Auto-saved to Journal.' });
         } else {
           // Update today's entry
           await updateEntry(entryId, { text: transcript.trim() });
