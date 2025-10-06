@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
@@ -32,6 +32,7 @@ export default function VoicePage() {
   
   const { createEntry, updateEntry, findTodaysEntries, getEntry } = useEntries();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [entryId, setEntryId] = useState<string | null>(null);
   const [lastSavedText, setLastSavedText] = useState('');
@@ -259,6 +260,33 @@ export default function VoicePage() {
     }
   };
 
+  const handleBack = async () => {
+    try {
+      if (recognition) recognition.stop();
+    } catch {}
+    try {
+      if ((transcript || '').trim() && transcript !== lastSavedText) {
+        setSaveStatus('saving');
+        if (!entryId) {
+          const newId = await createEntry({
+            text: transcript.trim(),
+            tags: ['voice'],
+            hasAudio: true,
+            hasDrawing: false,
+          });
+          setEntryId(newId);
+        } else {
+          await updateEntry(entryId, { text: transcript.trim() });
+        }
+        setLastSavedText(transcript);
+        setSaveStatus('saved');
+      }
+    } catch (e) {
+      console.error('Save on back failed:', e);
+    }
+    navigate('/journal');
+  };
+
   // Render highlighted text with tooltips
   const renderHighlightedText = () => {
     const fullText = transcript + interimTranscript;
@@ -400,12 +428,10 @@ export default function VoicePage() {
         {/* Minimal header */}
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="flex items-center justify-between px-6 py-3">
-            <Link to="/journal">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Journal
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack}>
+              <ArrowLeft className="w-4 h-4" />
+              Back to Journal
+            </Button>
             
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
