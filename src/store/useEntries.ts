@@ -211,7 +211,8 @@ export const useEntries = create<EntriesState>((set, get) => ({
     const updatedEntry = { 
       ...existingEntry, 
       ...updates, 
-      text: updatedText 
+      text: updatedText,
+      updatedAt: new Date().toISOString() // Track last update time
     };
     
     await saveJournalEntry(updatedEntry);

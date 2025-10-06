@@ -231,7 +231,10 @@ export default function JournalPage() {
                         </div>
                         <div className="flex items-center gap-1 text-muted-foreground text-sm">
                           <Calendar className="w-3 h-3" />
-                          {format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')}
+                          {entry.updatedAt 
+                            ? `${format(new Date(entry.createdAt), 'MMM d, yyyy')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
+                            : format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')
+                          }
                         </div>
                       </div>
 

@@ -3,6 +3,7 @@
 export type JournalEntry = {
   id: string;
   createdAt: string;           // ISO
+  updatedAt?: string;          // ISO - last modified time
   text?: string;               // OCR or transcript (optional)
   hasDrawing?: boolean;
   hasAudio?: boolean;
