@@ -202,7 +202,25 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
     setIsSaving(true);
     try {
       const blob = await getCanvasBlob();
-      await onSave(blob, ocrText);
+      
+      // Auto-run OCR if not already done
+      let textToSave = ocrText;
+      if (!textToSave && hasContent) {
+        setIsProcessingOCR(true);
+        try {
+          textToSave = await onOCR(blob);
+          setOcrText(textToSave);
+        } catch (error) {
+          console.error('Auto-OCR failed:', error);
+        } finally {
+          setIsProcessingOCR(false);
+        }
+      }
+      
+      await onSave(blob, textToSave);
+      
+      // Clear canvas after successful save
+      clearCanvas();
     } catch (error) {
       console.error('Save failed:', error);
     } finally {
@@ -340,18 +358,18 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
           ) : (
             <Eye className="w-4 h-4" />
           )}
-          {isProcessingOCR ? 'Processing...' : 'Run OCR'}
+          {isProcessingOCR ? 'Processing...' : 'Preview Text (Optional)'}
         </Button>
         
         <Button
           onClick={handleSave}
-          disabled={(!hasContent && !ocrText) || isSaving}
+          disabled={(!hasContent && !ocrText) || isSaving || isProcessingOCR}
           className="gap-2 flex-1"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            'Save & Analyze'
+            'Save & Analyze CBT'
           )}
         </Button>
       </div>
