@@ -287,6 +287,32 @@ export default function VoicePage() {
     navigate('/journal');
   };
 
+  const saveNow = async () => {
+    try {
+      if ((transcript || '').trim()) {
+        setSaveStatus('saving');
+        if (!entryId) {
+          const newId = await createEntry({
+            text: transcript.trim(),
+            tags: ['voice'],
+            hasAudio: true,
+            hasDrawing: false,
+          });
+          setEntryId(newId);
+          toast({ title: 'Voice entry saved', description: 'Saved to Journal.' });
+        } else {
+          await updateEntry(entryId, { text: transcript.trim() });
+          toast({ title: 'Voice entry updated', description: 'Journal updated.' });
+        }
+        setLastSavedText(transcript);
+        setSaveStatus('saved');
+      }
+    } catch (e) {
+      console.error('Manual save failed:', e);
+      toast({ title: 'Save failed', description: 'Could not save your entry.', variant: 'destructive' });
+    }
+  };
+
   // Render highlighted text with tooltips
   const renderHighlightedText = () => {
     const fullText = transcript + interimTranscript;
@@ -451,6 +477,11 @@ export default function VoicePage() {
                   <Check className="w-3 h-3" />
                   Saved
                 </span>
+              )}
+              {transcript.trim() && saveStatus !== 'saving' && (
+                <Button variant="outline" size="sm" onClick={saveNow}>
+                  Save now
+                </Button>
               )}
             </div>
           </div>
