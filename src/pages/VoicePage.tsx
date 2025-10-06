@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Square } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
-import SameDayEntryDialog from '@/components/SameDayEntryDialog';
+import { format } from 'date-fns';
+import { detectWithAI } from '@/lib/aiClient';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -15,15 +16,29 @@ declare global {
   }
 }
 
+type Detection = {
+  span: string;
+  type: string;
+  reframe: string;
+};
+
 export default function VoicePage() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(true);
-  const [showSameDayDialog, setShowSameDayDialog] = useState(false);
-  const { createEntry, appendToEntry, findTodaysEntries } = useEntries();
+  
+  const { createEntry, updateEntry } = useEntries();
   const { toast } = useToast();
+  
+  const [entryId, setEntryId] = useState<string | null>(null);
+  const [lastSavedText, setLastSavedText] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  
+  // Real-time detection state
+  const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
 
   useEffect(() => {
     // Check for Web Speech API support
@@ -85,6 +100,86 @@ export default function VoicePage() {
     };
   }, [toast]);
 
+  // Auto-save effect
+  useEffect(() => {
+    if (!transcript.trim() || transcript === lastSavedText) return;
+
+    setSaveStatus('unsaved');
+    const saveTimeout = setTimeout(async () => {
+      setSaveStatus('saving');
+      try {
+        if (!entryId) {
+          // Create new entry
+          const newId = await createEntry({
+            text: transcript.trim(),
+            tags: ['voice'],
+            hasAudio: true,
+            hasDrawing: false
+          });
+          setEntryId(newId);
+        } else {
+          // Update existing entry
+          await updateEntry(entryId, { text: transcript.trim() });
+        }
+        setLastSavedText(transcript);
+        setSaveStatus('saved');
+      } catch (error) {
+        console.error('Auto-save error:', error);
+        setSaveStatus('unsaved');
+        toast({
+          title: "Save Failed",
+          description: "Could not auto-save your entry.",
+          variant: "destructive"
+        });
+      }
+    }, 2000); // Auto-save after 2 seconds of no new speech
+
+    return () => clearTimeout(saveTimeout);
+  }, [transcript, entryId, lastSavedText, createEntry, updateEntry, toast]);
+
+  // Debounced AI detection
+  useEffect(() => {
+    if (!transcript.trim() || transcript.trim().length < 20) {
+      setLiveDetections([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsDetecting(true);
+      try {
+        const response = await detectWithAI(transcript.trim());
+        
+        if (response.reframes && response.reframes.length > 0) {
+          const detectionsList: Detection[] = response.reframes.map(r => ({
+            span: r.span,
+            type: "Mind Reading",
+            reframe: r.suggestion
+          }));
+          setLiveDetections(detectionsList);
+          
+          // Auto-save reframes to entry
+          if (entryId) {
+            const reframes = detectionsList.map(d => ({
+              span: d.span,
+              suggestion: d.reframe,
+              socratic: d.type
+            }));
+            await updateEntry(entryId, { reframes });
+          }
+        } else {
+          setLiveDetections([]);
+        }
+      } catch (error) {
+        console.error('Real-time detection error:', error);
+        setLiveDetections([]);
+      } finally {
+        setIsDetecting(false);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [transcript, entryId, updateEntry]);
+
   const startRecording = () => {
     if (recognition && !isRecording) {
       recognition.start();
@@ -97,235 +192,212 @@ export default function VoicePage() {
     }
   };
 
-  const clearTranscript = () => {
-    setTranscript('');
-    setInterimTranscript('');
-  };
-
-  const saveEntry = async () => {
-    if (!transcript.trim()) {
-      toast({
-        title: "Nothing to Save",
-        description: "Please record some speech before saving.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      // Check if there are entries from today
-      const todaysEntries = useEntries.getState().findTodaysEntries();
-      
-      if (todaysEntries.length > 0) {
-        // Show dialog to let user choose
-        setShowSameDayDialog(true);
-        return;
+  // Render highlighted text
+  const renderHighlightedText = () => {
+    const fullText = transcript + interimTranscript;
+    if (liveDetections.length === 0) return fullText;
+    
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string }[] = [];
+    let lastIndex = 0;
+    
+    const sortedDetections = [...liveDetections].sort((a, b) => {
+      const aIndex = transcript.indexOf(a.span);
+      const bIndex = transcript.indexOf(b.span);
+      return aIndex - bIndex;
+    });
+    
+    sortedDetections.forEach(detection => {
+      const index = transcript.indexOf(detection.span, lastIndex);
+      if (index !== -1 && index >= lastIndex) {
+        if (index > lastIndex) {
+          segments.push({ text: transcript.slice(lastIndex, index), isHighlight: false });
+        }
+        segments.push({ 
+          text: detection.span, 
+          isHighlight: true, 
+          reframe: detection.reframe,
+          type: detection.type 
+        });
+        lastIndex = index + detection.span.length;
       }
-
-      // No entries today, create new one
-      await createNewEntry();
-    } catch (error) {
-      console.error('VoicePage save error:', error);
-      toast({
-        title: "Save Failed",
-        description: "Could not save your entry. Please try again.",
-        variant: "destructive"
-      });
+    });
+    
+    if (lastIndex < transcript.length) {
+      segments.push({ text: transcript.slice(lastIndex), isHighlight: false });
     }
-  };
-
-  const createNewEntry = async () => {
-    try {
-      await createEntry({
-        text: transcript.trim(),
-        hasAudio: true,
-        tags: ['voice']
-      });
-
-      toast({
-        title: "Saved Successfully",
-        description: "Your voice entry has been saved and analyzed.",
-      });
-
-      clearTranscript();
-    } catch (error) {
-      toast({
-        title: "Save Failed",
-        description: "Could not save your entry. Please try again.",
-        variant: "destructive"
-      });
+    
+    // Add interim transcript at the end
+    if (interimTranscript) {
+      segments.push({ text: interimTranscript, isHighlight: false });
     }
-  };
-
-  const appendToExistingEntry = async (existingId: string) => {
-    try {
-      await appendToEntry(existingId, {
-        text: transcript.trim(),
-        hasAudio: true,
-        tags: ['voice']
-      });
-
-      toast({
-        title: "Added Successfully", 
-        description: "Your voice content has been added to the existing entry.",
-      });
-
-      clearTranscript();
-    } catch (error) {
-      toast({
-        title: "Save Failed",
-        description: "Could not add to the existing entry. Please try again.",
-        variant: "destructive"
-      });
-    }
+    
+    return segments;
   };
 
   if (!isSupported) {
     return (
-      <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <header className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Voice Journal</h1>
-              <p className="text-muted-foreground">Speak your thoughts aloud</p>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto">
+          <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+            <div className="flex items-center justify-between px-6 py-3">
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
             </div>
           </header>
-
-          <Card className="shadow-medium">
-            <CardContent className="p-8 text-center">
+          
+          <div className="px-6 py-8">
+            <div className="bg-card rounded-lg shadow-sm border p-8 text-center">
               <MicOff className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Voice Recording Not Supported</h3>
               <p className="text-muted-foreground">
                 Voice dictation is not supported in this browser. Please try using a modern browser like Safari, Chrome, or Edge.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto">
         
-        {/* Header */}
-        <header className="flex items-center gap-4">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Voice Journal</h1>
-            <p className="text-muted-foreground">Speak your thoughts aloud</p>
+        {/* Minimal header */}
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex items-center justify-between px-6 py-3">
+            <Link to="/journal">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Journal
+              </Button>
+            </Link>
+            
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {format(new Date(), 'MMM d, yyyy • h:mm a')}
+              </span>
+              {saveStatus === 'saving' && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Saving...
+                </span>
+              )}
+              {saveStatus === 'saved' && transcript.trim() && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Saved
+                </span>
+              )}
+            </div>
           </div>
         </header>
 
-        {/* Recording Controls */}
-        <Card className="shadow-medium">
-          <CardHeader>
-            <CardTitle className="text-center">
-              {isRecording ? 'Recording...' : 'Ready to Record'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-6">
+        {/* Recording controls - floating button */}
+        <div className="fixed bottom-8 right-8 z-30">
+          {!isRecording ? (
+            <Button
+              onClick={startRecording}
+              size="lg"
+              className="w-16 h-16 rounded-full shadow-lg bg-gradient-primary hover:shadow-glow transition-all duration-300"
+            >
+              <Mic className="w-6 h-6" />
+            </Button>
+          ) : (
+            <Button
+              onClick={stopRecording}
+              size="lg"
+              variant="destructive"
+              className="w-16 h-16 rounded-full shadow-lg animate-pulse"
+            >
+              <Square className="w-6 h-6" />
+            </Button>
+          )}
+        </div>
+
+        {/* Document-style editor */}
+        <div className="px-6 py-8">
+          <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible">
             
-            {/* Recording Button */}
-            <div className="flex justify-center">
-              {!isRecording ? (
-                <Button
-                  onClick={startRecording}
-                  size="lg"
-                  className="w-20 h-20 rounded-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                >
-                  <Mic className="w-8 h-8" />
-                </Button>
+            {/* Highlight overlay */}
+            <div 
+              className="p-8 whitespace-pre-wrap break-words text-base leading-relaxed rounded-lg"
+              style={{ lineHeight: '1.75' }}
+            >
+              {transcript || interimTranscript ? (
+                <>
+                  {(() => {
+                    const highlighted = renderHighlightedText();
+                    if (typeof highlighted === 'string') {
+                      return <span className="text-foreground">{highlighted}</span>;
+                    }
+                    return highlighted.map((segment: any, i: number) => (
+                      segment.isHighlight ? (
+                        <TooltipProvider delayDuration={100} key={`prov-${i}`}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline">
+                                <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
+                                  {segment.text}
+                                </span>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                                    {segment.type}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-foreground">{segment.reframe}</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span 
+                          key={i} 
+                          className={segment.text === interimTranscript ? "text-muted-foreground italic" : "text-foreground"}
+                        >
+                          {segment.text}
+                        </span>
+                      )
+                    ));
+                  })()}
+                </>
               ) : (
-                <Button
-                  onClick={stopRecording}
-                  size="lg"
-                  variant="destructive"
-                  className="w-20 h-20 rounded-full"
-                >
-                  <Square className="w-8 h-8" />
-                </Button>
+                <p className="text-muted-foreground italic">
+                  {isRecording 
+                    ? "Listening... Start speaking"
+                    : "Tap the microphone button to start recording your thoughts"
+                  }
+                </p>
               )}
             </div>
-
-            {/* Status */}
-            <p className="text-muted-foreground">
-              {isRecording 
-                ? 'Listening... Tap the square to stop'
-                : 'Tap the microphone to start recording'
-              }
-            </p>
-
-            {/* Recording indicator */}
-            {isRecording && (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-red-500 font-medium">Recording</span>
-              </div>
-            )}
-            
-          </CardContent>
-        </Card>
-
-        {/* Transcript */}
-        {(transcript || interimTranscript) && (
-          <Card className="shadow-medium">
-            <CardHeader>
-              <CardTitle>Transcript</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted/30 rounded-lg p-4 min-h-[200px]">
-                <p className="text-foreground">
-                  {transcript}
-                  <span className="text-muted-foreground italic">
-                    {interimTranscript}
-                  </span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Actions */}
-        {transcript && (
-          <div className="flex gap-4">
-            <Button
-              onClick={clearTranscript}
-              variant="outline"
-              className="flex-1"
-            >
-              Clear
-            </Button>
-            <Button
-              onClick={saveEntry}
-              className="flex-1"
-            >
-              Save & Analyze
-            </Button>
           </div>
-        )}
-        
-        {/* Same Day Entry Dialog */}
-        <SameDayEntryDialog
-          isOpen={showSameDayDialog}
-          onClose={() => setShowSameDayDialog(false)}
-          todaysEntries={findTodaysEntries()}
-          onCreateNew={createNewEntry}
-          onAppendTo={appendToExistingEntry}
-          newEntryType="voice"
-        />
+
+          {/* Word count footer */}
+          {transcript && (
+            <div className="flex justify-between text-xs text-muted-foreground mt-2 px-2">
+              <span>{transcript.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
+              <span>{transcript.length} characters</span>
+            </div>
+          )}
+
+          {/* Detection status */}
+          {isDetecting && (
+            <div className="mt-4 text-center">
+              <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Analyzing thought patterns...
+              </span>
+            </div>
+          )}
+        </div>
         
       </div>
     </div>
