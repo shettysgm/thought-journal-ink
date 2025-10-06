@@ -30,16 +30,48 @@ export default function VoicePage() {
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(true);
   
-  const { createEntry, updateEntry } = useEntries();
+  const { createEntry, updateEntry, findTodaysEntries, getEntry } = useEntries();
   const { toast } = useToast();
   
   const [entryId, setEntryId] = useState<string | null>(null);
   const [lastSavedText, setLastSavedText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const [isLoadingEntry, setIsLoadingEntry] = useState(true);
   
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
+
+  // Load or create today's entry on mount
+  useEffect(() => {
+    const initializeTodaysEntry = async () => {
+      setIsLoadingEntry(true);
+      try {
+        const todaysEntries = await findTodaysEntries();
+        const voiceEntry = todaysEntries.find(e => e.tags?.includes('voice'));
+        
+        if (voiceEntry) {
+          // Continue today's voice entry
+          setEntryId(voiceEntry.id);
+          const entry = await getEntry(voiceEntry.id);
+          if (entry?.text) {
+            setTranscript(entry.text + '\n\n');
+            setLastSavedText(entry.text + '\n\n');
+          }
+          console.log('Continuing today\'s voice entry:', voiceEntry.id);
+        } else {
+          // Will create new entry on first speech
+          console.log('No voice entry for today, will create new one');
+        }
+      } catch (error) {
+        console.error('Error loading today\'s entry:', error);
+      } finally {
+        setIsLoadingEntry(false);
+      }
+    };
+    
+    initializeTodaysEntry();
+  }, [findTodaysEntries, getEntry]);
 
   useEffect(() => {
     // Check for Web Speech API support
@@ -103,14 +135,14 @@ export default function VoicePage() {
 
   // Auto-save effect - triggers as user speaks
   useEffect(() => {
-    if (!transcript.trim() || transcript === lastSavedText) return;
+    if (!transcript.trim() || transcript === lastSavedText || isLoadingEntry) return;
 
     setSaveStatus('unsaved');
     const saveTimeout = setTimeout(async () => {
       setSaveStatus('saving');
       try {
         if (!entryId) {
-          // Create new entry
+          // Create new entry for today
           const newId = await createEntry({
             text: transcript.trim(),
             tags: ['voice'],
@@ -118,11 +150,11 @@ export default function VoicePage() {
             hasDrawing: false
           });
           setEntryId(newId);
-          console.log('Created new voice entry:', newId);
+          console.log('Created new voice entry for today:', newId);
         } else {
-          // Update existing entry
+          // Update today's entry
           await updateEntry(entryId, { text: transcript.trim() });
-          console.log('Updated voice entry:', entryId);
+          console.log('Updated today\'s voice entry:', entryId);
         }
         setLastSavedText(transcript);
         setSaveStatus('saved');
@@ -138,7 +170,7 @@ export default function VoicePage() {
     }, 1500); // Auto-save after 1.5 seconds of no new speech
 
     return () => clearTimeout(saveTimeout);
-  }, [transcript, entryId, lastSavedText, createEntry, updateEntry, toast]);
+  }, [transcript, entryId, lastSavedText, isLoadingEntry, createEntry, updateEntry, toast]);
 
   // Debounced AI detection - analyzes as user speaks
   useEffect(() => {
@@ -354,7 +386,10 @@ export default function VoicePage() {
             
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
-                {format(new Date(), 'MMM d, yyyy • h:mm a')}
+                {format(new Date(), 'MMM d, yyyy')}
+                {entryId && !isLoadingEntry && (
+                  <span className="ml-2 text-xs text-primary">• Today&apos;s Entry</span>
+                )}
               </span>
               {saveStatus === 'saving' && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -408,13 +443,20 @@ export default function VoicePage() {
               className="p-8 whitespace-pre-wrap break-words text-base leading-relaxed rounded-lg"
               style={{ lineHeight: '1.75' }}
             >
-              {transcript || interimTranscript ? (
+              {isLoadingEntry ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading today&apos;s entry...</span>
+                </div>
+              ) : transcript || interimTranscript ? (
                 renderHighlightedText()
               ) : (
                 <p className="text-muted-foreground italic">
                   {isRecording 
                     ? "Listening... Start speaking"
-                    : "Tap the microphone button to start recording your thoughts"
+                    : entryId 
+                      ? "Continue today's entry - tap mic to add more"
+                      : "Tap the microphone button to start recording your thoughts"
                   }
                 </p>
               )}
