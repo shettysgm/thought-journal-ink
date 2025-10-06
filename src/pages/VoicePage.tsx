@@ -100,7 +100,7 @@ export default function VoicePage() {
     };
   }, [toast]);
 
-  // Auto-save effect
+  // Auto-save effect - triggers as user speaks
   useEffect(() => {
     if (!transcript.trim() || transcript === lastSavedText) return;
 
@@ -117,9 +117,11 @@ export default function VoicePage() {
             hasDrawing: false
           });
           setEntryId(newId);
+          console.log('Created new voice entry:', newId);
         } else {
           // Update existing entry
           await updateEntry(entryId, { text: transcript.trim() });
+          console.log('Updated voice entry:', entryId);
         }
         setLastSavedText(transcript);
         setSaveStatus('saved');
@@ -132,12 +134,12 @@ export default function VoicePage() {
           variant: "destructive"
         });
       }
-    }, 2000); // Auto-save after 2 seconds of no new speech
+    }, 1500); // Auto-save after 1.5 seconds of no new speech
 
     return () => clearTimeout(saveTimeout);
   }, [transcript, entryId, lastSavedText, createEntry, updateEntry, toast]);
 
-  // Debounced AI detection
+  // Debounced AI detection - analyzes as user speaks
   useEffect(() => {
     if (!transcript.trim() || transcript.trim().length < 20) {
       setLiveDetections([]);
@@ -146,8 +148,10 @@ export default function VoicePage() {
 
     const timeoutId = setTimeout(async () => {
       setIsDetecting(true);
+      console.log('Starting AI detection for voice transcript...');
       try {
         const response = await detectWithAI(transcript.trim());
+        console.log('AI detection response:', response);
         
         if (response.reframes && response.reframes.length > 0) {
           const detectionsList: Detection[] = response.reframes.map(r => ({
@@ -156,6 +160,7 @@ export default function VoicePage() {
             reframe: r.suggestion
           }));
           setLiveDetections(detectionsList);
+          console.log('Found detections:', detectionsList);
           
           // Auto-save reframes to entry
           if (entryId) {
@@ -165,6 +170,7 @@ export default function VoicePage() {
               socratic: d.type
             }));
             await updateEntry(entryId, { reframes });
+            console.log('Saved reframes to entry');
           }
         } else {
           setLiveDetections([]);
@@ -175,7 +181,7 @@ export default function VoicePage() {
       } finally {
         setIsDetecting(false);
       }
-    }, 3000);
+    }, 2500); // Analyze after 2.5 seconds of no new speech
 
     return () => clearTimeout(timeoutId);
   }, [transcript, entryId, updateEntry]);
@@ -192,12 +198,22 @@ export default function VoicePage() {
     }
   };
 
-  // Render highlighted text
+  // Render highlighted text with tooltips
   const renderHighlightedText = () => {
     const fullText = transcript + interimTranscript;
-    if (liveDetections.length === 0) return fullText;
+    if (liveDetections.length === 0) {
+      // No highlights, just render text with interim in italic
+      return (
+        <>
+          <span className="text-foreground">{transcript}</span>
+          {interimTranscript && (
+            <span className="text-muted-foreground italic">{interimTranscript}</span>
+          )}
+        </>
+      );
+    }
     
-    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; isInterim?: boolean }[] = [];
     let lastIndex = 0;
     
     const sortedDetections = [...liveDetections].sort((a, b) => {
@@ -228,10 +244,45 @@ export default function VoicePage() {
     
     // Add interim transcript at the end
     if (interimTranscript) {
-      segments.push({ text: interimTranscript, isHighlight: false });
+      segments.push({ text: interimTranscript, isHighlight: false, isInterim: true });
     }
     
-    return segments;
+    return segments.map((segment: any, i: number) => {
+      if (segment.isHighlight) {
+        return (
+          <TooltipProvider delayDuration={100} key={`highlight-${i}`}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline">
+                  <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
+                    {segment.text}
+                  </span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                      {segment.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground">{segment.reframe}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
+      
+      return (
+        <span 
+          key={`text-${i}`}
+          className={segment.isInterim ? "text-muted-foreground italic" : "text-foreground"}
+        >
+          {segment.text}
+        </span>
+      );
+    });
   };
 
   if (!isSupported) {
@@ -323,52 +374,13 @@ export default function VoicePage() {
         <div className="px-6 py-8">
           <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible">
             
-            {/* Highlight overlay */}
+            {/* Transcript with highlights */}
             <div 
               className="p-8 whitespace-pre-wrap break-words text-base leading-relaxed rounded-lg"
               style={{ lineHeight: '1.75' }}
             >
               {transcript || interimTranscript ? (
-                <>
-                  {(() => {
-                    const highlighted = renderHighlightedText();
-                    if (typeof highlighted === 'string') {
-                      return <span className="text-foreground">{highlighted}</span>;
-                    }
-                    return highlighted.map((segment: any, i: number) => (
-                      segment.isHighlight ? (
-                        <TooltipProvider delayDuration={100} key={`prov-${i}`}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="inline">
-                                <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
-                                  {segment.text}
-                                </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                                    {segment.type}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-foreground">{segment.reframe}</p>
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        <span 
-                          key={i} 
-                          className={segment.text === interimTranscript ? "text-muted-foreground italic" : "text-foreground"}
-                        >
-                          {segment.text}
-                        </span>
-                      )
-                    ));
-                  })()}
-                </>
+                renderHighlightedText()
               ) : (
                 <p className="text-muted-foreground italic">
                   {isRecording 
