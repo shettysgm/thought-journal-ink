@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -256,23 +257,40 @@ export default function VoicePage() {
       if (segment.isHighlight) {
         return (
           <Tooltip key={`highlight-${i}`}>
-            <TooltipTrigger asChild>
-              <span className="inline">
-                <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help" title={`${segment.type}: ${segment.reframe}`}>
-                  {segment.text}
-                </span>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                    {segment.type}
-                  </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help align-baseline"
+                    aria-label={`${segment.type}: ${segment.reframe}`}
+                    title={`${segment.type}: ${segment.reframe}`}
+                  >
+                    {segment.text}
+                  </button>
+                </TooltipTrigger>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="start" className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                      {segment.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground">{segment.reframe}</p>
                 </div>
-                <p className="text-sm text-foreground">{segment.reframe}</p>
-              </div>
-            </TooltipContent>
+              </PopoverContent>
+              <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                      {segment.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground">{segment.reframe}</p>
+                </div>
+              </TooltipContent>
+            </Popover>
           </Tooltip>
         );
       }
