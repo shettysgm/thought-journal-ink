@@ -154,11 +154,16 @@ export default function VoicePage() {
         console.log('AI detection response:', response);
         
         if (response.reframes && response.reframes.length > 0) {
-          const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span,
-            type: "Mind Reading",
-            reframe: r.suggestion
-          }));
+          // Match reframes with their distortion types
+          const detectionsList: Detection[] = response.reframes.map(r => {
+            // Find matching distortion by span
+            const matchingDistortion = response.distortions?.find(d => d.span === r.span);
+            return {
+              span: r.span,
+              type: matchingDistortion?.type || r.socratic || "Cognitive Distortion",
+              reframe: r.suggestion
+            };
+          });
           setLiveDetections(detectionsList);
           console.log('Found detections:', detectionsList);
           
