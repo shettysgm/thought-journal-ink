@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, PenTool, Calendar, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Mic, Calendar, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,14 +33,16 @@ export default function JournalPage() {
     loadEntries();
   }, [loadEntries]);
 
-  const filteredEntries = entries.filter(entry => {
-    // If no search term, show all entries
-    if (!searchTerm.trim()) return true;
-    
-    // Otherwise, filter by text or tags
-    return entry.text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           entry.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-  });
+  const filteredEntries = entries
+    .filter(entry => !entry.hasDrawing) // Filter out handwriting entries
+    .filter(entry => {
+      // If no search term, show all entries
+      if (!searchTerm.trim()) return true;
+      
+      // Otherwise, filter by text or tags
+      return entry.text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             entry.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    });
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
@@ -86,8 +88,7 @@ export default function JournalPage() {
   const getEntryIcon = (entry: any) => {
     const icons = [];
     if (entry.hasAudio) icons.push(<Mic key="audio" className="w-4 h-4" />);
-    if (entry.hasDrawing) icons.push(<PenTool key="drawing" className="w-4 h-4" />);
-    if (entry.text && !entry.hasAudio && !entry.hasDrawing) icons.push(<FileText key="text" className="w-4 h-4" />);
+    if (entry.text && !entry.hasAudio) icons.push(<FileText key="text" className="w-4 h-4" />);
     
     return icons.length > 0 ? (
       <div className="flex gap-1">
@@ -99,8 +100,7 @@ export default function JournalPage() {
   const getEntryTypes = (entry: any) => {
     const types = [];
     if (entry.hasAudio) types.push('Voice');
-    if (entry.hasDrawing) types.push('Handwriting');
-    if (entry.text && !entry.hasAudio && !entry.hasDrawing) types.push('Text');
+    if (entry.text && !entry.hasAudio) types.push('Text');
     
     return types.length > 0 ? types : ['Entry'];
   };
@@ -154,27 +154,19 @@ export default function JournalPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="shadow-soft">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{entries.length}</div>
+              <div className="text-2xl font-bold text-primary">{entries.filter(e => !e.hasDrawing).length}</div>
               <p className="text-sm text-muted-foreground">Total Entries</p>
             </CardContent>
           </Card>
           <Card className="shadow-soft">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-accent">
-                {entries.filter(e => e.hasAudio).length}
+                {entries.filter(e => e.hasAudio && !e.hasDrawing).length}
               </div>
               <p className="text-sm text-muted-foreground">Voice Entries</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-soft">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-therapeutic-growth">
-                {entries.filter(e => e.hasDrawing).length}
-              </div>
-              <p className="text-sm text-muted-foreground">Handwriting Entries</p>
             </CardContent>
           </Card>
         </div>
@@ -195,16 +187,16 @@ export default function JournalPage() {
               </p>
               {entries.length === 0 && (
                 <div className="flex gap-2 justify-center">
-                  <Link to="/voice">
+                  <Link to="/text">
                     <Button variant="outline" className="gap-2">
-                      <Mic className="w-4 h-4" />
-                      Voice Journal
+                      <FileText className="w-4 h-4" />
+                      Text Journal
                     </Button>
                   </Link>
-                  <Link to="/handwriting">
+                  <Link to="/voice">
                     <Button className="gap-2">
-                      <PenTool className="w-4 h-4" />
-                      Handwriting
+                      <Mic className="w-4 h-4" />
+                      Voice Journal
                     </Button>
                   </Link>
                 </div>
@@ -262,13 +254,6 @@ export default function JournalPage() {
                           )}
                         </div>
                       )}
-
-                      {/* Handwriting preview */}
-                      {entry.hasDrawing && (entry as any).drawingBlob && (
-                        <BlobImage blob={(entry as any).drawingBlob} alt="Handwriting preview" />
-                      )}
-
-                      {/* Stickers Display */}
                       {entry.stickers && entry.stickers.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-3">
                           <span className="text-sm text-muted-foreground mr-2">Mood:</span>
