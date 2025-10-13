@@ -9,7 +9,7 @@ async function preprocessForOCR(imageBlob: Blob): Promise<Blob> {
       const url = URL.createObjectURL(imageBlob);
       img.onload = () => {
         try {
-          const scale = 2; // Upscale for better OCR accuracy
+          const scale = 3; // Upscale for better OCR accuracy
           const canvas = document.createElement('canvas');
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
@@ -119,7 +119,7 @@ export async function initializeOCR(): Promise<Tesseract.Worker> {
     preserve_interword_spaces: '1',
     user_defined_dpi: '400',
     tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?;:'\"()-–—[]{} ",
-    tessedit_pageseg_mode: '6', // Uniform block of text (multiple lines)
+    tessedit_pageseg_mode: '4', // Single column of text, variable sizes
   } as any);
   return worker;
 }
