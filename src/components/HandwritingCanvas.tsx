@@ -188,7 +188,7 @@ export function HandwritingCanvas({ onSave, onOCR }: HandwritingCanvasProps) {
         resolve(new Blob());
         return;
       }
-      const scale = 2;
+      const scale = 1;
       const off = document.createElement('canvas');
       off.width = canvas.width * scale;
       off.height = canvas.height * scale;

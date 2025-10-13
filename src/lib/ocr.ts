@@ -20,27 +20,74 @@ async function preprocessForOCR(imageBlob: Blob): Promise<Blob> {
           ctx.imageSmoothingEnabled = false;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // Grayscale + threshold to remove page lines and enhance strokes
+          // Grayscale + adaptive threshold, then strengthen strokes and remove guide lines
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
+          const { data, width, height } = imageData;
 
-          // Simple adaptive threshold
+          // 1) Adaptive threshold to B/W
           let sum = 0;
           for (let i = 0; i < data.length; i += 4) {
             const v = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
             sum += v;
           }
           const avg = sum / (data.length / 4);
-          const threshold = Math.min(230, Math.max(140, avg + 10));
+          const threshold = Math.min(235, Math.max(135, avg + 15));
 
           for (let i = 0; i < data.length; i += 4) {
             const r = data[i], g = data[i + 1], b = data[i + 2];
             const lum = 0.299 * r + 0.587 * g + 0.114 * b;
             const val = lum > threshold ? 255 : 0;
-            // Make foreground solid black, background solid white
             data[i] = data[i + 1] = data[i + 2] = val;
             data[i + 3] = 255;
           }
+
+          // 2) Light dilation to connect broken handwriting strokes
+          const dilated = new Uint8ClampedArray(data.length);
+          for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+              let blackNeighbor = false;
+              for (let dy = -1; dy <= 1 && !blackNeighbor; dy++) {
+                const ny = y + dy;
+                if (ny < 0 || ny >= height) continue;
+                for (let dx = -1; dx <= 1; dx++) {
+                  const nx = x + dx;
+                  if (nx < 0 || nx >= width) continue;
+                  const idx = (ny * width + nx) * 4;
+                  if (data[idx] === 0) { blackNeighbor = true; break; }
+                }
+              }
+              const i = (y * width + x) * 4;
+              const v = blackNeighbor ? 0 : 255;
+              dilated[i] = dilated[i + 1] = dilated[i + 2] = v;
+              dilated[i + 3] = 255;
+            }
+          }
+          // copy back
+          for (let i = 0; i < data.length; i++) {
+            data[i] = dilated[i];
+          }
+
+          // 3) Remove horizontal guide lines (rows with very high black coverage)
+          const rowBlackCounts = new Uint32Array(height);
+          for (let y = 0; y < height; y++) {
+            let count = 0;
+            for (let x = 0; x < width; x++) {
+              const idx = (y * width + x) * 4;
+              if (data[idx] === 0) count++;
+            }
+            rowBlackCounts[y] = count;
+          }
+          for (let y = 0; y < height; y++) {
+            const ratio = rowBlackCounts[y] / width;
+            if (ratio > 0.6) {
+              for (let x = 0; x < width; x++) {
+                const idx = (y * width + x) * 4;
+                data[idx] = data[idx + 1] = data[idx + 2] = 255;
+                data[idx + 3] = 255;
+              }
+            }
+          }
+
           ctx.putImageData(imageData, 0, 0);
 
           canvas.toBlob((blob) => {
@@ -70,9 +117,9 @@ export async function initializeOCR(): Promise<Tesseract.Worker> {
   // Improve spacing and DPI for handwriting
   await worker.setParameters({
     preserve_interword_spaces: '1',
-    user_defined_dpi: '300',
+    user_defined_dpi: '400',
     tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?;:'\"()-–—[]{} ",
-    tessedit_pageseg_mode: '6', // Assume a uniform block of text
+    tessedit_pageseg_mode: '6', // Uniform block of text (multiple lines)
   } as any);
   return worker;
 }
