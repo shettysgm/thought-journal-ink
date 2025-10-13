@@ -5,6 +5,8 @@ import VoicePage from "./pages/VoicePage";
 import JournalPage from "./pages/JournalPage";
 import QuizPage from "./pages/QuizPage";
 import SettingsPage from "./pages/SettingsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import NotFound from "./pages/NotFound";
 
 export default function Router() {
@@ -19,6 +21,8 @@ export default function Router() {
         <Route path="/journal" element={<JournalPage />} />
         <Route path="/quiz" element={<QuizPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
