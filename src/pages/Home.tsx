@@ -92,13 +92,34 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Privacy Notice */}
-        <div className="text-center text-sm text-muted-foreground bg-card/50 rounded-lg p-4 backdrop-blur-sm">
+        {/* AI Usage Notice */}
+        <div className="text-center text-sm text-muted-foreground bg-card/50 rounded-lg p-4 backdrop-blur-sm space-y-2">
           <p>
-            🔒 Your journal entries stay private and secure on this device. 
-            Only anonymous usage patterns are analyzed to help you grow.
+            🔒 Your journal entries stay private and secure on this device.
+          </p>
+          <p>
+            🤖 <strong>This app uses AI</strong> to analyze your entries and detect cognitive distortions to help you develop healthier thinking patterns.
           </p>
         </div>
+
+        {/* Footer Links */}
+        <footer className="text-center text-sm text-muted-foreground pb-8 space-y-2">
+          <div className="flex items-center justify-center gap-4">
+            <a 
+              href="/privacy" 
+              className="hover:text-foreground transition-colors underline"
+            >
+              Privacy Policy
+            </a>
+            <span>•</span>
+            <a 
+              href="/terms" 
+              className="hover:text-foreground transition-colors underline"
+            >
+              Terms of Service
+            </a>
+          </div>
+        </footer>
 
       </div>
     </div>
