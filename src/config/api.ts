@@ -20,5 +20,3 @@ export const API_CONFIG = {
 
 export const getDetectDistortionsUrl = () => 
   `${API_CONFIG.BACKEND_URL}${API_CONFIG.DETECT_DISTORTIONS_ENDPOINT}`;
-
-export const getOcrUrl = () => '/api/ocrHandwriting';

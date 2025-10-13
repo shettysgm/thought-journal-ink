@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import TextJournalPage from "./pages/TextJournalPage";
-import HandwritingPage from "./pages/HandwritingPage";
 import VoicePage from "./pages/VoicePage";
 import JournalPage from "./pages/JournalPage";
 import InsightsPage from "./pages/InsightsPage";
@@ -17,7 +16,6 @@ export default function Router() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/text" element={<TextJournalPage />} />
-        <Route path="/handwriting" element={<HandwritingPage />} />
         <Route path="/voice" element={<VoicePage />} />
         <Route path="/journal" element={<JournalPage />} />
         <Route path="/insights" element={<InsightsPage />} />
