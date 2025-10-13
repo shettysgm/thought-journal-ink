@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, BarChart3, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
+import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 
 const navigationCards = [
   {
@@ -27,14 +27,6 @@ const navigationCards = [
     href: "/journal",
     gradient: "bg-therapeutic-energy",
     color: "therapeutic-energy"
-  },
-  {
-    title: "Insights",
-    description: "Track your thought patterns",
-    icon: BarChart3,
-    href: "/insights", 
-    gradient: "bg-therapeutic-growth",
-    color: "therapeutic-growth"
   },
   {
     title: "CBT Quiz",

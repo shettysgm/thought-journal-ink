@@ -3,7 +3,6 @@ import Home from "./pages/Home";
 import TextJournalPage from "./pages/TextJournalPage";
 import VoicePage from "./pages/VoicePage";
 import JournalPage from "./pages/JournalPage";
-import InsightsPage from "./pages/InsightsPage";
 import QuizPage from "./pages/QuizPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
@@ -18,7 +17,6 @@ export default function Router() {
         <Route path="/text" element={<TextJournalPage />} />
         <Route path="/voice" element={<VoicePage />} />
         <Route path="/journal" element={<JournalPage />} />
-        <Route path="/insights" element={<InsightsPage />} />
         <Route path="/quiz" element={<QuizPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
