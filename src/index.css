@@ -150,7 +150,8 @@ All colors MUST be HSL for consistency and theming support.
 
   html,
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #f8fafc;
     min-height: 100svh;
     height: auto;
     overflow-y: auto;
