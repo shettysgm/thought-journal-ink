@@ -175,6 +175,14 @@ export default function TextJournalPage() {
                   Saved
                 </span>
               )}
+              {text.trim() && (
+                <Link to="/journal">
+                  <Button size="sm" className="gap-2">
+                    <Check className="w-4 h-4" />
+                    Done
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </header>
