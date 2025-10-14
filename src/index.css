@@ -148,7 +148,16 @@ All colors MUST be HSL for consistency and theming support.
     @apply border-border;
   }
 
+  html,
   body {
     @apply bg-background text-foreground;
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #root {
+    min-height: 100%;
+    overflow: auto;
   }
 }
