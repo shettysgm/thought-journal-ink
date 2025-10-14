@@ -58,7 +58,7 @@ export default function MobileIntroOverlay() {
 
           {/* Features */}
           <div className="space-y-4">
-            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft">
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft animate-fade-in" style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}>
               <div className="flex gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-primary" />
@@ -72,7 +72,7 @@ export default function MobileIntroOverlay() {
               </div>
             </Card>
 
-            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft">
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft animate-fade-in" style={{ animationDelay: '0.4s', opacity: 0, animationFillMode: 'forwards' }}>
               <div className="flex gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-accent-strong/10 flex items-center justify-center">
                   <Brain className="w-5 h-5 text-accent-strong" />
@@ -86,7 +86,7 @@ export default function MobileIntroOverlay() {
               </div>
             </Card>
 
-            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft">
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20 shadow-soft animate-fade-in" style={{ animationDelay: '0.6s', opacity: 0, animationFillMode: 'forwards' }}>
               <div className="flex gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-therapeutic-warmth/20 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-therapeutic-warmth" />
@@ -102,7 +102,7 @@ export default function MobileIntroOverlay() {
           </div>
 
           {/* CTA */}
-          <div className="space-y-3 pt-4">
+          <div className="space-y-3 pt-4 animate-fade-in" style={{ animationDelay: '0.8s', opacity: 0, animationFillMode: 'forwards' }}>
             <Button 
               onClick={handleDismiss}
               className="w-full h-12 text-lg bg-primary hover:bg-primary/90 shadow-medium"
