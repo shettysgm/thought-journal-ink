@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
+import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 
 const navigationCards = [
   {
@@ -42,10 +43,12 @@ export default function Home() {
   console.log('Home component rendering');
   
   return (
-    <div className="min-h-[100svh] bg-gradient-therapeutic p-4 md:p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
-        
-        {/* Header */}
+    <>
+      <MobileIntroOverlay />
+      <div className="min-h-[100svh] bg-gradient-therapeutic p-4 md:p-6">
+        <div className="max-w-4xl mx-auto space-y-8">
+          
+          {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Heart className="w-6 h-6 md:w-8 md:h-8 text-primary" />
@@ -121,7 +124,8 @@ export default function Home() {
           </div>
         </footer>
 
+        </div>
       </div>
-    </div>
+    </>
   );
 }
