@@ -15,15 +15,16 @@ export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/text" replace />} />
         <Route path="/text" element={<TextJournalPage />} />
         <Route path="/voice" element={<VoicePage />} />
         <Route path="/journal" element={<JournalPage />} />
         <Route path="/quiz" element={<QuizPage />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
-        <Route path="/handwriting" element={<Navigate to="/" replace />} />
+        <Route path="/handwriting" element={<Navigate to="/text" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
