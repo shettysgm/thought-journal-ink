@@ -10,12 +10,12 @@ interface MobileIntroOverlayProps {
 }
 
 export default function MobileIntroOverlay({ alwaysShow = false }: MobileIntroOverlayProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(alwaysShow);
 
   useEffect(() => {
     if (alwaysShow) {
-      // Always show if alwaysShow is true
-      setTimeout(() => setIsVisible(true), 300);
+      // Always show immediately if alwaysShow is true
+      setIsVisible(true);
     } else {
       // Check if user has seen the intro
       const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
