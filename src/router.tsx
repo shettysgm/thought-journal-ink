@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import TextJournalPage from "./pages/TextJournalPage";
 import VoicePage from "./pages/VoicePage";
@@ -23,6 +23,7 @@ export default function Router() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/handwriting" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
