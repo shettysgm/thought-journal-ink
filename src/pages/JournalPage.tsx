@@ -116,7 +116,7 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc' }}>
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
