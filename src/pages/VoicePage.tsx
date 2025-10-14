@@ -248,9 +248,22 @@ export default function VoicePage() {
     return () => clearTimeout(timeoutId);
   }, [transcript, entryId, updateEntry]);
 
-  const startRecording = () => {
-    if (recognition && !isRecording) {
+  const startRecording = async () => {
+    if (!recognition || isRecording) return;
+    
+    try {
+      // Request microphone permission explicitly for iOS
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
       recognition.start();
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      toast({
+        title: "Microphone Access Required",
+        description: "Please allow microphone access in your browser settings.",
+        variant: "destructive"
+      });
     }
   };
 

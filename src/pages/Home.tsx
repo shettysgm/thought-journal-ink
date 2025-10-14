@@ -42,8 +42,8 @@ export default function Home() {
   console.log('Home component rendering');
   
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <div className="max-w-4xl mx-auto space-y-8" style={{ backgroundColor: 'transparent', padding: '20px', borderRadius: '8px' }}>
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+      <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
         <header className="text-center space-y-4 pt-8">
