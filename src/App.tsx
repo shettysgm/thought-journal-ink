@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Router from "./router";
-import MobileLayout from "./components/MobileLayout";
 
 const queryClient = new QueryClient();
 
@@ -15,9 +14,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <MobileLayout>
-          <Router />
-        </MobileLayout>
+        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );
