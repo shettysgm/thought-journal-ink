@@ -151,13 +151,15 @@ All colors MUST be HSL for consistency and theming support.
   html,
   body {
     @apply bg-background text-foreground;
-    height: 100%;
-    overflow: auto;
+    min-height: 100svh;
+    height: auto;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   #root {
-    min-height: 100%;
-    overflow: auto;
+    min-height: 100svh;
+    overflow: visible;
   }
 }
