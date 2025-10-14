@@ -146,7 +146,7 @@ export default function TextJournalPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f8fafc' }}>
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
         
         {/* Minimal header */}
