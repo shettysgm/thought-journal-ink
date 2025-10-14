@@ -102,7 +102,7 @@ export default function QuizPage() {
               <p className="text-muted-foreground mb-4">
                 You need to journal more to generate quiz questions from your own thought patterns.
               </p>
-              <Link to="/handwriting">
+              <Link to="/">
                 <Button>Start Journaling</Button>
               </Link>
             </CardContent>
