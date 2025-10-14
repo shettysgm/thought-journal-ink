@@ -7,23 +7,29 @@ const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
 interface MobileIntroOverlayProps {
   alwaysShow?: boolean;
+  openSignal?: number;
 }
 
-export default function MobileIntroOverlay({ alwaysShow = false }: MobileIntroOverlayProps) {
+export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: MobileIntroOverlayProps) {
   const [isVisible, setIsVisible] = useState(alwaysShow);
 
   useEffect(() => {
     if (alwaysShow) {
-      // Always show immediately if alwaysShow is true
       setIsVisible(true);
     } else {
-      // Check if user has seen the intro
       const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
       if (!hasSeenIntro) {
         setTimeout(() => setIsVisible(true), 500);
       }
     }
   }, [alwaysShow]);
+
+  // Re-open overlay when signal changes
+  useEffect(() => {
+    if (openSignal !== undefined) {
+      setIsVisible(true);
+    }
+  }, [openSignal]);
 
   const handleDismiss = () => {
     if (!alwaysShow) {

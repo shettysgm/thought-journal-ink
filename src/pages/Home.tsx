@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
+import { useState } from "react";
 
 const navigationCards = [
   {
@@ -41,12 +42,17 @@ const navigationCards = [
 
 export default function Home() {
   console.log('Home component rendering');
-  
+  const [introSignal, setIntroSignal] = useState(0);
   return (
     <>
-      <MobileIntroOverlay alwaysShow />
+      <MobileIntroOverlay alwaysShow openSignal={introSignal} />
       <div className="min-h-[100svh] bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc' }}>
         <div className="max-w-4xl mx-auto space-y-8">
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => s + 1)}>
+              Show Intro
+            </Button>
+          </div>
           
           {/* Header */}
         <header className="text-center space-y-4 pt-8">
