@@ -44,7 +44,7 @@ export default function Home() {
   
   return (
     <>
-      <MobileIntroOverlay />
+      <MobileIntroOverlay alwaysShow />
       <div className="min-h-[100svh] bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc' }}>
         <div className="max-w-4xl mx-auto space-y-8">
           

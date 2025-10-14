@@ -5,20 +5,30 @@ import { Card } from '@/components/ui/card';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
-export default function MobileIntroOverlay() {
+interface MobileIntroOverlayProps {
+  alwaysShow?: boolean;
+}
+
+export default function MobileIntroOverlay({ alwaysShow = false }: MobileIntroOverlayProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if user has seen the intro
-    const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
-    if (!hasSeenIntro) {
-      // Small delay for smooth animation
-      setTimeout(() => setIsVisible(true), 500);
+    if (alwaysShow) {
+      // Always show if alwaysShow is true
+      setTimeout(() => setIsVisible(true), 300);
+    } else {
+      // Check if user has seen the intro
+      const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
+      if (!hasSeenIntro) {
+        setTimeout(() => setIsVisible(true), 500);
+      }
     }
-  }, []);
+  }, [alwaysShow]);
 
   const handleDismiss = () => {
-    localStorage.setItem(INTRO_SEEN_KEY, 'true');
+    if (!alwaysShow) {
+      localStorage.setItem(INTRO_SEEN_KEY, 'true');
+    }
     setIsVisible(false);
   };
 
