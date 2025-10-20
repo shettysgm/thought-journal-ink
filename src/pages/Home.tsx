@@ -45,7 +45,7 @@ export default function Home() {
   const [introSignal, setIntroSignal] = useState(0);
   return (
     <>
-      <MobileIntroOverlay alwaysShow openSignal={introSignal} />
+      <MobileIntroOverlay openSignal={introSignal} />
       <div className="min-h-[100svh] bg-gradient-therapeutic p-4 md:p-6" style={{ backgroundColor: '#f8fafc' }}>
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="flex justify-end">
