@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, Brain, Settings, BookOpen, Type } from "lucide-react";
+import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
-import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
 
 const navigationCards = [
   {
@@ -58,11 +57,7 @@ export default function Home() {
           {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img 
-              src={cbtJournalLogo} 
-              alt="CBT Journal Logo" 
-              className="w-16 h-16 md:w-20 md:h-20 animate-float hover:animate-gentle-bounce transition-all duration-300" 
-            />
+            <Heart className="w-6 h-6 md:w-8 md:h-8 text-primary" />
             <h1 className="text-2xl md:text-4xl font-bold text-foreground">CBT Journal</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
