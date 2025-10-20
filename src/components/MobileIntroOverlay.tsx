@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, TouchEvent } from 'react';
 import { X, Heart, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import cbtJournalLogo from '@/assets/cbt-journal-logo.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -156,6 +157,17 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             onTouchEnd={handleTouchEnd}
           >
             <div className="text-center space-y-6 animate-fade-in" key={currentSlide}>
+              {/* Logo - Only on first slide */}
+              {currentSlide === 0 && (
+                <div className="flex items-center justify-center mb-2">
+                  <img 
+                    src={cbtJournalLogo} 
+                    alt="CBT Journal Logo" 
+                    className="w-24 h-24 md:w-28 md:h-28 animate-scale-in" 
+                  />
+                </div>
+              )}
+
               {/* Icon */}
               <div className="flex items-center justify-center mb-4">
                 <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
