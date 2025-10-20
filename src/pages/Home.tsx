@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
-import quillIcon from "@/assets/quill-icon.svg";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
 import quillSolidIcon from "@/assets/quill-solid-icon.png";
 import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
@@ -58,33 +57,9 @@ export default function Home() {
             </Button>
           </div>
           
-          {/* Logo Options Preview */}
-          <div className="bg-card rounded-xl p-6 shadow-md border border-border">
-            <h2 className="text-xl font-semibold text-center mb-6">Logo Options</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col items-center gap-3 p-4 bg-background rounded-lg">
-                <img src={quillIcon} alt="Quill Icon" className="w-20 h-20" />
-                <p className="text-sm text-muted-foreground">Simple Quill</p>
-              </div>
-              <div className="flex flex-col items-center gap-3 p-4 bg-background rounded-lg">
-                <img src={quillSolidIcon} alt="Quill with Ink" className="w-20 h-20" />
-                <p className="text-sm text-muted-foreground">Quill & Ink</p>
-              </div>
-              <div className="flex flex-col items-center gap-3 p-4 bg-background rounded-lg md:col-span-2">
-                <img src={cbtJournalTextLogo} alt="CBT Journal Text Logo" className="w-64 h-auto" />
-                <p className="text-sm text-muted-foreground">Full Text Logo</p>
-              </div>
-              <div className="flex flex-col items-center gap-3 p-4 bg-background rounded-lg md:col-span-2">
-                <img src={cbtJournalLogo} alt="Journal with Leaves" className="w-32 h-32" />
-                <p className="text-sm text-muted-foreground">Journal with Leaves (Previous)</p>
-              </div>
-            </div>
-          </div>
-
           {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={quillIcon} alt="CBT Journal Logo" className="w-10 h-10 md:w-12 md:h-12 animate-float hover:animate-gentle-bounce transition-all duration-300" />
             <h1 className="text-2xl md:text-4xl font-bold text-foreground">CBT Journal</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
