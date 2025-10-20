@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import quillIcon from '@/assets/journal-iq-logo.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
+import expressIcon from '@/assets/express-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -183,6 +184,14 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                     <img 
                       src={aiIcon}
                       alt="AI Insights Icon" 
+                      className="w-full h-full object-contain animate-fade-in-scale" 
+                    />
+                  </div>
+                ) : currentSlide === 3 ? (
+                  <div className="w-48 h-40 md:w-56 md:h-48 flex items-center justify-center">
+                    <img 
+                      src={expressIcon}
+                      alt="Express Yourself Icon" 
                       className="w-full h-full object-contain animate-fade-in-scale" 
                     />
                   </div>
