@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, TouchEvent } from 'react';
-import { X, Heart, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
+import { X, Feather, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -12,7 +12,7 @@ interface MobileIntroOverlayProps {
 
 const slides = [
   {
-    icon: Heart,
+    icon: Feather,
     title: "Welcome to CBT Journal",
     description: "Your private companion for mental wellness",
     color: "text-primary",
