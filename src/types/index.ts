@@ -1,4 +1,4 @@
-// Data models for CBT Journal app
+// Data models for Journal IQ app
 
 export type JournalEntry = {
   id: string;

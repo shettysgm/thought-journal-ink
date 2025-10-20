@@ -14,7 +14,7 @@ interface MobileIntroOverlayProps {
 const slides = [
   {
     icon: Feather,
-    title: "Welcome to CBT Journal",
+    title: "Welcome to Journal IQ",
     description: "Your private companion for mental wellness",
     color: "text-primary",
     bgColor: "bg-primary/10"
@@ -163,7 +163,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                   <div className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center">
                     <img 
                       src={quillIcon} 
-                      alt="CBT Journal Logo" 
+                      alt="Journal IQ Logo" 
                       className="w-full h-full animate-fade-in-scale" 
                     />
                   </div>

@@ -20,14 +20,14 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">1. Acceptance of Terms</h2>
               <p>
-                By accessing and using CBT Journal, you accept and agree to be bound by the terms and provisions of this agreement.
+                By accessing and using Journal IQ, you accept and agree to be bound by the terms and provisions of this agreement.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">2. Use of Service</h2>
               <p>
-                CBT Journal is a personal journaling application designed to help you track thoughts and identify cognitive distortions. 
+                Journal IQ is a personal journaling application designed to help you track thoughts and identify cognitive distortions. 
                 The app uses AI technology to analyze your journal entries and provide insights.
               </p>
             </section>
@@ -58,7 +58,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">5. Medical Disclaimer</h2>
               <p>
-                CBT Journal is not a substitute for professional medical advice, diagnosis, or treatment. 
+                Journal IQ is not a substitute for professional medical advice, diagnosis, or treatment. 
                 Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
               </p>
             </section>
@@ -66,7 +66,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">6. Limitation of Liability</h2>
               <p>
-                CBT Journal is provided "as is" without any warranties. We are not liable for any damages arising from your use of the application.
+                Journal IQ is provided "as is" without any warranties. We are not liable for any damages arising from your use of the application.
               </p>
             </section>
 
