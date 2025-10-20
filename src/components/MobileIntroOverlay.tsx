@@ -162,9 +162,10 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                 {currentSlide === 0 ? (
                   <div className="w-40 h-40 md:w-48 md:h-48 flex items-center justify-center">
                     <img 
-                      src={quillIcon} 
+                      src={quillIcon}
                       alt="Journal IQ Logo" 
-                      className="w-full h-full animate-fade-in-scale brightness-75" 
+                      className="w-full h-full animate-fade-in-scale" 
+                      key={openSignal}
                     />
                   </div>
                 ) : (
