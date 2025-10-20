@@ -170,11 +170,11 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                     />
                   </div>
                 ) : currentSlide === 1 ? (
-                  <div className="w-32 h-32 flex items-center justify-center">
+                  <div className="w-48 h-40 md:w-56 md:h-48 flex items-center justify-center">
                     <img 
                       src={lockIcon}
                       alt="Privacy Lock Icon" 
-                      className="w-full h-full animate-fade-in-scale" 
+                      className="w-full h-full object-contain animate-fade-in-scale" 
                     />
                   </div>
                 ) : (
