@@ -41,14 +41,17 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
   if (!isVisible) return null;
 
   return (
-    <div 
-      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md animate-fade-in"
-      style={{ 
-        touchAction: 'none',
-        overscrollBehavior: 'contain'
-      }}
-    >
-      <div className="h-full w-full flex flex-col items-center justify-center p-6 overflow-y-auto">
+      <div 
+        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md animate-fade-in"
+        style={{ 
+          touchAction: 'auto',
+          overscrollBehavior: 'contain'
+        }}
+        onClick={handleDismiss}
+        role="dialog"
+        aria-modal="true"
+      >
+      <div className="h-full w-full flex flex-col items-center justify-center p-6 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         
         {/* Close button */}
         <button
