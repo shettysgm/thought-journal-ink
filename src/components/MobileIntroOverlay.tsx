@@ -3,6 +3,7 @@ import { X, Feather, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import quillIcon from '@/assets/journal-iq-logo.png';
+import lockIcon from '@/assets/lock-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -166,6 +167,14 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                       alt="Journal IQ Logo" 
                       className="w-full h-full animate-fade-in-scale" 
                       key={openSignal}
+                    />
+                  </div>
+                ) : currentSlide === 1 ? (
+                  <div className="w-32 h-32 flex items-center justify-center">
+                    <img 
+                      src={lockIcon}
+                      alt="Privacy Lock Icon" 
+                      className="w-full h-full animate-fade-in-scale" 
                     />
                   </div>
                 ) : (
