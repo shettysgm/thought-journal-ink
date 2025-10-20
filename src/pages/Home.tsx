@@ -58,7 +58,11 @@ export default function Home() {
           {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={cbtJournalLogo} alt="CBT Journal Logo" className="w-16 h-16 md:w-20 md:h-20" />
+            <img 
+              src={cbtJournalLogo} 
+              alt="CBT Journal Logo" 
+              className="w-16 h-16 md:w-20 md:h-20 animate-float hover:animate-gentle-bounce transition-all duration-300" 
+            />
             <h1 className="text-2xl md:text-4xl font-bold text-foreground">CBT Journal</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">

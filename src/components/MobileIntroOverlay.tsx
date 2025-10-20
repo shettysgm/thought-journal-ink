@@ -163,7 +163,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                   <img 
                     src={cbtJournalLogo} 
                     alt="CBT Journal Logo" 
-                    className="w-24 h-24 md:w-28 md:h-28 animate-scale-in" 
+                    className="w-24 h-24 md:w-28 md:h-28 animate-fade-in-scale animate-float" 
                   />
                 </div>
               )}
