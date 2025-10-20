@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
-import quillIcon from "@/assets/quill-icon.svg";
+import quillIcon from "@/assets/quill-icon.png";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
 import quillSolidIcon from "@/assets/quill-solid-icon.png";
 import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
