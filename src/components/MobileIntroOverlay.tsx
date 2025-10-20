@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import quillIcon from '@/assets/journal-iq-logo.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
-import expressIcon from '@/assets/express-icon.png';
+import expressIcon from '@/assets/express-ways-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
