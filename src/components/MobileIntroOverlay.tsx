@@ -42,7 +42,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
 
   return (
       <div 
-        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md animate-fade-in"
+        className="fixed inset-0 z-50 bg-gradient-therapeutic backdrop-blur-md animate-fade-in"
         style={{ 
           touchAction: 'auto',
           overscrollBehavior: 'contain'
