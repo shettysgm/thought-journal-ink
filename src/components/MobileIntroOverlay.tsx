@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, TouchEvent } from 'react';
 import { X, Heart, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import quillIcon from '@/assets/quill-icon.png';
+import quillIcon from '@/assets/quill-icon.svg';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
