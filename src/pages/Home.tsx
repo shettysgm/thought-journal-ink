@@ -5,6 +5,7 @@ import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
+import journalIqLogo from "@/assets/journal-iq-logo.png";
 import quillSolidIcon from "@/assets/quill-solid-icon.png";
 import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
 
@@ -60,7 +61,7 @@ export default function Home() {
           {/* Header */}
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={quillSolidIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
+            <img src={journalIqLogo} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
             <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal IQ</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
