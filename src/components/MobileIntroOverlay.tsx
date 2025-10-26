@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, TouchEvent } from 'react';
 import { X, Feather, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import quillIcon from '@/assets/journal-iq-logo.png';
+import quillIcon from '@/assets/quill-icon-new.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
 import expressIcon from '@/assets/express-ways-icon.png';
