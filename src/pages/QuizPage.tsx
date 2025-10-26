@@ -80,7 +80,7 @@ export default function QuizPage() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+      <div className="min-h-screen bg-white p-4 md:p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <header className="flex items-center gap-4">
             <Link to="/">
@@ -114,7 +114,7 @@ export default function QuizPage() {
 
   if (quizCompleted && result) {
     return (
-      <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+      <div className="min-h-screen bg-white p-4 md:p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <header className="flex items-center gap-4">
             <Link to="/">
@@ -198,7 +198,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
