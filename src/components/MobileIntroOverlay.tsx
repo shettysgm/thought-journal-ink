@@ -203,7 +203,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
               </div>
 
               {/* Title and Description */}
-              <div className="space-y-3">
+              <div className="space-y-3 bg-white p-6 rounded-xl">
                 <h2 className="text-3xl font-bold text-foreground">
                   {slide.title}
                 </h2>
