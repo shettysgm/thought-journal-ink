@@ -21,10 +21,10 @@ All colors MUST be HSL for consistency and theming support.
     --popover-foreground: 210 15% 20%;
 
     /* Primary - Calming teal/blue for main actions */
-    --primary: 195 85% 41%;
+    --primary: 174 65% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 195 85% 91%;
-    --primary-glow: 195 85% 71%;
+    --primary-light: 174 65% 90%;
+    --primary-glow: 174 65% 70%;
 
     /* Secondary - Soft blue-gray for supporting actions */
     --secondary: 210 25% 92%;
@@ -57,7 +57,7 @@ All colors MUST be HSL for consistency and theming support.
     /* Borders and inputs - subtle and soft */
     --border: 210 25% 88%;
     --input: 210 25% 90%;
-    --ring: 195 85% 41%;
+    --ring: 174 65% 52%;
 
     /* Design tokens */
     --radius: 0.75rem;
@@ -100,10 +100,10 @@ All colors MUST be HSL for consistency and theming support.
     --popover: 215 20% 10%;
     --popover-foreground: 210 40% 95%;
 
-    --primary: 195 85% 61%;
+    --primary: 174 65% 60%;
     --primary-foreground: 215 20% 8%;
-    --primary-light: 195 85% 91%;
-    --primary-glow: 195 85% 71%;
+    --primary-light: 174 65% 90%;
+    --primary-glow: 174 65% 75%;
 
     --secondary: 215 25% 15%;
     --secondary-foreground: 210 40% 85%;
@@ -130,16 +130,16 @@ All colors MUST be HSL for consistency and theming support.
 
     --border: 215 25% 18%;
     --input: 215 25% 15%;
-    --ring: 195 85% 61%;
+    --ring: 174 65% 60%;
 
     --sidebar-background: 215 25% 10%;
     --sidebar-foreground: 210 40% 85%;
-    --sidebar-primary: 195 85% 61%;
+    --sidebar-primary: 174 65% 60%;
     --sidebar-primary-foreground: 215 20% 8%;
     --sidebar-accent: 215 25% 15%;
     --sidebar-accent-foreground: 210 40% 85%;
     --sidebar-border: 215 25% 15%;
-    --sidebar-ring: 195 85% 61%;
+    --sidebar-ring: 174 65% 60%;
   }
 }
 
