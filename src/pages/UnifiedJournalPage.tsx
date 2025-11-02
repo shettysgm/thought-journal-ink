@@ -96,10 +96,13 @@ export default function UnifiedJournalPage() {
         if (todaysUnifiedEntry) {
           console.log('Found existing entry for today:', todaysUnifiedEntry.id);
           setEntryId(todaysUnifiedEntry.id);
-          setIsNewSession(false); // Mark as continuing existing entry
-          // Optionally load existing text to show continuation
-          // setText(todaysUnifiedEntry.text || '');
-          // setLastSavedText(todaysUnifiedEntry.text || '');
+          // Preload with a timestamp divider so typing appends naturally
+          const base = (todaysUnifiedEntry.text || '');
+          const header = `${base ? '\n\n' : ''}— Added ${format(new Date(), 'h:mm a')} —\n`;
+          const initial = `${base}${header}`;
+          setText(initial);
+          setLastSavedText(initial); // avoid saving until user types
+          setIsNewSession(false);
         } else {
           console.log('No entry found for today, will create new one');
           setIsNewSession(true);
