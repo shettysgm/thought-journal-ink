@@ -33,7 +33,7 @@ type AudioSegment = {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry } = useEntries();
+  const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
   const [searchParams] = useSearchParams();
   const editEntryId = searchParams.get('edit');
   
@@ -42,6 +42,7 @@ export default function UnifiedJournalPage() {
   const [lastSavedText, setLastSavedText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
   
   // Voice state
   const [isRecording, setIsRecording] = useState(false);
@@ -57,8 +58,13 @@ export default function UnifiedJournalPage() {
 
   // Load existing entry if editing
   useEffect(() => {
-    if (editEntryId) {
-      const loadEntry = async () => {
+    const initialize = async () => {
+      // Load all entries first
+      await loadEntries();
+      
+      if (editEntryId) {
+        // Loading specific entry for editing
+        setIsNewSession(false);
         try {
           const entry = await getEntry(editEntryId);
           if (entry) {
@@ -82,10 +88,27 @@ export default function UnifiedJournalPage() {
             variant: "destructive"
           });
         }
-      };
-      loadEntry();
-    }
-  }, [editEntryId, getEntry, toast]);
+      } else {
+        // New session - check if we should append to today's entry
+        const todaysEntries = findTodaysEntries();
+        const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
+        
+        if (todaysUnifiedEntry) {
+          console.log('Found existing entry for today:', todaysUnifiedEntry.id);
+          setEntryId(todaysUnifiedEntry.id);
+          setIsNewSession(false); // Mark as continuing existing entry
+          // Optionally load existing text to show continuation
+          // setText(todaysUnifiedEntry.text || '');
+          // setLastSavedText(todaysUnifiedEntry.text || '');
+        } else {
+          console.log('No entry found for today, will create new one');
+          setIsNewSession(true);
+        }
+      }
+    };
+    
+    initialize();
+  }, [editEntryId, getEntry, toast, loadEntries, findTodaysEntries]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -167,45 +190,32 @@ export default function UnifiedJournalPage() {
       setSaveStatus('saving');
       try {
         if (!entryId) {
-          // Check if there's already an entry from today (but not if we're editing a specific entry)
-          if (!editEntryId) {
-            const todaysEntries = findTodaysEntries();
-            const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
-            
-            if (todaysUnifiedEntry) {
-              // Append to today's entry
-              await appendToEntry(todaysUnifiedEntry.id, {
-                text: text.trim(),
-                hasAudio: audioSegments.length > 0,
-              });
-              setEntryId(todaysUnifiedEntry.id);
-              toast({
-                title: "Added to Today's Entry",
-                description: "Your new content was appended to today's existing entry.",
-              });
-            } else {
-              // Create new entry
-              const newId = await createEntry({
-                text: text.trim(),
-                tags: ['unified'],
-                hasAudio: audioSegments.length > 0,
-                hasDrawing: false
-              });
-              setEntryId(newId);
-            }
-          } else {
-            // Create new entry when explicitly creating a new one
-            const newId = await createEntry({
-              text: text.trim(),
-              tags: ['unified'],
-              hasAudio: audioSegments.length > 0,
-              hasDrawing: false
-            });
-            setEntryId(newId);
-          }
+          // Create new entry for today
+          const newId = await createEntry({
+            text: text.trim(),
+            tags: ['unified'],
+            hasAudio: audioSegments.length > 0,
+            hasDrawing: false
+          });
+          setEntryId(newId);
+          setIsNewSession(false);
         } else {
-          // Update existing entry
-          await updateEntry(entryId, { text: text.trim() });
+          // Check if we're in a new session with existing entry ID
+          if (isNewSession && entryId) {
+            // Append to existing entry
+            await appendToEntry(entryId, {
+              text: text.trim(),
+              hasAudio: audioSegments.length > 0,
+            });
+            setIsNewSession(false);
+            toast({
+              title: "Added to Today's Entry",
+              description: "Your new content was appended.",
+            });
+          } else {
+            // Regular update
+            await updateEntry(entryId, { text: text.trim() });
+          }
         }
         setLastSavedText(text);
         setSaveStatus('saved');
@@ -221,7 +231,7 @@ export default function UnifiedJournalPage() {
     }, 1500);
 
     return () => clearTimeout(saveTimeout);
-  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, editEntryId, findTodaysEntries, appendToEntry]);
+  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry]);
 
   // Debounced AI detection
   useEffect(() => {
