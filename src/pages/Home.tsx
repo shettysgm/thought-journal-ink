@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, Brain, Settings, Heart, BookOpen, Type } from "lucide-react";
+import { Mic, Brain, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
@@ -33,6 +33,14 @@ const navigationCards = [
     href: "/quiz",
     gradient: "bg-gradient-secondary", 
     color: "secondary"
+  },
+  {
+    title: "Why CBT Works",
+    description: "Learn how journaling rewires your brain for success",
+    icon: Lightbulb,
+    href: "/why-cbt",
+    gradient: "bg-therapeutic-focus",
+    color: "therapeutic-focus"
   }
 ];
 
