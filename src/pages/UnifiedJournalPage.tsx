@@ -33,7 +33,7 @@ type AudioSegment = {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry, getEntry } = useEntries();
+  const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry } = useEntries();
   const [searchParams] = useSearchParams();
   const editEntryId = searchParams.get('edit');
   
@@ -167,14 +167,44 @@ export default function UnifiedJournalPage() {
       setSaveStatus('saving');
       try {
         if (!entryId) {
-          const newId = await createEntry({
-            text: text.trim(),
-            tags: ['unified'],
-            hasAudio: audioSegments.length > 0,
-            hasDrawing: false
-          });
-          setEntryId(newId);
+          // Check if there's already an entry from today (but not if we're editing a specific entry)
+          if (!editEntryId) {
+            const todaysEntries = findTodaysEntries();
+            const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
+            
+            if (todaysUnifiedEntry) {
+              // Append to today's entry
+              await appendToEntry(todaysUnifiedEntry.id, {
+                text: text.trim(),
+                hasAudio: audioSegments.length > 0,
+              });
+              setEntryId(todaysUnifiedEntry.id);
+              toast({
+                title: "Added to Today's Entry",
+                description: "Your new content was appended to today's existing entry.",
+              });
+            } else {
+              // Create new entry
+              const newId = await createEntry({
+                text: text.trim(),
+                tags: ['unified'],
+                hasAudio: audioSegments.length > 0,
+                hasDrawing: false
+              });
+              setEntryId(newId);
+            }
+          } else {
+            // Create new entry when explicitly creating a new one
+            const newId = await createEntry({
+              text: text.trim(),
+              tags: ['unified'],
+              hasAudio: audioSegments.length > 0,
+              hasDrawing: false
+            });
+            setEntryId(newId);
+          }
         } else {
+          // Update existing entry
           await updateEntry(entryId, { text: text.trim() });
         }
         setLastSavedText(text);
@@ -191,7 +221,7 @@ export default function UnifiedJournalPage() {
     }, 1500);
 
     return () => clearTimeout(saveTimeout);
-  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length]);
+  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, editEntryId, findTodaysEntries, appendToEntry]);
 
   // Debounced AI detection
   useEffect(() => {
