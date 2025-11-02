@@ -11,20 +11,12 @@ import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
 
 const navigationCards = [
   {
-    title: "Text Journal",
-    description: "Type your thoughts and feelings",
+    title: "New Entry",
+    description: "Type or speak — seamlessly switch between both",
     icon: Type,
-    href: "/text",
+    href: "/unified",
     gradient: "bg-gradient-primary",
     color: "primary"
-  },
-  {
-    title: "Voice Journal", 
-    description: "Speak your thoughts aloud",
-    icon: Mic,
-    href: "/voice",
-    gradient: "bg-therapeutic-focus",
-    color: "therapeutic-focus"
   },
   {
     title: "My Journal",
