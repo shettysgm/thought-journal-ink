@@ -1,0 +1,485 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useEntries } from '@/store/useEntries';
+import { format } from 'date-fns';
+import { detectWithAI } from '@/lib/aiClient';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+
+// Define global interface for webkitSpeechRecognition
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+    SpeechRecognition: any;
+  }
+}
+
+type Detection = {
+  span: string;
+  type: string;
+  reframe: string;
+};
+
+type AudioSegment = {
+  id: string;
+  timestamp: number;
+  transcript: string;
+  duration?: number;
+};
+
+export default function UnifiedJournalPage() {
+  const { toast } = useToast();
+  const { createEntry, updateEntry } = useEntries();
+  
+  const [text, setText] = useState('');
+  const [entryId, setEntryId] = useState<string | null>(null);
+  const [lastSavedText, setLastSavedText] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Voice state
+  const [isRecording, setIsRecording] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [recognition, setRecognition] = useState<any>(null);
+  const [isSupported, setIsSupported] = useState(true);
+  const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
+  const [playingSegmentId, setPlayingSegmentId] = useState<string | null>(null);
+  
+  // Real-time detection state
+  const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setIsSupported(false);
+      return;
+    }
+
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognitionInstance = new SpeechRecognition();
+    
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = true;
+    recognitionInstance.lang = 'en-US';
+
+    recognitionInstance.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognitionInstance.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionInstance.onresult = (event: any) => {
+      let finalTranscript = '';
+      let interimText = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript + ' ';
+        } else {
+          interimText += result[0].transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        // Add voice segment
+        const segment: AudioSegment = {
+          id: Date.now().toString(),
+          timestamp: Date.now(),
+          transcript: finalTranscript.trim()
+        };
+        setAudioSegments(prev => [...prev, segment]);
+        
+        // Append to text
+        setText(prev => prev + finalTranscript);
+        setInterimTranscript('');
+      } else {
+        setInterimTranscript(interimText);
+      }
+    };
+
+    recognitionInstance.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsRecording(false);
+      toast({
+        title: "Recording Error",
+        description: "Could not access microphone. Please check permissions.",
+        variant: "destructive"
+      });
+    };
+
+    setRecognition(recognitionInstance);
+
+    return () => {
+      if (recognitionInstance) {
+        recognitionInstance.stop();
+      }
+    };
+  }, [toast]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (!text.trim() || text === lastSavedText) return;
+
+    setSaveStatus('unsaved');
+    const saveTimeout = setTimeout(async () => {
+      setSaveStatus('saving');
+      try {
+        if (!entryId) {
+          const newId = await createEntry({
+            text: text.trim(),
+            tags: ['unified'],
+            hasAudio: audioSegments.length > 0,
+            hasDrawing: false
+          });
+          setEntryId(newId);
+        } else {
+          await updateEntry(entryId, { text: text.trim() });
+        }
+        setLastSavedText(text);
+        setSaveStatus('saved');
+      } catch (error) {
+        console.error('Auto-save error:', error);
+        setSaveStatus('unsaved');
+        toast({
+          title: "Save Failed",
+          description: "Could not auto-save your entry.",
+          variant: "destructive"
+        });
+      }
+    }, 1500);
+
+    return () => clearTimeout(saveTimeout);
+  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length]);
+
+  // Debounced AI detection
+  useEffect(() => {
+    if (!text.trim() || text.trim().length < 20) {
+      setLiveDetections([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsDetecting(true);
+      try {
+        const response = await detectWithAI(text.trim());
+        
+        if (response.reframes && response.reframes.length > 0) {
+          const detectionsList: Detection[] = response.reframes.map(r => ({
+            span: r.span,
+            type: "Mind Reading",
+            reframe: r.suggestion
+          }));
+          setLiveDetections(detectionsList);
+          
+          if (entryId) {
+            const reframes = detectionsList.map(d => ({
+              span: d.span,
+              suggestion: d.reframe,
+              socratic: d.type
+            }));
+            await updateEntry(entryId, { reframes });
+          }
+        } else {
+          setLiveDetections([]);
+        }
+      } catch (error) {
+        console.error('Real-time detection error:', error);
+        setLiveDetections([]);
+      } finally {
+        setIsDetecting(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [text, entryId, updateEntry]);
+
+  const toggleRecording = async () => {
+    if (!recognition || !isSupported) return;
+    
+    if (isRecording) {
+      recognition.stop();
+    } else {
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        recognition.start();
+      } catch (error) {
+        console.error('Microphone access error:', error);
+        toast({
+          title: "Microphone Access Required",
+          description: "Please allow microphone access in your browser settings.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  // Render highlighted text
+  const renderHighlightedText = () => {
+    const fullText = text + (isRecording ? interimTranscript : '');
+    if (liveDetections.length === 0) return fullText;
+    
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; isInterim?: boolean }[] = [];
+    let lastIndex = 0;
+    
+    const sortedDetections = [...liveDetections].sort((a, b) => {
+      const aIndex = text.indexOf(a.span);
+      const bIndex = text.indexOf(b.span);
+      return aIndex - bIndex;
+    });
+    
+    sortedDetections.forEach(detection => {
+      const index = text.indexOf(detection.span, lastIndex);
+      if (index !== -1 && index >= lastIndex) {
+        if (index > lastIndex) {
+          segments.push({ text: text.slice(lastIndex, index), isHighlight: false });
+        }
+        segments.push({ 
+          text: detection.span, 
+          isHighlight: true, 
+          reframe: detection.reframe,
+          type: detection.type 
+        });
+        lastIndex = index + detection.span.length;
+      }
+    });
+    
+    if (lastIndex < text.length) {
+      segments.push({ text: text.slice(lastIndex), isHighlight: false });
+    }
+    
+    if (isRecording && interimTranscript) {
+      segments.push({ text: interimTranscript, isHighlight: false, isInterim: true });
+    }
+    
+    return segments;
+  };
+
+  const toggleAudioPlayback = (segmentId: string) => {
+    if (playingSegmentId === segmentId) {
+      setPlayingSegmentId(null);
+    } else {
+      setPlayingSegmentId(segmentId);
+      // Simulate playback end after 2 seconds
+      setTimeout(() => setPlayingSegmentId(null), 2000);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
+        
+        {/* Minimal header */}
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex items-center justify-between px-6 py-3">
+            <Link to="/journal">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Journal
+              </Button>
+            </Link>
+            
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {format(new Date(), 'MMM d, yyyy • h:mm a')}
+              </span>
+              {saveStatus === 'saving' && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Saving...
+                </span>
+              )}
+              {saveStatus === 'saved' && text.trim() && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Saved
+                </span>
+              )}
+              <Link to="/journal">
+                <Button size="sm" className="gap-2">
+                  Done
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Unified editor */}
+        <div className="px-6 py-8">
+          <div className={cn(
+            "relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
+            isRecording && "ring-2 ring-primary/30 shadow-[0_0_40px_rgba(var(--primary),0.15)]"
+          )}>
+            
+            {/* Highlight overlay */}
+            <div 
+              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
+              style={{ 
+                font: 'inherit',
+                letterSpacing: 'inherit',
+                wordSpacing: 'inherit',
+                lineHeight: '1.75'
+              }}
+              aria-hidden="true"
+            >
+              {(() => {
+                const highlighted = renderHighlightedText();
+                if (typeof highlighted === 'string') {
+                  return highlighted;
+                }
+                return highlighted.map((segment: any, i: number) => (
+                  segment.isHighlight ? (
+                    <TooltipProvider delayDuration={100} key={`prov-${i}`}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline pointer-events-auto">
+                            <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
+                              {segment.text}
+                            </span>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                                {segment.type}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground">{segment.reframe}</p>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span 
+                      key={i} 
+                      className={cn(
+                        "pointer-events-none",
+                        segment.isInterim && "text-muted-foreground italic opacity-60"
+                      )}
+                    >
+                      {segment.text}
+                    </span>
+                  )
+                ));
+              })()}
+            </div>
+            
+            {/* Recording waveform overlay */}
+            {isRecording && (
+              <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 animate-pulse" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+              </div>
+            )}
+            
+            {/* Input area with mic button */}
+            <div className="relative">
+              <Textarea
+                ref={textareaRef}
+                placeholder={isRecording ? "Listening..." : "Type or say what's on your mind..."}
+                value={text + (isRecording ? interimTranscript : '')}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (!isRecording) {
+                    setText(newValue);
+                  }
+                }}
+                className={cn(
+                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 pr-16 transition-all duration-300",
+                  isRecording && "opacity-80"
+                )}
+                style={{ lineHeight: '1.75' }}
+                autoFocus
+              />
+              
+              {/* Floating mic button */}
+              <Button
+                onClick={toggleRecording}
+                disabled={!isSupported}
+                size="icon"
+                variant={isRecording ? "default" : "outline"}
+                className={cn(
+                  "absolute bottom-8 right-8 h-12 w-12 rounded-full transition-all duration-300 z-20",
+                  isRecording && "scale-110 shadow-lg animate-pulse"
+                )}
+              >
+                {isRecording ? (
+                  <MicOff className="h-5 w-5" />
+                ) : (
+                  <Mic className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
+            
+            {/* Audio segments */}
+            {audioSegments.length > 0 && (
+              <div className="px-8 pb-8 space-y-2">
+                <div className="text-xs text-muted-foreground mb-3">Voice segments:</div>
+                {audioSegments.map((segment) => (
+                  <div 
+                    key={segment.id}
+                    className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                  >
+                    <Button
+                      onClick={() => toggleAudioPlayback(segment.id)}
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 rounded-full flex-shrink-0"
+                    >
+                      {playingSegmentId === segment.id ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground">{segment.transcript}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(segment.timestamp, 'h:mm a')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer stats */}
+          <div className="flex justify-between items-center text-xs text-muted-foreground mt-2 px-2">
+            <div className="flex gap-4">
+              <span>{text.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
+              <span>{text.length} characters</span>
+              {audioSegments.length > 0 && (
+                <span>{audioSegments.length} voice segments</span>
+              )}
+            </div>
+            {isRecording && (
+              <span className="text-primary font-medium animate-pulse">● Recording</span>
+            )}
+          </div>
+
+          {/* Detection status */}
+          {isDetecting && (
+            <div className="mt-4 text-center">
+              <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Analyzing thought patterns...
+              </span>
+            </div>
+          )}
+        </div>
+        
+      </div>
+    </div>
+  );
+}
