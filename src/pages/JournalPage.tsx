@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Mic, Calendar, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
 export default function JournalPage() {
   const { entries, loading, loadEntries, deleteEntry } = useEntries();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
@@ -209,7 +210,7 @@ export default function JournalPage() {
               {paginatedEntries.map((entry) => (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-1">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
@@ -232,7 +233,8 @@ export default function JournalPage() {
 
                       {/* Content */}
                       {entry.text && (
-                        <div className="bg-muted/30 rounded-lg p-4 mb-3">
+                        <div className="bg-muted/30 rounded-lg p-4 mb-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                             onClick={() => navigate(`/unified?edit=${entry.id}`)}>
                           <div className="text-foreground">
                             <HighlightedTextWithReframes
                               text={entry.text.length > 300 && !expandedEntries.has(entry.id)
@@ -246,7 +248,10 @@ export default function JournalPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => toggleExpanded(entry.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpanded(entry.id);
+                              }}
                               className="mt-2 p-0 h-auto text-primary hover:text-primary/80"
                             >
                               {expandedEntries.has(entry.id) ? "Show less" : "Show more"}

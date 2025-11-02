@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,10 +33,12 @@ type AudioSegment = {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry } = useEntries();
+  const { createEntry, updateEntry, getEntry } = useEntries();
+  const [searchParams] = useSearchParams();
+  const editEntryId = searchParams.get('edit');
   
   const [text, setText] = useState('');
-  const [entryId, setEntryId] = useState<string | null>(null);
+  const [entryId, setEntryId] = useState<string | null>(editEntryId);
   const [lastSavedText, setLastSavedText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -52,6 +54,38 @@ export default function UnifiedJournalPage() {
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
+
+  // Load existing entry if editing
+  useEffect(() => {
+    if (editEntryId) {
+      const loadEntry = async () => {
+        try {
+          const entry = await getEntry(editEntryId);
+          if (entry) {
+            setText(entry.text || '');
+            setLastSavedText(entry.text || '');
+            setEntryId(editEntryId);
+            if (entry.reframes) {
+              const detectionsList: Detection[] = entry.reframes.map(r => ({
+                span: r.span,
+                type: r.socratic || "Cognitive Distortion",
+                reframe: r.suggestion
+              }));
+              setLiveDetections(detectionsList);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading entry:', error);
+          toast({
+            title: "Load Failed",
+            description: "Could not load the entry.",
+            variant: "destructive"
+          });
+        }
+      };
+      loadEntry();
+    }
+  }, [editEntryId, getEntry, toast]);
 
   // Initialize speech recognition
   useEffect(() => {
