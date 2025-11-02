@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import TextJournalPage from "./pages/TextJournalPage";
-import VoicePage from "./pages/VoicePage";
+
+
 import UnifiedJournalPage from "./pages/UnifiedJournalPage";
 import JournalPage from "./pages/JournalPage";
 import QuizPage from "./pages/QuizPage";
@@ -20,7 +20,7 @@ export default function Router() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/text" element={<UnifiedJournalPage />} />
-        <Route path="/voice" element={<VoicePage />} />
+        <Route path="/voice" element={<UnifiedJournalPage />} />
         <Route path="/unified" element={<UnifiedJournalPage />} />
         <Route path="/journal" element={<JournalPage />} />
         <Route path="/quiz" element={<QuizPage />} />
