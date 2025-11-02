@@ -298,7 +298,7 @@ export default function UnifiedJournalPage() {
                 className={cn(
                   "gap-2 transition-all duration-300",
                   isRecording 
-                    ? "bg-green-500 hover:bg-green-600 text-white border-green-500 animate-pulse shadow-lg shadow-green-500/50" 
+                    ? "bg-green-500 hover:bg-green-600 text-white border-green-500" 
                     : "hover:bg-green-50 hover:border-green-500 hover:text-green-600"
                 )}
               >
