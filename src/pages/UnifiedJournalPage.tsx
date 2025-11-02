@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +35,7 @@ export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
   
   const [text, setText] = useState('');
@@ -300,6 +301,43 @@ export default function UnifiedJournalPage() {
     }
   };
 
+  const handleBack = async () => {
+    try {
+      if (recognition) recognition.stop();
+    } catch {}
+
+    try {
+      // Save pending changes immediately before navigating
+      if ((text || '').trim() && text !== lastSavedText) {
+        setSaveStatus('saving');
+        if (!entryId) {
+          const newId = await createEntry({
+            text: text.trim(),
+            tags: ['unified'],
+            hasAudio: audioSegments.length > 0,
+            hasDrawing: false
+          });
+          setEntryId(newId);
+        } else if (isNewSession && entryId) {
+          await appendToEntry(entryId, {
+            text: text.trim(),
+            hasAudio: audioSegments.length > 0,
+          });
+          setIsNewSession(false);
+        } else {
+          await updateEntry(entryId, { text: text.trim() });
+        }
+        setLastSavedText(text);
+        setSaveStatus('saved');
+        await loadEntries();
+      }
+    } catch (e) {
+      console.error('Save on back failed:', e);
+    }
+
+    navigate('/journal');
+  };
+
   // Render highlighted text
   const renderHighlightedText = () => {
     const fullText = text + (isRecording ? interimTranscript : '');
@@ -358,12 +396,10 @@ export default function UnifiedJournalPage() {
         {/* Minimal header */}
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="flex items-center justify-between px-6 py-3">
-            <Link to="/journal">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Journal
-              </Button>
-            </Link>
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack}>
+              <ArrowLeft className="w-4 h-4" />
+              Back to Journal
+            </Button>
             
             <div className="flex items-center gap-3">
               {/* Microphone button */}
@@ -406,11 +442,9 @@ export default function UnifiedJournalPage() {
                   <span className="hidden sm:inline">Saved</span>
                 </span>
               )}
-              <Link to="/journal">
-                <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground">
-                  Done
-                </Button>
-              </Link>
+              <Button onClick={handleBack} size="sm" variant="ghost" className="gap-2 text-muted-foreground">
+                Done
+              </Button>
             </div>
           </div>
         </header>
