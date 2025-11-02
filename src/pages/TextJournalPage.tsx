@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, Check } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { JournalSidebar } from '@/components/JournalSidebar';
 
 type Detection = {
   span: string;
@@ -17,7 +16,7 @@ type Detection = {
 
 export default function TextJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry } = useEntries();
+  const { createEntry, updateEntry, getEntry } = useEntries();
   
   const [text, setText] = useState('');
   const [entryId, setEntryId] = useState<string | null>(null);
@@ -28,6 +27,26 @@ export default function TextJournalPage() {
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
+
+  const handleSelectEntry = async (selectedEntryId: string) => {
+    const entry = await getEntry(selectedEntryId);
+    if (entry) {
+      setText(entry.text || '');
+      setLastSavedText(entry.text || '');
+      setEntryId(entry.id);
+      setSaveStatus('saved');
+      setLiveDetections([]);
+    }
+  };
+
+  const handleNewEntry = () => {
+    setText('');
+    setLastSavedText('');
+    setEntryId(null);
+    setSaveStatus('saved');
+    setLiveDetections([]);
+    textareaRef.current?.focus();
+  };
 
   // Auto-save effect
   useEffect(() => {
@@ -146,18 +165,19 @@ export default function TextJournalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        
+    <div className="flex h-screen bg-white overflow-hidden">
+      <JournalSidebar 
+        currentEntryId={entryId}
+        onSelectEntry={handleSelectEntry}
+        onNewEntry={handleNewEntry}
+        filterType="text"
+      />
+      
+      <div className="flex-1 flex flex-col">
         {/* Minimal header */}
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <header className="border-b bg-background/95 backdrop-blur">
           <div className="flex items-center justify-between px-6 py-3">
-            <Link to="/journal">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Journal
-              </Button>
-            </Link>
+            <h1 className="text-lg font-semibold">Text Journal</h1>
             
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
@@ -175,18 +195,13 @@ export default function TextJournalPage() {
                   Saved
                 </span>
               )}
-              <Link to="/journal">
-                <Button size="sm" className="gap-2">
-                  Done
-                </Button>
-              </Link>
             </div>
           </div>
         </header>
 
         {/* Document-style editor */}
-        <div className="px-6 py-8">
-          <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible">
+        <div className="flex-1 overflow-auto px-6 py-8">
+          <div className="relative bg-card rounded-lg shadow-sm border min-h-full overflow-visible">
             
             {/* Highlight overlay */}
             <div 
@@ -240,7 +255,7 @@ export default function TextJournalPage() {
               placeholder="Start writing your thoughts..."
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8"
+              className="min-h-[600px] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8"
               style={{ lineHeight: '1.75' }}
               autoFocus
             />
@@ -262,7 +277,6 @@ export default function TextJournalPage() {
             </div>
           )}
         </div>
-        
       </div>
     </div>
   );
