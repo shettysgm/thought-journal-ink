@@ -442,7 +442,7 @@ export default function UnifiedJournalPage() {
                   <span className="hidden sm:inline">Saved</span>
                 </span>
               )}
-              <Button onClick={handleBack} size="sm" variant="ghost" className="gap-2 text-muted-foreground">
+              <Button onClick={handleBack} size="sm" variant="outline">
                 Done
               </Button>
             </div>
