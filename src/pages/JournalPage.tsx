@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, Calendar, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
+import { cn } from '@/lib/utils';
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -28,14 +30,36 @@ export default function JournalPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const entriesPerPage = 10;
 
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
 
+  // Get dates that have entries
+  const getDatesWithEntries = () => {
+    const dates = new Set<string>();
+    entries
+      .filter(entry => !entry.hasDrawing)
+      .forEach(entry => {
+        const dateKey = format(startOfDay(new Date(entry.createdAt)), 'yyyy-MM-dd');
+        dates.add(dateKey);
+      });
+    return dates;
+  };
+
+  const datesWithEntries = getDatesWithEntries();
+
   const filteredEntries = entries
     .filter(entry => !entry.hasDrawing) // Filter out handwriting entries
+    .filter(entry => {
+      // Filter by selected date
+      if (selectedDate) {
+        return isSameDay(new Date(entry.createdAt), selectedDate);
+      }
+      return true;
+    })
     .filter(entry => {
       // If no search term, show all entries
       if (!searchTerm.trim()) return true;
@@ -53,10 +77,10 @@ export default function JournalPage() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(startIndex, endIndex);
 
-  // Reset page when search changes
+  // Reset page when search or date changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, selectedDate]);
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this entry?')) {
@@ -134,7 +158,7 @@ export default function JournalPage() {
           </div>
         </header>
 
-        {/* Search and Results Info */}
+        {/* Search and Calendar */}
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -145,31 +169,50 @@ export default function JournalPage() {
               className="pl-10"
             />
           </div>
+
+          {/* Calendar */}
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span>Select a Date</span>
+                {selectedDate && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedDate(undefined)}
+                    className="text-xs"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className={cn("pointer-events-auto")}
+                modifiers={{
+                  hasEntry: (date) => {
+                    const dateKey = format(startOfDay(date), 'yyyy-MM-dd');
+                    return datesWithEntries.has(dateKey);
+                  }
+                }}
+                modifiersClassNames={{
+                  hasEntry: "bg-primary/10 font-bold text-primary"
+                }}
+              />
+            </CardContent>
+          </Card>
           
           {filteredEntries.length > 0 && (
             <div className="text-sm text-muted-foreground">
               Showing {startIndex + 1}-{Math.min(endIndex, filteredEntries.length)} of {filteredEntries.length} entries
+              {selectedDate && ` on ${format(selectedDate, 'MMM d, yyyy')}`}
               {searchTerm && ` matching "${searchTerm}"`}
             </div>
           )}
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="shadow-soft">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{entries.filter(e => !e.hasDrawing).length}</div>
-              <p className="text-sm text-muted-foreground">Total Entries</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-soft">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-accent">
-                {entries.filter(e => e.hasAudio && !e.hasDrawing).length}
-              </div>
-              <p className="text-sm text-muted-foreground">Voice Entries</p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Entries List */}
@@ -222,13 +265,13 @@ export default function JournalPage() {
                             </Badge>
                           ))}
                         </div>
-                        <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                          <Calendar className="w-3 h-3" />
-                          {entry.updatedAt 
-                            ? `${format(new Date(entry.createdAt), 'MMM d, yyyy')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
-                            : format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')
-                          }
-                        </div>
+                         <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                           <CalendarIcon className="w-3 h-3" />
+                           {entry.updatedAt 
+                             ? `${format(new Date(entry.createdAt), 'MMM d, yyyy')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
+                             : format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')
+                           }
+                         </div>
                       </div>
 
                       {/* Content */}
