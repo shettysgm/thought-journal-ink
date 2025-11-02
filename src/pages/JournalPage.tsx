@@ -37,6 +37,27 @@ export default function JournalPage() {
     loadEntries();
   }, [loadEntries]);
 
+  // Reload entries when page becomes visible (user navigates back)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadEntries();
+      }
+    };
+
+    const handleFocus = () => {
+      loadEntries();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadEntries]);
+
   // Get dates that have entries
   const getDatesWithEntries = () => {
     const dates = new Set<string>();
