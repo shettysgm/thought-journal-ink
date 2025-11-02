@@ -19,7 +19,7 @@ export default function Router() {
       <MobileLayout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/text" element={<TextJournalPage />} />
+        <Route path="/text" element={<UnifiedJournalPage />} />
         <Route path="/voice" element={<VoicePage />} />
         <Route path="/unified" element={<UnifiedJournalPage />} />
         <Route path="/journal" element={<JournalPage />} />
