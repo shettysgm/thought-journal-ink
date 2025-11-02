@@ -411,17 +411,21 @@ export default function UnifiedJournalPage() {
             <div className="relative">
               <Textarea
                 ref={textareaRef}
-                placeholder={isRecording ? "Listening..." : "Type or say what's on your mind..."}
+                placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
                 value={text + (isRecording ? interimTranscript : '')}
                 onChange={(e) => {
                   const newValue = e.target.value;
-                  if (!isRecording) {
+                  // Allow editing even during recording, but adjust for interim text
+                  if (isRecording) {
+                    // Remove interim transcript portion before updating
+                    const withoutInterim = newValue.replace(interimTranscript, '');
+                    setText(withoutInterim);
+                  } else {
                     setText(newValue);
                   }
                 }}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300",
-                  isRecording && "opacity-80"
+                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
                 )}
                 style={{ lineHeight: '1.75' }}
                 autoFocus
