@@ -19,14 +19,6 @@ const navigationCards = [
     color: "primary"
   },
   {
-    title: "Voice Journal", 
-    description: "Speak your thoughts aloud",
-    icon: Mic,
-    href: "/voice",
-    gradient: "bg-therapeutic-focus",
-    color: "therapeutic-focus"
-  },
-  {
     title: "My Journal",
     description: "View all your saved entries",
     icon: BookOpen,
