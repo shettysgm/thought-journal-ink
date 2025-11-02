@@ -294,12 +294,11 @@ export default function UnifiedJournalPage() {
                 onClick={toggleRecording}
                 disabled={!isSupported}
                 size="sm"
-                variant="outline"
                 className={cn(
                   "gap-2 transition-all duration-300",
                   isRecording 
-                    ? "bg-green-500 hover:bg-green-600 text-white border-green-500" 
-                    : "hover:bg-green-50 hover:border-green-500 hover:text-green-600"
+                    ? "bg-red-500 hover:bg-red-600 text-white" 
+                    : "bg-green-500 hover:bg-green-600 text-white"
                 )}
               >
                 {isRecording ? (
@@ -331,7 +330,7 @@ export default function UnifiedJournalPage() {
                 </span>
               )}
               <Link to="/journal">
-                <Button size="sm" className="gap-2">
+                <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground">
                   Done
                 </Button>
               </Link>
