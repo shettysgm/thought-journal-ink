@@ -289,19 +289,43 @@ export default function UnifiedJournalPage() {
             </Link>
             
             <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">
+              {/* Microphone button */}
+              <Button
+                onClick={toggleRecording}
+                disabled={!isSupported}
+                size="sm"
+                variant={isRecording ? "default" : "outline"}
+                className={cn(
+                  "gap-2 transition-all duration-300",
+                  isRecording && "animate-pulse shadow-lg"
+                )}
+              >
+                {isRecording ? (
+                  <>
+                    <MicOff className="h-4 w-4" />
+                    <span className="hidden sm:inline">Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-4 w-4" />
+                    <span className="hidden sm:inline">Record</span>
+                  </>
+                )}
+              </Button>
+              
+              <span className="text-xs text-muted-foreground hidden md:inline">
                 {format(new Date(), 'MMM d, yyyy • h:mm a')}
               </span>
               {saveStatus === 'saving' && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  Saving...
+                  <span className="hidden sm:inline">Saving...</span>
                 </span>
               )}
               {saveStatus === 'saved' && text.trim() && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Check className="w-3 h-3" />
-                  Saved
+                  <span className="hidden sm:inline">Saved</span>
                 </span>
               )}
               <Link to="/journal">
@@ -382,7 +406,7 @@ export default function UnifiedJournalPage() {
               </div>
             )}
             
-            {/* Input area with mic button */}
+            {/* Input area */}
             <div className="relative">
               <Textarea
                 ref={textareaRef}
@@ -395,30 +419,12 @@ export default function UnifiedJournalPage() {
                   }
                 }}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 pr-16 transition-all duration-300",
+                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300",
                   isRecording && "opacity-80"
                 )}
                 style={{ lineHeight: '1.75' }}
                 autoFocus
               />
-              
-              {/* Floating mic button */}
-              <Button
-                onClick={toggleRecording}
-                disabled={!isSupported}
-                size="icon"
-                variant={isRecording ? "default" : "outline"}
-                className={cn(
-                  "absolute bottom-8 right-8 h-12 w-12 rounded-full transition-all duration-300 z-20",
-                  isRecording && "scale-110 shadow-lg animate-pulse"
-                )}
-              >
-                {isRecording ? (
-                  <MicOff className="h-5 w-5" />
-                ) : (
-                  <Mic className="h-5 w-5" />
-                )}
-              </Button>
             </div>
             
             {/* Audio segments */}
