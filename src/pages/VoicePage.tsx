@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
@@ -7,7 +8,6 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { JournalSidebar } from '@/components/JournalSidebar';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -30,43 +30,49 @@ export default function VoicePage() {
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(true);
   
-  const { createEntry, updateEntry, getEntry } = useEntries();
+  const { createEntry, updateEntry, findTodaysEntries, getEntry } = useEntries();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [entryId, setEntryId] = useState<string | null>(null);
   const [lastSavedText, setLastSavedText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
-  const [isLoadingEntry, setIsLoadingEntry] = useState(false);
+  const [isLoadingEntry, setIsLoadingEntry] = useState(true);
   
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
 
-  const handleSelectEntry = async (selectedEntryId: string) => {
-    if (recognition && isRecording) {
-      recognition.stop();
-    }
-    const entry = await getEntry(selectedEntryId);
-    if (entry) {
-      setTranscript(entry.text || '');
-      setLastSavedText(entry.text || '');
-      setEntryId(entry.id);
-      setSaveStatus('saved');
-      setLiveDetections([]);
-    }
-  };
-
-  const handleNewEntry = () => {
-    if (recognition && isRecording) {
-      recognition.stop();
-    }
-    setTranscript('');
-    setLastSavedText('');
-    setEntryId(null);
-    setSaveStatus('saved');
-    setLiveDetections([]);
-  };
-
+  // Load or create today's entry on mount
+  useEffect(() => {
+    const initializeTodaysEntry = async () => {
+      setIsLoadingEntry(true);
+      try {
+        const todaysEntries = await findTodaysEntries();
+        const voiceEntry = todaysEntries.find(e => e.tags?.includes('voice'));
+        
+        if (voiceEntry) {
+          // Continue today's voice entry
+          setEntryId(voiceEntry.id);
+          const entry = await getEntry(voiceEntry.id);
+          if (entry?.text) {
+            setTranscript(entry.text + '\n\n');
+            setLastSavedText(entry.text + '\n\n');
+          }
+          console.log('Continuing today\'s voice entry:', voiceEntry.id);
+        } else {
+          // Will create new entry on first speech
+          console.log('No voice entry for today, will create new one');
+        }
+      } catch (error) {
+        console.error('Error loading today\'s entry:', error);
+      } finally {
+        setIsLoadingEntry(false);
+      }
+    };
+    
+    initializeTodaysEntry();
+  }, [findTodaysEntries, getEntry]);
 
   useEffect(() => {
     // Check for Web Speech API support
@@ -267,6 +273,58 @@ export default function VoicePage() {
     }
   };
 
+  const handleBack = async () => {
+    try {
+      if (recognition) recognition.stop();
+    } catch {}
+    try {
+      if ((transcript || '').trim() && transcript !== lastSavedText) {
+        setSaveStatus('saving');
+        if (!entryId) {
+          const newId = await createEntry({
+            text: transcript.trim(),
+            tags: ['voice'],
+            hasAudio: true,
+            hasDrawing: false,
+          });
+          setEntryId(newId);
+        } else {
+          await updateEntry(entryId, { text: transcript.trim() });
+        }
+        setLastSavedText(transcript);
+        setSaveStatus('saved');
+      }
+    } catch (e) {
+      console.error('Save on back failed:', e);
+    }
+    navigate('/journal');
+  };
+
+  const saveNow = async () => {
+    try {
+      if ((transcript || '').trim()) {
+        setSaveStatus('saving');
+        if (!entryId) {
+          const newId = await createEntry({
+            text: transcript.trim(),
+            tags: ['voice'],
+            hasAudio: true,
+            hasDrawing: false,
+          });
+          setEntryId(newId);
+          toast({ title: 'Voice entry saved', description: 'Saved to Journal.' });
+        } else {
+          await updateEntry(entryId, { text: transcript.trim() });
+          toast({ title: 'Voice entry updated', description: 'Journal updated.' });
+        }
+        setLastSavedText(transcript);
+        setSaveStatus('saved');
+      }
+    } catch (e) {
+      console.error('Manual save failed:', e);
+      toast({ title: 'Save failed', description: 'Could not save your entry.', variant: 'destructive' });
+    }
+  };
 
   // Render highlighted text with tooltips
   const renderHighlightedText = () => {
@@ -371,11 +429,23 @@ export default function VoicePage() {
   };
 
   if (!isSupported) {
-    return (
-      <TooltipProvider delayDuration={0}>
-        <div className="flex h-screen bg-white overflow-hidden">
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="bg-card rounded-lg shadow-sm border p-8 text-center max-w-md">
+  return (
+    <TooltipProvider delayDuration={0}>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto">
+          <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+            <div className="flex items-center justify-between px-6 py-3">
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+            </div>
+          </header>
+          
+          <div className="px-6 py-8">
+            <div className="bg-card rounded-lg shadow-sm border p-8 text-center">
               <MicOff className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Voice Recording Not Supported</h3>
               <p className="text-muted-foreground">
@@ -384,120 +454,129 @@ export default function VoicePage() {
             </div>
           </div>
         </div>
+      </div>
       </TooltipProvider>
     );
   }
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="flex h-screen bg-white overflow-hidden">
-        <JournalSidebar 
-          currentEntryId={entryId}
-          onSelectEntry={handleSelectEntry}
-          onNewEntry={handleNewEntry}
-          filterType="voice"
-        />
+      <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
         
-        <div className="flex-1 flex flex-col">
-          {/* Minimal header */}
-          <header className="border-b bg-background/95 backdrop-blur">
-            <div className="flex items-center justify-between px-6 py-3">
-              <h1 className="text-lg font-semibold">Voice Journal</h1>
-              
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">
-                  {format(new Date(), 'MMM d, yyyy')}
-                </span>
-                {saveStatus === 'saving' && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Saving...
-                  </span>
-                )}
-                {saveStatus === 'saved' && transcript.trim() && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Check className="w-3 h-3" />
-                    Saved
-                  </span>
-                )}
-              </div>
-            </div>
-          </header>
-
-          {/* Recording controls - floating button */}
-          <div
-            className="fixed z-50"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)', right: 'calc(env(safe-area-inset-right, 0px) + 2rem)' }}
-          >
-            {!isRecording ? (
-              <Button
-                onClick={startRecording}
-                size="lg"
-                aria-label="Start recording"
-                className="w-16 h-16 rounded-full shadow-lg bg-gradient-primary hover:shadow-glow transition-all duration-300"
-              >
-                <Mic className="w-6 h-6" />
-              </Button>
-            ) : (
-              <Button
-                onClick={stopRecording}
-                size="lg"
-                aria-label="Stop recording"
-                variant="destructive"
-                className="w-16 h-16 rounded-full shadow-lg animate-pulse"
-              >
-                <Square className="w-6 h-6" />
-              </Button>
-            )}
-          </div>
-
-          {/* Document-style editor */}
-          <div className="flex-1 overflow-auto px-6 py-8">
-            <div className="relative bg-card rounded-lg shadow-sm border min-h-full overflow-visible">
+        {/* Minimal header */}
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="flex items-center justify-between px-6 py-3">
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack}>
+              <ArrowLeft className="w-4 h-4" />
+              Back to Journal
+            </Button>
             
-              {/* Transcript with highlights */}
-              <div 
-                className="p-8 whitespace-pre-wrap break-words text-base leading-relaxed rounded-lg min-h-[600px]"
-                style={{ lineHeight: '1.75' }}
-              >
-                {isLoadingEntry ? (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Loading entry...</span>
-                  </div>
-                ) : transcript || interimTranscript ? (
-                  renderHighlightedText()
-                ) : (
-                  <p className="text-muted-foreground italic">
-                    {isRecording 
-                      ? "Listening... Start speaking"
-                      : "Tap the microphone button to start recording your thoughts"
-                    }
-                  </p>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {format(new Date(), 'MMM d, yyyy')}
+                {entryId && !isLoadingEntry && (
+                  <span className="ml-2 text-xs text-primary">• Today&apos;s Entry</span>
                 )}
-              </div>
-            </div>
-
-            {/* Word count footer */}
-            {transcript && (
-              <div className="flex justify-between text-xs text-muted-foreground mt-2 px-2">
-                <span>{transcript.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
-                <span>{transcript.length} characters</span>
-              </div>
-            )}
-
-            {/* Detection status */}
-            {isDetecting && (
-              <div className="mt-4 text-center">
-                <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+              </span>
+              {saveStatus === 'saving' && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  Analyzing thought patterns...
+                  Saving...
                 </span>
-              </div>
-            )}
+              )}
+              {saveStatus === 'saved' && transcript.trim() && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Saved
+                </span>
+              )}
+              {transcript.trim() && saveStatus !== 'saving' && (
+                <Button variant="outline" size="sm" onClick={saveNow}>
+                  Save now
+                </Button>
+              )}
+            </div>
           </div>
+        </header>
+
+        {/* Recording controls - floating button */}
+        <div
+          className="fixed z-50"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)', right: 'calc(env(safe-area-inset-right, 0px) + 2rem)' }}
+        >
+          {!isRecording ? (
+            <Button
+              onClick={startRecording}
+              size="lg"
+              aria-label="Start recording"
+              className="w-16 h-16 rounded-full shadow-lg bg-gradient-primary hover:shadow-glow transition-all duration-300"
+            >
+              <Mic className="w-6 h-6" />
+            </Button>
+          ) : (
+            <Button
+              onClick={stopRecording}
+              size="lg"
+              aria-label="Stop recording"
+              variant="destructive"
+              className="w-16 h-16 rounded-full shadow-lg animate-pulse"
+            >
+              <Square className="w-6 h-6" />
+            </Button>
+          )}
         </div>
+
+        {/* Document-style editor */}
+        <div className="px-6 py-8">
+          <div className="relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible">
+            
+            {/* Transcript with highlights */}
+            <div 
+              className="p-8 whitespace-pre-wrap break-words text-base leading-relaxed rounded-lg"
+              style={{ lineHeight: '1.75' }}
+            >
+              {isLoadingEntry ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading today&apos;s entry...</span>
+                </div>
+              ) : transcript || interimTranscript ? (
+                renderHighlightedText()
+              ) : (
+                <p className="text-muted-foreground italic">
+                  {isRecording 
+                    ? "Listening... Start speaking"
+                    : entryId 
+                      ? "Continue today's entry - tap mic to add more"
+                      : "Tap the microphone button to start recording your thoughts"
+                  }
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Word count footer */}
+          {transcript && (
+            <div className="flex justify-between text-xs text-muted-foreground mt-2 px-2">
+              <span>{transcript.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
+              <span>{transcript.length} characters</span>
+            </div>
+          )}
+
+          {/* Detection status */}
+          {isDetecting && (
+            <div className="mt-4 text-center">
+              <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Analyzing thought patterns...
+              </span>
+            </div>
+          )}
+        </div>
+        
       </div>
+    </div>
       </TooltipProvider>
-    );
-  }
+  );
+}
