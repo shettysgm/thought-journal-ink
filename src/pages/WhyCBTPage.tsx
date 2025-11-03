@@ -18,6 +18,18 @@ export default function WhyCBTPage() {
           </Link>
         </header>
 
+        {/* Video Section */}
+        <div className="w-full max-w-3xl mx-auto pt-8">
+          <video 
+            controls 
+            className="w-full rounded-lg shadow-medium"
+            poster=""
+          >
+            <source src="/cbt-explainer.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
