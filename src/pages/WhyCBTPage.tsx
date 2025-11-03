@@ -22,6 +22,8 @@ export default function WhyCBTPage() {
         <div className="w-full max-w-3xl mx-auto pt-8">
           <video 
             controls 
+            autoPlay
+            muted
             className="w-full rounded-lg shadow-medium"
             poster=""
           >
