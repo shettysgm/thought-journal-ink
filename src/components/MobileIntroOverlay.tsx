@@ -134,11 +134,11 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
         <div className="h-full w-full flex flex-col items-center justify-between p-6">
           
           {/* Close/Skip button */}
-          <div className="w-full max-w-md flex justify-between items-center relative z-[60]">
+          <div className="w-full max-w-md flex justify-between items-center relative z-[70]">
             <button
               onClick={handleSkip}
-              onTouchEnd={(e) => { e.preventDefault(); handleSkip(); }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-2 px-3 -ml-3 cursor-pointer touch-manipulation"
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSkip(); }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-2 px-3 -ml-3 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px]"
               aria-label="Skip intro"
               type="button"
             >
@@ -146,8 +146,8 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             </button>
             <button
               onClick={handleDismiss}
-              onTouchEnd={(e) => { e.preventDefault(); handleDismiss(); }}
-              className="p-3 -mr-1 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation"
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss(); }}
+              className="p-3 -mr-1 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation min-h-[44px] min-w-[44px]"
               aria-label="Close intro"
               type="button"
             >
@@ -239,8 +239,8 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             {/* Next/Get Started Button */}
             <Button 
               onClick={handleNext}
-              onTouchEnd={(e) => { e.preventDefault(); handleNext(); }}
-              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer"
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleNext(); }}
+              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer relative z-[70]"
               type="button"
             >
               {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
