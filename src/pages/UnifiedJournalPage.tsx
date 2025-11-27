@@ -396,7 +396,13 @@ export default function UnifiedJournalPage() {
         {/* Minimal header */}
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="flex items-center justify-between px-2 sm:px-6 py-3 gap-2">
-            <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3" onClick={handleBack}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="gap-1 sm:gap-2 px-2 sm:px-3 touch-manipulation" 
+              onClick={handleBack}
+              onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
+            >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back to Journal</span>
             </Button>
@@ -405,10 +411,11 @@ export default function UnifiedJournalPage() {
               {/* Microphone button */}
               <Button
                 onClick={toggleRecording}
+                onTouchEnd={(e) => { e.preventDefault(); toggleRecording(); }}
                 disabled={!isSupported}
                 size="sm"
                 className={cn(
-                  "gap-1 sm:gap-2 transition-all duration-300 px-2 sm:px-3",
+                  "gap-1 sm:gap-2 transition-all duration-300 px-2 sm:px-3 touch-manipulation",
                   isRecording 
                     ? "bg-red-500 hover:bg-red-600 text-white" 
                     : "bg-green-500 hover:bg-green-600 text-white"
@@ -442,7 +449,13 @@ export default function UnifiedJournalPage() {
                   <span className="hidden sm:inline">Saved</span>
                 </span>
               )}
-              <Button onClick={handleBack} size="sm" variant="outline" className="px-2 sm:px-3">
+              <Button 
+                onClick={handleBack} 
+                onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
+                size="sm" 
+                variant="outline" 
+                className="px-2 sm:px-3 touch-manipulation"
+              >
                 Done
               </Button>
             </div>
