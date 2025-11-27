@@ -131,34 +131,12 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
         role="dialog"
         aria-modal="true"
       >
-        <div className="h-full w-full flex flex-col items-center justify-between p-6">
+        <div className="h-full w-full flex flex-col items-center p-6 pt-8">
           
-          {/* Close/Skip button */}
-          <div className="w-full max-w-md flex justify-between items-center relative z-[70]">
-            <button
-              onClick={handleSkip}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSkip(); }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-2 px-3 -ml-3 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px]"
-              aria-label="Skip intro"
-              type="button"
-            >
-              Skip
-            </button>
-            <button
-              onClick={handleDismiss}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss(); }}
-              className="p-3 -mr-1 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation min-h-[44px] min-w-[44px]"
-              aria-label="Close intro"
-              type="button"
-            >
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
-
-          {/* Slide Content */}
+          {/* Slide Content - at top */}
           <div 
             ref={slideRef}
-            className="max-w-md w-full flex-1 flex flex-col items-center justify-center"
+            className="max-w-md w-full flex flex-col items-center justify-center flex-1"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -218,8 +196,30 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             </div>
           </div>
 
+          {/* Skip and X buttons - positioned in thumb reach zone */}
+          <div className="w-full max-w-md flex justify-between items-center relative z-[70] mb-4">
+            <button
+              onClick={handleSkip}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSkip(); }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-3 px-5 cursor-pointer touch-manipulation min-h-[48px] bg-muted/40 rounded-full"
+              aria-label="Skip intro"
+              type="button"
+            >
+              Skip
+            </button>
+            <button
+              onClick={handleDismiss}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss(); }}
+              className="p-3 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation min-h-[48px] min-w-[48px]"
+              aria-label="Close intro"
+              type="button"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+
           {/* Bottom Navigation */}
-          <div className="w-full max-w-md space-y-6">
+          <div className="w-full max-w-md space-y-4 pb-4">
             {/* Dots Indicator */}
             <div className="flex items-center justify-center gap-2">
               {slides.map((_, index) => (
