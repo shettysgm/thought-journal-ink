@@ -395,20 +395,20 @@ export default function UnifiedJournalPage() {
         
         {/* Minimal header */}
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-          <div className="flex items-center justify-between px-6 py-3">
-            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack}>
+          <div className="flex items-center justify-between px-2 sm:px-6 py-3 gap-2">
+            <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3" onClick={handleBack}>
               <ArrowLeft className="w-4 h-4" />
-              Back to Journal
+              <span className="hidden sm:inline">Back to Journal</span>
             </Button>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Microphone button */}
               <Button
                 onClick={toggleRecording}
                 disabled={!isSupported}
                 size="sm"
                 className={cn(
-                  "gap-2 transition-all duration-300",
+                  "gap-1 sm:gap-2 transition-all duration-300 px-2 sm:px-3",
                   isRecording 
                     ? "bg-red-500 hover:bg-red-600 text-white" 
                     : "bg-green-500 hover:bg-green-600 text-white"
@@ -417,12 +417,12 @@ export default function UnifiedJournalPage() {
                 {isRecording ? (
                   <>
                     <MicOff className="h-4 w-4" />
-                    <span className="hidden sm:inline">Stop</span>
+                    <span>Stop</span>
                   </>
                 ) : (
                   <>
                     <Mic className="h-4 w-4" />
-                    <span className="hidden sm:inline">Record</span>
+                    <span>Record</span>
                   </>
                 )}
               </Button>
@@ -442,7 +442,7 @@ export default function UnifiedJournalPage() {
                   <span className="hidden sm:inline">Saved</span>
                 </span>
               )}
-              <Button onClick={handleBack} size="sm" variant="outline">
+              <Button onClick={handleBack} size="sm" variant="outline" className="px-2 sm:px-3">
                 Done
               </Button>
             </div>
