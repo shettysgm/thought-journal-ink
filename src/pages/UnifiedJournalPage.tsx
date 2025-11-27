@@ -393,13 +393,13 @@ export default function UnifiedJournalPage() {
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
         
-        {/* Minimal header */}
+        {/* Minimal header - simplified on mobile */}
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-          <div className="flex items-center justify-between px-2 sm:px-6 py-3 gap-2">
+          <div className="flex items-center justify-between px-3 sm:px-6 py-3 gap-2">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="gap-1 sm:gap-2 px-2 sm:px-3 touch-manipulation" 
+              className="gap-2 px-2 sm:px-3 touch-manipulation" 
               onClick={handleBack}
               onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
             >
@@ -407,15 +407,15 @@ export default function UnifiedJournalPage() {
               <span className="hidden sm:inline">Back to Journal</span>
             </Button>
             
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Microphone button */}
+            {/* Desktop controls */}
+            <div className="hidden sm:flex items-center gap-3">
               <Button
                 onClick={toggleRecording}
                 onTouchEnd={(e) => { e.preventDefault(); toggleRecording(); }}
                 disabled={!isSupported}
                 size="sm"
                 className={cn(
-                  "gap-1 sm:gap-2 transition-all duration-300 px-2 sm:px-3 touch-manipulation",
+                  "gap-2 transition-all duration-300 px-3 touch-manipulation",
                   isRecording 
                     ? "bg-red-500 hover:bg-red-600 text-white" 
                     : "bg-green-500 hover:bg-green-600 text-white"
@@ -434,19 +434,19 @@ export default function UnifiedJournalPage() {
                 )}
               </Button>
               
-              <span className="text-xs text-muted-foreground hidden md:inline">
+              <span className="text-xs text-muted-foreground">
                 {format(new Date(), 'MMM d, yyyy • h:mm a')}
               </span>
               {saveStatus === 'saving' && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  <span className="hidden sm:inline">Saving...</span>
+                  Saving...
                 </span>
               )}
               {saveStatus === 'saved' && text.trim() && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Check className="w-3 h-3" />
-                  <span className="hidden sm:inline">Saved</span>
+                  Saved
                 </span>
               )}
               <Button 
@@ -454,16 +454,65 @@ export default function UnifiedJournalPage() {
                 onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
                 size="sm" 
                 variant="outline" 
-                className="px-2 sm:px-3 touch-manipulation"
+                className="px-3 touch-manipulation"
               >
                 Done
               </Button>
             </div>
+
+            {/* Mobile: just show save status */}
+            <div className="flex sm:hidden items-center gap-2">
+              {saveStatus === 'saving' && (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              )}
+              {saveStatus === 'saved' && text.trim() && (
+                <Check className="w-4 h-4 text-muted-foreground" />
+              )}
+              {isRecording && (
+                <span className="text-green-500 text-xs font-medium animate-pulse">● REC</span>
+              )}
+            </div>
           </div>
         </header>
 
+        {/* Mobile bottom action bar */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3 safe-area-inset-bottom">
+          <Button
+            onClick={toggleRecording}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toggleRecording(); }}
+            disabled={!isSupported}
+            className={cn(
+              "flex-1 h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
+              isRecording 
+                ? "bg-red-500 hover:bg-red-600 text-white" 
+                : "bg-green-500 hover:bg-green-600 text-white"
+            )}
+          >
+            {isRecording ? (
+              <>
+                <MicOff className="h-5 w-5" />
+                <span>Stop</span>
+              </>
+            ) : (
+              <>
+                <Mic className="h-5 w-5" />
+                <span>Record</span>
+              </>
+            )}
+          </Button>
+          
+          <Button 
+            onClick={handleBack} 
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleBack(); }}
+            variant="outline" 
+            className="flex-1 h-12 text-base font-medium touch-manipulation"
+          >
+            Done
+          </Button>
+        </div>
+
         {/* Unified editor */}
-        <div className="px-6 py-8">
+        <div className="px-4 sm:px-6 py-6 sm:py-8 pb-24 sm:pb-8">
           <div className={cn(
             "relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
             isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
