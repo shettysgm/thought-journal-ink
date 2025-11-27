@@ -394,7 +394,7 @@ export default function UnifiedJournalPage() {
       <div className="max-w-4xl mx-auto">
         
         {/* Minimal header */}
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="flex items-center justify-between px-2 sm:px-6 py-3 gap-2">
             <Button 
               variant="ghost" 
@@ -471,7 +471,7 @@ export default function UnifiedJournalPage() {
             
             {/* Highlight overlay */}
             <div 
-              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
+              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-0"
               style={{ 
                 font: 'inherit',
                 letterSpacing: 'inherit',
@@ -490,8 +490,8 @@ export default function UnifiedJournalPage() {
                     <TooltipProvider delayDuration={100} key={`prov-${i}`}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="inline pointer-events-auto">
-                            <span className="bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help">
+                          <span className="inline pointer-events-none">
+                            <span className="bg-primary/20 rounded px-0.5">
                               {segment.text}
                             </span>
                           </span>
