@@ -134,18 +134,22 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
         <div className="h-full w-full flex flex-col items-center justify-between p-6">
           
           {/* Close/Skip button */}
-          <div className="w-full max-w-md flex justify-between items-center">
+          <div className="w-full max-w-md flex justify-between items-center relative z-[60]">
             <button
               onClick={handleSkip}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+              onTouchEnd={(e) => { e.preventDefault(); handleSkip(); }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-2 px-3 -ml-3 cursor-pointer touch-manipulation"
               aria-label="Skip intro"
+              type="button"
             >
               Skip
             </button>
             <button
               onClick={handleDismiss}
-              className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+              onTouchEnd={(e) => { e.preventDefault(); handleDismiss(); }}
+              className="p-3 -mr-1 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation"
               aria-label="Close intro"
+              type="button"
             >
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -235,7 +239,9 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             {/* Next/Get Started Button */}
             <Button 
               onClick={handleNext}
-              className="w-full h-12 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2"
+              onTouchEnd={(e) => { e.preventDefault(); handleNext(); }}
+              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer"
+              type="button"
             >
               {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
               {currentSlide < slides.length - 1 && <ChevronRight className="w-5 h-5" />}
