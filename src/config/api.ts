@@ -5,7 +5,7 @@ const getBackendUrl = () => {
     return (window as any).ENV.VITE_BACKEND_URL;
   }
   // Use the exact URL specified
-  return "https://vertexthought-755984933994.us-central1.run.app";
+  return "https://vertex-gemini-content-creator-755984933994.us-central1.run.app";
 };
 
 const getEndpoint = () => {
