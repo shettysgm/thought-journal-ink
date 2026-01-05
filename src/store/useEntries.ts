@@ -200,27 +200,40 @@ export const useEntries = create<EntriesState>((set, get) => ({
   updateEntry: async (id, updates) => {
     const existingEntry = await getJournalEntry(id);
     if (!existingEntry) return;
-    
-    // Encrypt text if needed
-    let updatedText = updates.text;
+
     const settings = useSettings.getState();
-    if (settings.encryptionEnabled && settings.currentPassphrase && updatedText) {
-      updatedText = await encryptText(updatedText, settings.currentPassphrase);
+
+    // Only update stored text if a new text value is provided.
+    // This prevents wiping text when updating metadata (e.g., reframes).
+    const hasTextUpdate = typeof updates.text === 'string';
+
+    let storedText = existingEntry.text;
+    if (hasTextUpdate) {
+      storedText = updates.text;
+      if (settings.encryptionEnabled && settings.currentPassphrase && storedText) {
+        storedText = await encryptText(storedText, settings.currentPassphrase);
+      }
     }
-    
-    const updatedEntry = { 
-      ...existingEntry, 
-      ...updates, 
-      text: updatedText,
-      updatedAt: new Date().toISOString() // Track last update time
+
+    const updatedEntry = {
+      ...existingEntry,
+      ...updates,
+      ...(hasTextUpdate ? { text: storedText } : {}),
+      updatedAt: new Date().toISOString(), // Track last update time
     };
-    
+
     await saveJournalEntry(updatedEntry);
-    
-    set(state => ({
-      entries: state.entries.map(entry => 
-        entry.id === id ? { ...updatedEntry, text: updates.text || entry.text } : entry
-      )
+
+    set((state) => ({
+      entries: state.entries.map((entry) =>
+        entry.id === id
+          ? {
+              ...updatedEntry,
+              // Keep plaintext text in memory for display when available
+              text: hasTextUpdate ? (updates.text as string) : entry.text,
+            }
+          : entry
+      ),
     }));
   },
 
