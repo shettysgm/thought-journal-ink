@@ -300,32 +300,42 @@ export default function UnifiedJournalPage() {
       }
     }
   };
-
+  // Prevent double-execution on touch devices
+  const isNavigatingRef = useRef(false);
+  
   const handleBack = async () => {
+    // Prevent double execution
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+    
     try {
       if (recognition) recognition.stop();
     } catch {}
 
     try {
       // Save pending changes immediately before navigating
-      if ((text || '').trim() && text !== lastSavedText) {
+      const currentText = (text || '').trim();
+      if (currentText && currentText !== lastSavedText.trim()) {
         setSaveStatus('saving');
         if (!entryId) {
           const newId = await createEntry({
-            text: text.trim(),
+            text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false
           });
+          console.log('Created new entry:', newId);
           setEntryId(newId);
         } else if (isNewSession && entryId) {
           await appendToEntry(entryId, {
-            text: text.trim(),
+            text: currentText,
             hasAudio: audioSegments.length > 0,
           });
+          console.log('Appended to entry:', entryId);
           setIsNewSession(false);
         } else {
-          await updateEntry(entryId, { text: text.trim() });
+          await updateEntry(entryId, { text: currentText });
+          console.log('Updated entry:', entryId);
         }
         setLastSavedText(text);
         setSaveStatus('saved');
@@ -333,6 +343,13 @@ export default function UnifiedJournalPage() {
       }
     } catch (e) {
       console.error('Save on back failed:', e);
+      toast({
+        title: "Save Failed",
+        description: "Could not save your entry. Please try again.",
+        variant: "destructive"
+      });
+      isNavigatingRef.current = false;
+      return;
     }
 
     navigate('/journal');
@@ -401,7 +418,6 @@ export default function UnifiedJournalPage() {
               size="sm" 
               className="gap-2 px-2 sm:px-3 touch-manipulation" 
               onClick={handleBack}
-              onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back to Journal</span>
@@ -411,7 +427,6 @@ export default function UnifiedJournalPage() {
             <div className="hidden sm:flex items-center gap-3">
               <Button
                 onClick={toggleRecording}
-                onTouchEnd={(e) => { e.preventDefault(); toggleRecording(); }}
                 disabled={!isSupported}
                 size="sm"
                 className={cn(
@@ -451,7 +466,6 @@ export default function UnifiedJournalPage() {
               )}
               <Button 
                 onClick={handleBack} 
-                onTouchEnd={(e) => { e.preventDefault(); handleBack(); }}
                 size="sm" 
                 variant="outline" 
                 className="px-3 touch-manipulation"
@@ -479,7 +493,6 @@ export default function UnifiedJournalPage() {
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3 safe-area-inset-bottom">
           <Button
             onClick={toggleRecording}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toggleRecording(); }}
             disabled={!isSupported}
             className={cn(
               "flex-1 h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
@@ -503,7 +516,6 @@ export default function UnifiedJournalPage() {
           
           <Button 
             onClick={handleBack} 
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleBack(); }}
             variant="outline" 
             className="flex-1 h-12 text-base font-medium touch-manipulation"
           >
