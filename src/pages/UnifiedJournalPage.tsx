@@ -520,7 +520,7 @@ export default function UnifiedJournalPage() {
             
             {/* Highlight overlay */}
             <div 
-              className="absolute inset-0 p-8 pointer-events-none whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-0"
+              className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
               style={{ 
                 font: 'inherit',
                 letterSpacing: 'inherit',
@@ -539,8 +539,8 @@ export default function UnifiedJournalPage() {
                     <TooltipProvider delayDuration={100} key={`prov-${i}`}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="inline pointer-events-none">
-                            <span className="bg-primary/20 rounded px-0.5">
+                          <span className="inline pointer-events-auto cursor-pointer">
+                            <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
                               {segment.text}
                             </span>
                           </span>
