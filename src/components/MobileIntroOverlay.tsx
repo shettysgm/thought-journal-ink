@@ -123,9 +123,9 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
 
   return (
       <div 
-        className="fixed inset-0 z-[9999] bg-white animate-fade-in"
+        className="fixed inset-0 z-50 bg-white backdrop-blur-md animate-fade-in"
         style={{ 
-          touchAction: 'manipulation',
+          touchAction: 'pan-y',
           overscrollBehavior: 'contain'
         }}
         role="dialog"
@@ -197,18 +197,20 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
           </div>
 
           {/* Skip and X buttons - positioned in thumb reach zone */}
-          <div className="w-full max-w-md flex justify-between items-center mb-4">
+          <div className="w-full max-w-md flex justify-between items-center relative z-[70] mb-4">
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSkip(); }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-3 px-5 cursor-pointer min-h-[48px] bg-muted/40 rounded-full"
+              onClick={handleSkip}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSkip(); }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium py-3 px-5 cursor-pointer touch-manipulation min-h-[48px] bg-muted/40 rounded-full"
               aria-label="Skip intro"
               type="button"
             >
               Skip
             </button>
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss(); }}
-              className="p-3 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer min-h-[48px] min-w-[48px]"
+              onClick={handleDismiss}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss(); }}
+              className="p-3 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer touch-manipulation min-h-[48px] min-w-[48px]"
               aria-label="Close intro"
               type="button"
             >
@@ -236,8 +238,9 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
 
             {/* Next/Get Started Button */}
             <Button 
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleNext(); }}
-              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 cursor-pointer"
+              onClick={handleNext}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleNext(); }}
+              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer relative z-[70]"
               type="button"
             >
               {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
