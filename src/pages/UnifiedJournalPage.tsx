@@ -312,44 +312,56 @@ export default function UnifiedJournalPage() {
       if (recognition) recognition.stop();
     } catch {}
 
-    try {
-      // Save pending changes immediately before navigating
-      const currentText = (text || '').trim();
-      if (currentText && currentText !== lastSavedText.trim()) {
-        setSaveStatus('saving');
+    const currentText = (text || '').trim();
+    const needsSave = currentText && currentText !== lastSavedText.trim();
+    
+    if (needsSave) {
+      setSaveStatus('saving');
+      
+      try {
+        let savedId = entryId;
+        
         if (!entryId) {
-          const newId = await createEntry({
+          // Create new entry
+          savedId = await createEntry({
             text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false
           });
-          console.log('Created new entry:', newId);
-          setEntryId(newId);
+          console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
+          // Append to existing entry
           await appendToEntry(entryId, {
             text: currentText,
             hasAudio: audioSegments.length > 0,
           });
           console.log('Appended to entry:', entryId);
-          setIsNewSession(false);
         } else {
+          // Update existing entry
           await updateEntry(entryId, { text: currentText });
           console.log('Updated entry:', entryId);
         }
-        setLastSavedText(text);
-        setSaveStatus('saved');
+        
+        // Force reload entries to ensure persistence
         await loadEntries();
+        
+        // Small delay to ensure IndexedDB transaction commits (critical for iOS)
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        setSaveStatus('saved');
+        console.log('Save completed successfully');
+        
+      } catch (e) {
+        console.error('Save on back failed:', e);
+        toast({
+          title: "Save Failed",
+          description: "Could not save your entry. Please try again.",
+          variant: "destructive"
+        });
+        isNavigatingRef.current = false;
+        return;
       }
-    } catch (e) {
-      console.error('Save on back failed:', e);
-      toast({
-        title: "Save Failed",
-        description: "Could not save your entry. Please try again.",
-        variant: "destructive"
-      });
-      isNavigatingRef.current = false;
-      return;
     }
 
     navigate('/journal');
