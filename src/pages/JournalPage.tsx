@@ -179,62 +179,24 @@ export default function JournalPage() {
           </div>
         </header>
 
-        {/* Search and Calendar */}
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search your entries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Calendar */}
-          <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
-                <span>Select a Date</span>
-                {selectedDate && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedDate(undefined)}
-                    className="text-xs"
-                  >
-                    Clear
-                  </Button>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className={cn("pointer-events-auto")}
-                modifiers={{
-                  hasEntry: (date) => {
-                    const dateKey = format(startOfDay(date), 'yyyy-MM-dd');
-                    return datesWithEntries.has(dateKey);
-                  }
-                }}
-                modifiersClassNames={{
-                  hasEntry: "bg-primary/10 font-bold text-primary"
-                }}
-              />
-            </CardContent>
-          </Card>
-          
-          {filteredEntries.length > 0 && (
-            <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredEntries.length)} of {filteredEntries.length} entries
-              {selectedDate && ` on ${format(selectedDate, 'MMM d, yyyy')}`}
-              {searchTerm && ` matching "${searchTerm}"`}
-            </div>
-          )}
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search your entries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
+
+        {filteredEntries.length > 0 && (
+          <div className="text-sm text-muted-foreground">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredEntries.length)} of {filteredEntries.length} entries
+            {selectedDate && ` on ${format(selectedDate, 'MMM d, yyyy')}`}
+            {searchTerm && ` matching "${searchTerm}"`}
+          </div>
+        )}
 
         {/* Entries List */}
         {filteredEntries.length === 0 ? (
@@ -414,6 +376,42 @@ export default function JournalPage() {
             )}
           </div>
         )}
+
+        {/* Calendar - moved to bottom */}
+        <Card className="shadow-soft">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Filter by Date</span>
+              {selectedDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedDate(undefined)}
+                  className="text-xs"
+                >
+                  Clear
+                </Button>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className={cn("pointer-events-auto")}
+              modifiers={{
+                hasEntry: (date) => {
+                  const dateKey = format(startOfDay(date), 'yyyy-MM-dd');
+                  return datesWithEntries.has(dateKey);
+                }
+              }}
+              modifiersClassNames={{
+                hasEntry: "bg-primary/10 font-bold text-primary"
+              }}
+            />
+          </CardContent>
+        </Card>
         
       </div>
     </div>
