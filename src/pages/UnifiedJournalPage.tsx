@@ -22,6 +22,7 @@ type Detection = {
   span: string;
   type: string;
   reframe: string;
+  confidence?: number;
 };
 
 type AudioSegment = {
@@ -249,11 +250,13 @@ export default function UnifiedJournalPage() {
       try {
         const response = await detectWithAI(text.trim());
         
-        if (response.reframes && response.reframes.length > 0) {
-          const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span,
-            type: "Mind Reading",
-            reframe: r.suggestion
+        // Map distortions with confidence scores
+        if (response.distortions && response.distortions.length > 0) {
+          const detectionsList: Detection[] = response.distortions.map((d, idx) => ({
+            span: d.span,
+            type: d.type || "Cognitive Distortion",
+            reframe: response.reframes[idx]?.suggestion || "",
+            confidence: d.confidence
           }));
           setLiveDetections(detectionsList);
           
@@ -372,7 +375,7 @@ export default function UnifiedJournalPage() {
     const fullText = text + (isRecording ? interimTranscript : '');
     if (liveDetections.length === 0) return fullText;
     
-    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; isInterim?: boolean }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; confidence?: number; isInterim?: boolean }[] = [];
     let lastIndex = 0;
     
     const sortedDetections = [...liveDetections].sort((a, b) => {
@@ -391,7 +394,8 @@ export default function UnifiedJournalPage() {
           text: detection.span, 
           isHighlight: true, 
           reframe: detection.reframe,
-          type: detection.type 
+          type: detection.type,
+          confidence: detection.confidence
         });
         lastIndex = index + detection.span.length;
       }
@@ -571,10 +575,21 @@ export default function UnifiedJournalPage() {
                         </TooltipTrigger>
                         <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
                                 {segment.type}
                               </span>
+                              {segment.confidence !== undefined && (
+                                <span className={cn(
+                                  "text-xs px-2 py-0.5 rounded-full",
+                                  segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
+                                  segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
+                                  "bg-muted text-muted-foreground"
+                                )}>
+                                  {segment.confidence >= 0.85 ? "High confidence" :
+                                   segment.confidence >= 0.7 ? "Likely" : "Possible"}
+                                </span>
+                              )}
                             </div>
                             <p className="text-sm text-foreground">{segment.reframe}</p>
                           </div>
