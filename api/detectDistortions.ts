@@ -28,10 +28,17 @@ OUTPUT RULES:
     {
       "span": "<short text span (≤12 words) that shows distortion>",
       "type": "<one of: All-or-Nothing, Catastrophizing, Mind Reading, Fortune Telling, Should Statements, Labeling, Emotional Reasoning, Overgeneralization, Personalization, Mental Filter>",
-      "reframe": "<gentle, non-judgmental alternative thought in ≤15 words>"
+      "reframe": "<gentle, non-judgmental alternative thought in ≤15 words>",
+      "confidence": <number between 0.0 and 1.0 indicating how certain you are this is a distortion>
     }
   ]
 - If no clear distortion is found, return: []
+
+CONFIDENCE SCORING:
+- 0.9-1.0: Very clear distortion with obvious language patterns (e.g., "I always fail", "Everyone hates me")
+- 0.7-0.89: Likely distortion with strong indicators
+- 0.5-0.69: Possible distortion, but context could change interpretation
+- Below 0.5: Uncertain - only flag if there's some evidence
 
 GUIDELINES:
 - Never include the entire user text, only the flagged span.
@@ -39,6 +46,7 @@ GUIDELINES:
 - Detect multiple distortions if present, each as a separate object in the array.
 - Do not add extra commentary, explanations, or formatting outside the JSON.
 - Prioritize common patterns: all-or-nothing language, predicting the future, negative labels, assumptions about others' thoughts.
+- Be conservative: if uncertain, assign lower confidence rather than flagging healthy thoughts as distortions.
 `;
 
     const user = JSON.stringify({
@@ -77,11 +85,12 @@ TEXT:
     const response = await result.response;
     const json = JSON.parse(response.text() || "[]");
 
-    // Enforce response shape - expect array format
+    // Enforce response shape - expect array format with confidence scores
     const clean = Array.isArray(json) ? json.map((item: any) => ({
       span: String(item.span || "").slice(0, 80),
       type: String(item.type || ""),
-      reframe: String(item.reframe || "").slice(0, 180)
+      reframe: String(item.reframe || "").slice(0, 180),
+      confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5))
     })) : [];
 
     res.status(200).json(clean);

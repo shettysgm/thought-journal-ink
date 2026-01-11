@@ -39,6 +39,7 @@ export type Detection = {
   span: string; // short excerpt (≤ 12 words)
   type: DistortionType;
   reframe: string; // model suggestion (≤ 15 words)
+  confidence?: number; // 0.0 - 1.0 confidence score
 };
 
 export type CBTReframeReviewProps = {
@@ -62,6 +63,12 @@ const TypeIcon: Record<DistortionType, React.ReactNode> = {
   Personalization: <Info className="h-4 w-4" aria-hidden />,
   "Mental Filter": <Info className="h-4 w-4" aria-hidden />,
 };
+
+function getConfidenceLabel(confidence?: number): { label: string; color: string } {
+  if (!confidence || confidence >= 0.85) return { label: "High confidence", color: "text-green-600" };
+  if (confidence >= 0.7) return { label: "Likely", color: "text-amber-600" };
+  return { label: "Possible", color: "text-muted-foreground" };
+}
 
 function wordCount(s: string) {
   return s.trim().split(/\s+/).filter(Boolean).length;
@@ -124,8 +131,13 @@ export default function CBTReframeReview(props: CBTReframeReviewProps) {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm rounded-full bg-muted px-2 py-0.5 font-bold">{d.type}</span>
-                    <span className="text-xs text-muted-foreground">From: "{d.span}"</span>
+                    {d.confidence !== undefined && (
+                      <span className={cn("text-xs", getConfidenceLabel(d.confidence).color)}>
+                        {getConfidenceLabel(d.confidence).label}
+                      </span>
+                    )}
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">From: "{d.span}"</p>
 
                   {!state.editing ? (
                     <p className="mt-2 text-base">{state.reframe}</p>
