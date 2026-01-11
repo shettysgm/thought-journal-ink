@@ -30,7 +30,10 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Request structured JSON response
+    // Minimum confidence threshold - hide low-confidence detections to reduce hallucination visibility
+    const CONFIDENCE_THRESHOLD = 0.6;
+    
+    // Request structured JSON response with confidence scores
     const enhancedPrompt = `Analyze this journal entry for cognitive distortions and return ONLY a JSON array. No explanations or extra text.
 
 Format:
@@ -38,9 +41,16 @@ Format:
   {
     "span": "exact phrase from entry showing distortion",
     "type": "Mind Reading" or "Catastrophizing" or "All-or-Nothing" etc.,
-    "reframe": "brief compassionate alternative thought"
+    "reframe": "brief compassionate alternative thought",
+    "confidence": 0.85
   }
 ]
+
+Confidence scoring:
+- 0.9-1.0: Very clear distortion (e.g., "I always fail", "Everyone hates me")
+- 0.7-0.89: Likely distortion with strong indicators
+- 0.5-0.69: Possible distortion, context-dependent
+- Below 0.5: Uncertain, only flag with evidence
 
 Rules:
 - Return ONLY the JSON array
@@ -48,6 +58,7 @@ Rules:
 - Keep reframes under 20 words
 - Use compassionate, friendly language
 - If no distortions found, return []
+- Be conservative: prefer lower confidence over false positives
 
 Journal entry:
 ${text}`;
@@ -85,17 +96,26 @@ ${text}`;
     
     // If data contains distortions (structured format)
     if (Array.isArray(data)) {
-      const distortions = data.map((item: any) => ({
+      // Parse confidence and filter out low-confidence results
+      const allDistortions = data.map((item: any) => ({
         type: String(item.type || ""),
         span: String(item.span || ""),
         rationale: "",
-        confidence: 0.75,
+        confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5)),
       }));
-      const reframes = data.filter((i: any) => i?.reframe).map((i: any) => ({
-        span: String(i.span || ""),
-        suggestion: String(i.reframe || ""),
-        socratic: "",
-      }));
+      
+      // Filter by confidence threshold
+      const distortions = allDistortions.filter(d => d.confidence >= CONFIDENCE_THRESHOLD);
+      
+      console.debug(`[AI Detect] Filtered ${allDistortions.length - distortions.length} low-confidence results (threshold: ${CONFIDENCE_THRESHOLD})`);
+      
+      const reframes = data
+        .filter((i: any) => i?.reframe && (Number(i.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
+        .map((i: any) => ({
+          span: String(i.span || ""),
+          suggestion: String(i.reframe || ""),
+          socratic: "",
+        }));
       return { distortions, reframes };
     }
     
@@ -119,17 +139,23 @@ ${text}`;
       try {
         const parsed = JSON.parse(jsonStr);
         if (Array.isArray(parsed)) {
-          const distortions = parsed.map((item: any) => ({
+          // Parse confidence and filter out low-confidence results
+          const allDistortions = parsed.map((item: any) => ({
             type: String(item.type || ""),
             span: String(item.span || ""),
             rationale: "",
-            confidence: 0.75,
+            confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5)),
           }));
-          const reframes = parsed.map((item: any) => ({
-            span: String(item.span || ""),
-            suggestion: String(item.reframe || ""),
-            socratic: "",
-          }));
+          
+          const distortions = allDistortions.filter(d => d.confidence >= CONFIDENCE_THRESHOLD);
+          
+          const reframes = parsed
+            .filter((item: any) => (Number(item.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
+            .map((item: any) => ({
+              span: String(item.span || ""),
+              suggestion: String(item.reframe || ""),
+              socratic: "",
+            }));
           return { distortions, reframes };
         }
       } catch (e) {
