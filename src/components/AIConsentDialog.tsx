@@ -25,9 +25,12 @@ export default function AIConsentDialog({ onConsentGiven, onConsentDeclined }: A
 
   useEffect(() => {
     const hasConsented = localStorage.getItem(AI_CONSENT_KEY);
-    if (!hasConsented) {
-      // Small delay to avoid immediate popup on first load
-      const timer = setTimeout(() => setIsOpen(true), 1000);
+    const hasSeenIntro = localStorage.getItem('cbt-journal-intro-seen');
+    
+    // Only show AI consent after user has seen the intro
+    if (!hasConsented && hasSeenIntro) {
+      // Small delay to avoid immediate popup
+      const timer = setTimeout(() => setIsOpen(true), 500);
       return () => clearTimeout(timer);
     }
   }, []);
