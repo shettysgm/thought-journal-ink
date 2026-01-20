@@ -505,13 +505,24 @@ export default function UnifiedJournalPage() {
           </div>
         </header>
 
-        {/* Mobile bottom action bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3 safe-area-inset-bottom">
+        {/* Mobile bottom action bar - fixed to bottom with iOS safe area */}
+        <div 
+          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3"
+          style={{ 
+            bottom: 0,
+            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+          }}
+        >
           <Button
             onClick={toggleRecording}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleRecording();
+            }}
             disabled={!isSupported}
             className={cn(
-              "flex-1 h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
+              "flex-1 min-h-[44px] h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
               isRecording 
                 ? "bg-red-500 hover:bg-red-600 text-white" 
                 : "bg-green-500 hover:bg-green-600 text-white"
@@ -531,9 +542,14 @@ export default function UnifiedJournalPage() {
           </Button>
           
           <Button 
-            onClick={handleBack} 
+            onClick={handleBack}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleBack();
+            }}
             variant="outline" 
-            className="flex-1 h-12 text-base font-medium touch-manipulation"
+            className="flex-1 min-h-[44px] h-12 text-base font-medium touch-manipulation"
           >
             Done
           </Button>
