@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
+import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -35,6 +36,7 @@ type AudioSegment = {
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
+  const { aiAnalysisEnabled, autoDetectDistortions } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
@@ -238,8 +240,14 @@ export default function UnifiedJournalPage() {
     return () => clearTimeout(saveTimeout);
   }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry]);
 
-  // Debounced AI detection
+  // Debounced AI detection - respects user's AI settings
   useEffect(() => {
+    // Skip AI analysis if disabled in settings
+    if (!aiAnalysisEnabled || !autoDetectDistortions) {
+      setLiveDetections([]);
+      return;
+    }
+
     if (!text.trim() || text.trim().length < 20) {
       setLiveDetections([]);
       return;
