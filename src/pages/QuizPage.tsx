@@ -80,9 +80,15 @@ export default function QuizPage() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-white p-4 md:p-6">
+      <div 
+        className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+        style={{ 
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-6">
-          <header className="flex items-center gap-4">
+          <header className="flex items-center gap-4 mt-2">
             <Link to="/">
               <Button variant="outline" size="sm" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
@@ -114,9 +120,15 @@ export default function QuizPage() {
 
   if (quizCompleted && result) {
     return (
-      <div className="min-h-screen bg-white p-4 md:p-6">
+      <div 
+        className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+        style={{ 
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-6">
-          <header className="flex items-center gap-4">
+          <header className="flex items-center gap-4 mt-2">
             <Link to="/">
               <Button variant="outline" size="sm" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
@@ -198,11 +210,17 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
+    <div 
+      className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+      style={{ 
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+      }}
+    >
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-4 mt-2">
           <Link to="/">
             <Button variant="outline" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
