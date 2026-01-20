@@ -186,8 +186,8 @@ export default function JournalPage() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground">Your Journal</h1>
-            <p className="text-muted-foreground">All your saved entries in one place</p>
+            <h1 className="text-3xl font-bold text-foreground">Journal Ink</h1>
+            <p className="text-muted-foreground">All your saved entries</p>
           </div>
         </header>
 
