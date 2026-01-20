@@ -17,7 +17,7 @@ interface MobileIntroOverlayProps {
 const slides = [
   {
     icon: Feather,
-    title: "Welcome to Journal IQ",
+    title: "Welcome to Journal Ink",
     description: "Your private companion for mental wellness",
     color: "text-primary",
     bgColor: "bg-primary/10"
