@@ -50,7 +50,13 @@ export default function Home() {
   return (
     <>
       <MobileIntroOverlay openSignal={introSignal} />
-      <div className="min-h-[100svh] bg-white p-4 md:p-6">
+      <div 
+        className="min-h-[100svh] bg-white px-4 md:px-6 pt-14 pb-6"
+        style={{ 
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="flex justify-end">
             <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => s + 1)}>

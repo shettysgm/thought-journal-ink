@@ -4,7 +4,13 @@ import { ArrowLeft } from "lucide-react";
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-8">
+    <div 
+      className="min-h-screen bg-gradient-therapeutic px-4 md:px-8 pt-14 pb-6"
+      style={{ 
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+      }}
+    >
       <div className="max-w-4xl mx-auto">
         <Link to="/">
           <Button variant="ghost" size="sm" className="mb-6">
@@ -35,15 +41,22 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">3. AI Usage</h2>
               <p>
-                This application uses artificial intelligence to:
+                This application uses <strong>Google Gemini AI</strong> to:
               </p>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
                 <li>Analyze your journal entries for cognitive distortions</li>
-                <li>Provide reframing suggestions</li>
+                <li>Provide reframing suggestions based on CBT principles</li>
                 <li>Generate insights about your thinking patterns</li>
               </ul>
+              <p className="mt-3 font-medium">AI Limitations:</p>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
+                <li>AI analysis may be inaccurate or miss context</li>
+                <li>Suggestions are general guidance, not personalized therapy</li>
+                <li>The AI cannot understand your full situation or history</li>
+                <li>You should use your own judgment when considering suggestions</li>
+              </ul>
               <p className="mt-2">
-                All AI analysis is performed to help you develop healthier thinking patterns and is not shared with third parties.
+                You can disable AI analysis at any time in Settings.
               </p>
             </section>
 
@@ -56,11 +69,32 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">5. Medical Disclaimer</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">5. Mental Health Disclaimer</h2>
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                <p className="font-medium text-amber-800 mb-2">⚠️ Important Notice</p>
+                <p className="text-amber-700 text-sm">
+                  Journal Ink is a self-help tool and is <strong>not a substitute for professional mental health care</strong>. 
+                  If you are experiencing a mental health crisis, please contact a qualified healthcare provider or crisis service immediately.
+                </p>
+              </div>
               <p>
-                Journal IQ is not a substitute for professional medical advice, diagnosis, or treatment. 
-                Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+                The cognitive distortion detection and reframing suggestions provided by this app are educational tools based on 
+                Cognitive Behavioral Therapy (CBT) principles. They are not:
               </p>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
+                <li>A diagnosis of any mental health condition</li>
+                <li>A replacement for therapy or counseling</li>
+                <li>Medical advice or treatment</li>
+                <li>Appropriate for crisis intervention</li>
+              </ul>
+              <p className="mt-3">
+                <strong>If you need immediate help:</strong>
+              </p>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
+                <li>🇺🇸 USA: Call or text <strong>988</strong> (Suicide & Crisis Lifeline)</li>
+                <li>🇬🇧 UK: Call <strong>116 123</strong> (Samaritans)</li>
+                <li>🌍 International: Visit <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">findahelpline.com</a></li>
+              </ul>
             </section>
 
             <section>
