@@ -169,10 +169,10 @@ export default function JournalPage() {
 
   return (
     <div 
-      className="min-h-screen bg-white p-4 md:p-6"
+      className="min-h-screen bg-white px-4 md:px-6"
       style={{ 
-        paddingTop: 'max(1rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.5rem)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)'
       }}
     >
       <div className="max-w-4xl mx-auto space-y-6">
