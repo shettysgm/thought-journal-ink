@@ -63,9 +63,9 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     }
   }, [alwaysShow]);
 
-  // Re-open overlay when signal changes
+  // Re-open overlay when signal changes (only if signal is a number, not undefined)
   useEffect(() => {
-    if (openSignal !== undefined) {
+    if (openSignal !== undefined && openSignal > 0) {
       setIsVisible(true);
       setCurrentSlide(0); // Reset to first slide
     }

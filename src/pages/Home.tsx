@@ -46,7 +46,7 @@ const navigationCards = [
 
 export default function Home() {
   console.log('Home component rendering');
-  const [introSignal, setIntroSignal] = useState(0);
+  const [introSignal, setIntroSignal] = useState<number | undefined>(undefined);
   return (
     <>
       <MobileIntroOverlay openSignal={introSignal} />
