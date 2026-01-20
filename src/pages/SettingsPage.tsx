@@ -138,11 +138,17 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
+    <div 
+      className="min-h-screen bg-gradient-therapeutic px-4 md:px-6 pt-14 pb-6"
+      style={{ 
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+      }}
+    >
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-4 mt-2">
           <Link to="/">
             <Button variant="outline" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
