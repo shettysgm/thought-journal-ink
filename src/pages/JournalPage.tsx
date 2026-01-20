@@ -153,7 +153,13 @@ export default function JournalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white p-4 md:p-6">
+      <div 
+        className="min-h-screen bg-white p-4 md:p-6"
+        style={{ 
+          paddingTop: 'max(1rem, env(safe-area-inset-top))',
+          paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="text-center">Loading your journal entries...</div>
         </div>
@@ -162,7 +168,13 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
+    <div 
+      className="min-h-screen bg-white p-4 md:p-6"
+      style={{ 
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+      }}
+    >
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
