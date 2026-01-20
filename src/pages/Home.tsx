@@ -58,19 +58,7 @@ export default function Home() {
         }}
       >
         <div className="max-w-4xl mx-auto space-y-8">
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => {
-                localStorage.removeItem('cbt-journal-intro-seen');
-                localStorage.removeItem('ai-analysis-consent');
-                window.location.reload();
-              }}
-              className="text-xs text-muted-foreground"
-            >
-              Reset First-Time Experience
-            </Button>
+          <div className="flex justify-end">
             <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}>
               Show Intro
             </Button>
