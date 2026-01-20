@@ -46,22 +46,16 @@ const slides = [
 ];
 
 export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: MobileIntroOverlayProps) {
-  const [isVisible, setIsVisible] = useState(alwaysShow);
+  // Check localStorage immediately on mount to determine initial visibility
+  const [isVisible, setIsVisible] = useState(() => {
+    if (alwaysShow) return true;
+    const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
+    return !hasSeenIntro;
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const slideRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (alwaysShow) {
-      setIsVisible(true);
-    } else {
-      const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
-      if (!hasSeenIntro) {
-        setTimeout(() => setIsVisible(true), 500);
-      }
-    }
-  }, [alwaysShow]);
 
   // Re-open overlay when signal changes (only if signal is a number, not undefined)
   useEffect(() => {
