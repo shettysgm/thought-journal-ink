@@ -17,7 +17,10 @@ export default function CrisisResourcesBanner() {
   if (isDismissed) return null;
 
   return (
-    <div className="bg-rose-50 border-b border-rose-200 px-4 py-3">
+    <div 
+      className="bg-rose-50 border-b border-rose-200 px-4 py-3"
+      style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))' }}
+    >
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1">
           <Heart className="w-5 h-5 text-rose-500 flex-shrink-0" />
