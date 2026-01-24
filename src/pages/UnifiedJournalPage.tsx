@@ -329,12 +329,23 @@ export default function UnifiedJournalPage() {
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
     
+    console.log('handleBack called, current state:', {
+      text: text?.substring(0, 50),
+      lastSavedText: lastSavedText?.substring(0, 50),
+      entryId,
+      hasDrawing,
+      isNewSession
+    });
+    
     try {
       if (recognition) recognition.stop();
     } catch {}
 
     const currentText = (text || '').trim();
-    const needsSave = currentText && currentText !== lastSavedText.trim();
+    // Also save if there's a drawing even without text changes
+    const needsSave = (currentText && currentText !== lastSavedText.trim()) || (hasDrawing && !entryId);
+    
+    console.log('needsSave:', needsSave, 'currentText length:', currentText.length);
     
     if (needsSave) {
       setSaveStatus('saving');
@@ -344,6 +355,7 @@ export default function UnifiedJournalPage() {
         
         if (!entryId) {
           // Create new entry
+          console.log('Creating new entry...');
           savedId = await createEntry({
             text: currentText,
             tags: ['unified'],
@@ -354,6 +366,7 @@ export default function UnifiedJournalPage() {
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
           // Append to existing entry
+          console.log('Appending to entry:', entryId);
           await appendToEntry(entryId, {
             text: currentText,
             hasAudio: audioSegments.length > 0,
@@ -361,6 +374,7 @@ export default function UnifiedJournalPage() {
           console.log('Appended to entry:', entryId);
         } else {
           // Update existing entry
+          console.log('Updating entry:', entryId);
           await updateEntry(entryId, { text: currentText });
           console.log('Updated entry:', entryId);
         }
@@ -384,6 +398,8 @@ export default function UnifiedJournalPage() {
         isNavigatingRef.current = false;
         return;
       }
+    } else {
+      console.log('No save needed, navigating directly');
     }
 
     navigate('/journal');
