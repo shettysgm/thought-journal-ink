@@ -10,7 +10,8 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import DrawingCanvas from '@/components/DrawingCanvas';
+import DrawingCanvas, { DrawingCanvasRef } from '@/components/DrawingCanvas';
+import { extractTextFromDrawing } from '@/lib/ocrClient';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -65,6 +66,8 @@ export default function UnifiedJournalPage() {
   const [inputMode, setInputMode] = useState<'text' | 'draw'>('text');
   const [hasDrawing, setHasDrawing] = useState(false);
   const [drawingBlob, setDrawingBlob] = useState<Blob | null>(null);
+  const [isExtractingText, setIsExtractingText] = useState(false);
+  const drawingCanvasRef = useRef<DrawingCanvasRef | null>(null);
 
   // Load existing entry if editing
   useEffect(() => {
@@ -629,16 +632,63 @@ export default function UnifiedJournalPage() {
           {/* Drawing Canvas Mode */}
           {inputMode === 'draw' && (
             <DrawingCanvas
+              ref={drawingCanvasRef}
               className="min-h-[calc(100vh-200px)]"
-              onSave={(blob) => {
+              onSave={async (blob) => {
                 setDrawingBlob(blob);
+                setIsExtractingText(true);
+                
                 toast({
-                  title: "Drawing Saved",
-                  description: "Your handwriting has been saved to this entry.",
+                  title: "Processing Handwriting",
+                  description: "Extracting text from your drawing...",
                 });
+                
+                try {
+                  const ocrResult = await extractTextFromDrawing(blob);
+                  
+                  if (ocrResult.success && ocrResult.text.trim()) {
+                    // Append extracted text to the entry
+                    const extractedText = `\n\n--- Handwritten (${format(new Date(), 'h:mm a')}) ---\n${ocrResult.text.trim()}`;
+                    setText(prev => prev + extractedText);
+                    
+                    toast({
+                      title: "Text Extracted",
+                      description: `Found ${ocrResult.text.split(/\s+/).length} words from handwriting.`,
+                    });
+                  } else if (ocrResult.success) {
+                    toast({
+                      title: "Drawing Saved",
+                      description: "No text detected in handwriting.",
+                    });
+                  } else {
+                    toast({
+                      title: "OCR Failed",
+                      description: ocrResult.error || "Could not extract text. Drawing saved as image.",
+                      variant: "destructive",
+                    });
+                  }
+                } catch (error) {
+                  console.error('OCR error:', error);
+                  toast({
+                    title: "Drawing Saved",
+                    description: "OCR unavailable. Drawing saved as image only.",
+                  });
+                } finally {
+                  setIsExtractingText(false);
+                }
               }}
               onDrawingChange={(hasContent) => setHasDrawing(hasContent)}
             />
+          )}
+          
+          {/* OCR Processing Indicator */}
+          {isExtractingText && (
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-card p-6 rounded-lg shadow-lg flex items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <span className="text-sm font-medium">Extracting handwritten text...</span>
+              </div>
+            </div>
           )}
 
           {/* Text Input Mode */}

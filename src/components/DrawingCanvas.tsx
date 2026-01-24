@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2, Trash2, Eraser, Pen, Download, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,11 +16,15 @@ interface Stroke {
   size: number;
 }
 
-interface DrawingCanvasProps {
+export interface DrawingCanvasProps {
   onSave?: (blob: Blob) => void;
   onDrawingChange?: (hasContent: boolean) => void;
   className?: string;
   initialDrawing?: Blob | null;
+}
+
+export interface DrawingCanvasRef {
+  exportDrawing: () => Promise<Blob | null>;
 }
 
 const COLORS = [
@@ -35,12 +39,12 @@ const COLORS = [
 
 const PEN_SIZES = [2, 4, 8, 12];
 
-export default function DrawingCanvas({ 
+const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({ 
   onSave, 
   onDrawingChange, 
   className,
   initialDrawing 
-}: DrawingCanvasProps) {
+}, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -297,6 +301,11 @@ export default function DrawingCanvas({
     });
   }, []);
 
+  // Expose exportDrawing via ref
+  useImperativeHandle(ref, () => ({
+    exportDrawing,
+  }), [exportDrawing]);
+
   const handleSave = async () => {
     const blob = await exportDrawing();
     if (blob && onSave) {
@@ -485,4 +494,8 @@ export default function DrawingCanvas({
       </div>
     </div>
   );
-}
+});
+
+DrawingCanvas.displayName = 'DrawingCanvas';
+
+export default DrawingCanvas;
