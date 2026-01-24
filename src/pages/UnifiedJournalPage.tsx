@@ -324,9 +324,19 @@ export default function UnifiedJournalPage() {
   // Prevent double-execution on touch devices
   const isNavigatingRef = useRef(false);
   
+  // Reset navigation ref when component mounts (in case of remount)
+  useEffect(() => {
+    isNavigatingRef.current = false;
+  }, []);
+  
   const handleBack = async () => {
+    console.log('handleBack triggered, isNavigatingRef:', isNavigatingRef.current);
+    
     // Prevent double execution
-    if (isNavigatingRef.current) return;
+    if (isNavigatingRef.current) {
+      console.log('Navigation already in progress, skipping');
+      return;
+    }
     isNavigatingRef.current = true;
     
     console.log('handleBack called, current state:', {
