@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, PenTool, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import DrawingCanvas from '@/components/DrawingCanvas';
 
 // Define global interface for webkitSpeechRecognition
 declare global {
@@ -59,6 +60,11 @@ export default function UnifiedJournalPage() {
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
+  
+  // Drawing mode state (for iPad/stylus)
+  const [inputMode, setInputMode] = useState<'text' | 'draw'>('text');
+  const [hasDrawing, setHasDrawing] = useState(false);
+  const [drawingBlob, setDrawingBlob] = useState<Blob | null>(null);
 
   // Load existing entry if editing
   useEffect(() => {
@@ -202,7 +208,8 @@ export default function UnifiedJournalPage() {
             text: text.trim(),
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
+            hasDrawing: hasDrawing,
+            ...(drawingBlob && { drawingBlob })
           });
           setEntryId(newId);
           setIsNewSession(false);
@@ -338,7 +345,8 @@ export default function UnifiedJournalPage() {
             text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
+            hasDrawing: hasDrawing,
+            ...(drawingBlob && { drawingBlob })
           });
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
@@ -449,9 +457,31 @@ export default function UnifiedJournalPage() {
             
             {/* Desktop controls */}
             <div className="hidden sm:flex items-center gap-3">
+              {/* Input mode toggle */}
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                <Button
+                  variant={inputMode === 'text' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setInputMode('text')}
+                  className="h-8 gap-1.5"
+                >
+                  <Type className="h-4 w-4" />
+                  <span>Type</span>
+                </Button>
+                <Button
+                  variant={inputMode === 'draw' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setInputMode('draw')}
+                  className="h-8 gap-1.5"
+                >
+                  <PenTool className="h-4 w-4" />
+                  <span>Draw</span>
+                </Button>
+              </div>
+
               <Button
                 onClick={toggleRecording}
-                disabled={!isSupported}
+                disabled={!isSupported || inputMode === 'draw'}
                 size="sm"
                 className={cn(
                   "gap-2 transition-all duration-300 px-3 touch-manipulation",
@@ -482,7 +512,7 @@ export default function UnifiedJournalPage() {
                   Saving...
                 </span>
               )}
-              {saveStatus === 'saved' && text.trim() && (
+              {saveStatus === 'saved' && (text.trim() || hasDrawing) && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Check className="w-3 h-3" />
                   Saved
@@ -503,11 +533,14 @@ export default function UnifiedJournalPage() {
               {saveStatus === 'saving' && (
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
               )}
-              {saveStatus === 'saved' && text.trim() && (
+              {saveStatus === 'saved' && (text.trim() || hasDrawing) && (
                 <Check className="w-4 h-4 text-muted-foreground" />
               )}
               {isRecording && (
                 <span className="text-green-500 text-xs font-medium animate-pulse">● REC</span>
+              )}
+              {inputMode === 'draw' && (
+                <span className="text-primary text-xs font-medium">✏️ Draw</span>
               )}
             </div>
           </div>
@@ -515,39 +548,67 @@ export default function UnifiedJournalPage() {
 
         {/* Mobile bottom action bar - fixed to bottom with iOS safe area */}
         <div 
-          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3"
+          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-3 flex sm:hidden items-center gap-2"
           style={{ 
             bottom: 0,
-            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+            paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'
           }}
         >
-          <Button
-            onClick={toggleRecording}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleRecording();
-            }}
-            disabled={!isSupported}
-            className={cn(
-              "flex-1 min-h-[44px] h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
-              isRecording 
-                ? "bg-red-500 hover:bg-red-600 text-white" 
-                : "bg-green-500 hover:bg-green-600 text-white"
-            )}
-          >
-            {isRecording ? (
-              <>
-                <MicOff className="h-5 w-5" />
-                <span>Stop</span>
-              </>
-            ) : (
-              <>
-                <Mic className="h-5 w-5" />
-                <span>Record</span>
-              </>
-            )}
-          </Button>
+          {/* Mode toggle */}
+          <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+            <Button
+              variant={inputMode === 'text' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setInputMode('text')}
+              className="h-10 w-10 p-0"
+            >
+              <Type className="h-5 w-5" />
+            </Button>
+            <Button
+              variant={inputMode === 'draw' ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setInputMode('draw')}
+              className="h-10 w-10 p-0"
+            >
+              <PenTool className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {inputMode === 'text' && (
+            <Button
+              onClick={toggleRecording}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleRecording();
+              }}
+              disabled={!isSupported}
+              className={cn(
+                "flex-1 min-h-[44px] h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
+                isRecording 
+                  ? "bg-red-500 hover:bg-red-600 text-white" 
+                  : "bg-green-500 hover:bg-green-600 text-white"
+              )}
+            >
+              {isRecording ? (
+                <>
+                  <MicOff className="h-5 w-5" />
+                  <span>Stop</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="h-5 w-5" />
+                  <span>Record</span>
+                </>
+              )}
+            </Button>
+          )}
+          
+          {inputMode === 'draw' && (
+            <div className="flex-1 text-center text-sm text-muted-foreground">
+              Use Apple Pencil or finger to draw
+            </div>
+          )}
           
           <Button 
             onClick={handleBack}
@@ -557,7 +618,7 @@ export default function UnifiedJournalPage() {
               handleBack();
             }}
             variant="outline" 
-            className="flex-1 min-h-[44px] h-12 text-base font-medium touch-manipulation"
+            className="min-h-[44px] h-12 px-6 text-base font-medium touch-manipulation"
           >
             Done
           </Button>
@@ -565,164 +626,184 @@ export default function UnifiedJournalPage() {
 
         {/* Unified editor */}
         <div className="px-4 sm:px-6 py-6 sm:py-8 pb-24 sm:pb-8">
-          <div className={cn(
-            "relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
-            isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
-          )}>
-            
-            {/* Highlight overlay */}
-            <div 
-              className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
-              style={{ 
-                font: 'inherit',
-                letterSpacing: 'inherit',
-                wordSpacing: 'inherit',
-                lineHeight: '1.75'
+          {/* Drawing Canvas Mode */}
+          {inputMode === 'draw' && (
+            <DrawingCanvas
+              className="min-h-[calc(100vh-200px)]"
+              onSave={(blob) => {
+                setDrawingBlob(blob);
+                toast({
+                  title: "Drawing Saved",
+                  description: "Your handwriting has been saved to this entry.",
+                });
               }}
-              aria-hidden="true"
-            >
-              {(() => {
-                const highlighted = renderHighlightedText();
-                if (typeof highlighted === 'string') {
-                  return highlighted;
-                }
-                return highlighted.map((segment: any, i: number) => (
-                  segment.isHighlight ? (
-                    <TooltipProvider delayDuration={100} key={`prov-${i}`}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="inline pointer-events-auto cursor-pointer">
-                            <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
-                              {segment.text}
-                            </span>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                                {segment.type}
-                              </span>
-                              {segment.confidence !== undefined && (
-                                <span className={cn(
-                                  "text-xs px-2 py-0.5 rounded-full",
-                                  segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
-                                  segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
-                                  "bg-muted text-muted-foreground"
-                                )}>
-                                  {segment.confidence >= 0.85 ? "High confidence" :
-                                   segment.confidence >= 0.7 ? "Likely" : "Possible"}
+              onDrawingChange={(hasContent) => setHasDrawing(hasContent)}
+            />
+          )}
+
+          {/* Text Input Mode */}
+          {inputMode === 'text' && (
+            <>
+              <div className={cn(
+                "relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
+                isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
+              )}>
+                
+                {/* Highlight overlay */}
+                <div 
+                  className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
+                  style={{ 
+                    font: 'inherit',
+                    letterSpacing: 'inherit',
+                    wordSpacing: 'inherit',
+                    lineHeight: '1.75'
+                  }}
+                  aria-hidden="true"
+                >
+                  {(() => {
+                    const highlighted = renderHighlightedText();
+                    if (typeof highlighted === 'string') {
+                      return highlighted;
+                    }
+                    return highlighted.map((segment: any, i: number) => (
+                      segment.isHighlight ? (
+                        <TooltipProvider delayDuration={100} key={`prov-${i}`}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline pointer-events-auto cursor-pointer">
+                                <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
+                                  {segment.text}
                                 </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-foreground">{segment.reframe}</p>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <span 
-                      key={i} 
-                      className={cn(
-                        "pointer-events-none",
-                        segment.isInterim && "text-muted-foreground italic opacity-60"
-                      )}
-                    >
-                      {segment.text}
-                    </span>
-                  )
-                ));
-              })()}
-            </div>
-            
-            {/* Recording waveform overlay */}
-            {isRecording && (
-              <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
-              </div>
-            )}
-            
-            {/* Input area */}
-            <div className="relative">
-              <Textarea
-                ref={textareaRef}
-                placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
-                value={text + (isRecording ? interimTranscript : '')}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  // Allow editing even during recording, but adjust for interim text
-                  if (isRecording) {
-                    // Remove interim transcript portion before updating
-                    const withoutInterim = newValue.replace(interimTranscript, '');
-                    setText(withoutInterim);
-                  } else {
-                    setText(newValue);
-                  }
-                }}
-                className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
-                )}
-                style={{ lineHeight: '1.75' }}
-                autoFocus
-              />
-            </div>
-            
-            {/* Audio segments */}
-            {audioSegments.length > 0 && (
-              <div className="px-8 pb-8 space-y-2">
-                <div className="text-xs text-muted-foreground mb-3">Voice segments:</div>
-                {audioSegments.map((segment) => (
-                  <div 
-                    key={segment.id}
-                    className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
-                  >
-                    <Button
-                      onClick={() => toggleAudioPlayback(segment.id)}
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 rounded-full flex-shrink-0"
-                    >
-                      {playingSegmentId === segment.id ? (
-                        <Pause className="h-4 w-4" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                                    {segment.type}
+                                  </span>
+                                  {segment.confidence !== undefined && (
+                                    <span className={cn(
+                                      "text-xs px-2 py-0.5 rounded-full",
+                                      segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
+                                      segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
+                                      "bg-muted text-muted-foreground"
+                                    )}>
+                                      {segment.confidence >= 0.85 ? "High confidence" :
+                                       segment.confidence >= 0.7 ? "Likely" : "Possible"}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-foreground">{segment.reframe}</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
-                        <Play className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground">{segment.transcript}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(segment.timestamp, 'h:mm a')}
-                      </p>
-                    </div>
+                        <span 
+                          key={i} 
+                          className={cn(
+                            "pointer-events-none",
+                            segment.isInterim && "text-muted-foreground italic opacity-60"
+                          )}
+                        >
+                          {segment.text}
+                        </span>
+                      )
+                    ));
+                  })()}
+                </div>
+                
+                {/* Recording waveform overlay */}
+                {isRecording && (
+                  <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   </div>
-                ))}
+                )}
+                
+                {/* Input area */}
+                <div className="relative">
+                  <Textarea
+                    ref={textareaRef}
+                    placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
+                    value={text + (isRecording ? interimTranscript : '')}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      // Allow editing even during recording, but adjust for interim text
+                      if (isRecording) {
+                        // Remove interim transcript portion before updating
+                        const withoutInterim = newValue.replace(interimTranscript, '');
+                        setText(withoutInterim);
+                      } else {
+                        setText(newValue);
+                      }
+                    }}
+                    className={cn(
+                      "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
+                    )}
+                    style={{ lineHeight: '1.75' }}
+                    autoFocus
+                  />
+                </div>
+                
+                {/* Audio segments */}
+                {audioSegments.length > 0 && (
+                  <div className="px-8 pb-8 space-y-2">
+                    <div className="text-xs text-muted-foreground mb-3">Voice segments:</div>
+                    {audioSegments.map((segment) => (
+                      <div 
+                        key={segment.id}
+                        className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                      >
+                        <Button
+                          onClick={() => toggleAudioPlayback(segment.id)}
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 rounded-full flex-shrink-0"
+                        >
+                          {playingSegmentId === segment.id ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground">{segment.transcript}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(segment.timestamp, 'h:mm a')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Footer stats */}
-          <div className="flex justify-between items-center text-xs text-muted-foreground mt-2 px-2">
-            <div className="flex gap-4">
-              <span>{text.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
-              <span>{text.length} characters</span>
-              {audioSegments.length > 0 && (
-                <span>{audioSegments.length} voice segments</span>
+              {/* Footer stats */}
+              <div className="flex justify-between items-center text-xs text-muted-foreground mt-2 px-2">
+                <div className="flex gap-4">
+                  <span>{text.trim().split(/\s+/).filter(word => word.length > 0).length} words</span>
+                  <span>{text.length} characters</span>
+                  {audioSegments.length > 0 && (
+                    <span>{audioSegments.length} voice segments</span>
+                  )}
+                </div>
+                {isRecording && (
+                  <span className="text-green-500 font-medium animate-pulse">● Recording</span>
+                )}
+              </div>
+
+              {/* Detection status */}
+              {isDetecting && (
+                <div className="mt-4 text-center">
+                  <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Analyzing thought patterns...
+                  </span>
+                </div>
               )}
-            </div>
-            {isRecording && (
-              <span className="text-green-500 font-medium animate-pulse">● Recording</span>
-            )}
-          </div>
-
-          {/* Detection status */}
-          {isDetecting && (
-            <div className="mt-4 text-center">
-              <span className="text-xs text-muted-foreground flex items-center justify-center gap-2">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                Analyzing thought patterns...
-              </span>
-            </div>
+            </>
           )}
         </div>
         
