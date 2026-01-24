@@ -7,6 +7,7 @@ import SettingsPage from "./pages/SettingsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import WhyCBTPage from "./pages/WhyCBTPage";
+import SupportPage from "./pages/SupportPage";
 import NotFound from "./pages/NotFound";
 import MobileLayout from "./components/MobileLayout";
 
@@ -27,6 +28,7 @@ export default function Router() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/why-cbt" element={<WhyCBTPage />} />
+        <Route path="/support" element={<SupportPage />} />
         <Route path="/handwriting" element={<Navigate to="/text" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
