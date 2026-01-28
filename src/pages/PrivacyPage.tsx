@@ -4,13 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function PrivacyPage() {
   return (
-    <div 
-      className="min-h-screen bg-gradient-therapeutic px-4 md:px-8 pt-14 pb-6"
-      style={{ 
-        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
-      }}
-    >
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <Link to="/">
           <Button variant="ghost" size="sm" className="mb-6">
@@ -65,48 +59,20 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">4. AI Processing</h2>
               <p>
-                When analyzing your entries, we use <strong>Google Gemini AI</strong> to detect cognitive distortions. Here's how it works:
+                When analyzing your entries, we use AI services that may process your content. However:
               </p>
               <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                <li>Your text is processed by Google's Gemini 2.0 Flash model</li>
-                <li>Personal information (names, emails, phones, addresses, medical terms) is automatically redacted before sending</li>
-                <li>Google processes your text in real-time and does not retain it after analysis</li>
-                <li>You can disable AI analysis completely in Settings</li>
+                <li>Text is redacted to remove personally identifiable information before AI analysis</li>
+                <li>AI providers do not retain your data after processing</li>
+                <li>No identifiable personal information is shared with AI services</li>
               </ul>
-              <p className="mt-2 text-sm">
-                For more information about Google's data practices, see{' '}
-                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                  Google's Privacy Policy
-                </a>.
-              </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">5. Third-Party Services</h2>
               <p>
-                We use Google Cloud's Gemini AI service for cognitive distortion analysis. This service:
-              </p>
-              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                <li>Processes data in Google's secure cloud infrastructure</li>
-                <li>Does not use your data to train AI models</li>
-                <li>Is bound by Google's enterprise privacy agreements</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">6. Your Rights (GDPR/CCPA)</h2>
-              <p>
-                Depending on your location, you may have the following rights:
-              </p>
-              <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
-                <li><strong>Access:</strong> Request a copy of your data (available via export in Settings)</li>
-                <li><strong>Deletion:</strong> Delete all your data at any time (stored locally on your device)</li>
-                <li><strong>Opt-out:</strong> Disable AI processing entirely in Settings</li>
-                <li><strong>Portability:</strong> Export your data in JSON format</li>
-                <li><strong>Correction:</strong> Edit your entries at any time</li>
-              </ul>
-              <p className="mt-2">
-                Since your data is stored locally on your device, you have full control over it at all times.
+                We may use third-party AI services for cognitive distortion detection. These services are bound by strict privacy agreements 
+                and do not have access to your personal information or identity.
               </p>
             </section>
 

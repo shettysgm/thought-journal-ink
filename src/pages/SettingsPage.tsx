@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain } from 'lucide-react';
+import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -16,7 +16,6 @@ export default function SettingsPage() {
     encryptionEnabled, 
     autoDetectDistortions, 
     syncStatsEnabled,
-    aiAnalysisEnabled,
     loadSettings,
     updateSettings,
     setPassphrase,
@@ -139,17 +138,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-gradient-therapeutic px-4 md:px-6 pt-14 pb-6"
-      style={{ 
-        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
-      }}
-    >
+    <div className="min-h-screen bg-gradient-therapeutic p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4 mt-2">
+        <header className="flex items-center gap-4">
           <Link to="/">
             <Button variant="outline" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
@@ -186,51 +179,17 @@ export default function SettingsPage() {
               />
             </div>
 
-            {/* AI Analysis Toggle */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-base font-medium flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  AI Analysis
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Send entries to Google Gemini AI for cognitive distortion detection
-                </p>
-              </div>
-              <Switch
-                checked={aiAnalysisEnabled}
-                onCheckedChange={(checked) => {
-                  updateSettings({ aiAnalysisEnabled: checked });
-                  toast({
-                    title: checked ? "AI Analysis Enabled" : "AI Analysis Disabled",
-                    description: checked 
-                      ? "Your entries will be analyzed for cognitive distortions."
-                      : "AI analysis is now off. Your entries stay completely local.",
-                  });
-                }}
-              />
-            </div>
-
-            {!aiAnalysisEnabled && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-sm text-amber-800">
-                  ⚠️ AI analysis is disabled. Cognitive distortion detection will not work.
-                </p>
-              </div>
-            )}
-
             {/* Auto-detect distortions */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label className="text-base font-medium">Auto-detect distortions</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically identify cognitive distortions as you write
+                  Automatically identify cognitive distortions in your writing
                 </p>
               </div>
               <Switch
                 checked={autoDetectDistortions}
                 onCheckedChange={(checked) => updateSettings({ autoDetectDistortions: checked })}
-                disabled={!aiAnalysisEnabled}
               />
             </div>
 

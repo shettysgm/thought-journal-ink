@@ -29,7 +29,6 @@ export type AppSettings = {
   encryptionEnabled: boolean;
   autoDetectDistortions: boolean;
   syncStatsEnabled: boolean;
-  aiAnalysisEnabled: boolean; // New: allows users to completely disable AI
   passphraseHash?: string;
 };
 

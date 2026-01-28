@@ -71,18 +71,13 @@ export async function initDB(): Promise<IDBPDatabase<CBTJournalDB>> {
 export async function saveJournalEntry(entry: JournalEntry & { drawingBlob?: Blob; audioBlob?: Blob }) {
   try {
     const database = await initDB();
-    const tx = database.transaction('journal_entries', 'readwrite');
-    await tx.store.put(entry);
-    await tx.done; // Wait for transaction to complete
-    console.log('Journal entry saved to IndexedDB:', entry.id);
+    await database.put('journal_entries', entry);
   } catch (error) {
     // If database connection failed, reset and retry once
     console.warn('Database error, retrying:', error);
     dbPromise = null;
     const database = await initDB();
-    const tx = database.transaction('journal_entries', 'readwrite');
-    await tx.store.put(entry);
-    await tx.done;
+    await database.put('journal_entries', entry);
   }
 }
 
@@ -141,6 +136,5 @@ export async function getSettings(): Promise<AppSettings> {
     encryptionEnabled: false,
     autoDetectDistortions: true,
     syncStatsEnabled: false,
-    aiAnalysisEnabled: true, // Default to enabled for new users
   };
 }
