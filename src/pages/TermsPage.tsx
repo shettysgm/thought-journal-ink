@@ -26,14 +26,14 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">1. Acceptance of Terms</h2>
               <p>
-                By accessing and using Journal IQ, you accept and agree to be bound by the terms and provisions of this agreement.
+                By accessing and using Journal Inc, you accept and agree to be bound by the terms and provisions of this agreement.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">2. Use of Service</h2>
               <p>
-                Journal IQ is a personal journaling application designed to help you track thoughts and identify cognitive distortions. 
+                Journal Inc is a personal journaling application designed to help you track thoughts and identify cognitive distortions. 
                 The app uses AI technology to analyze your journal entries and provide insights.
               </p>
             </section>
@@ -73,7 +73,7 @@ export default function TermsPage() {
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                 <p className="font-medium text-amber-800 mb-2">⚠️ Important Notice</p>
                 <p className="text-amber-700 text-sm">
-                  Journal Ink is a self-help tool and is <strong>not a substitute for professional mental health care</strong>. 
+                  Journal Inc is a self-help tool and is <strong>not a substitute for professional mental health care</strong>. 
                   If you are experiencing a mental health crisis, please contact a qualified healthcare provider or crisis service immediately.
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">6. Limitation of Liability</h2>
               <p>
-                Journal IQ is provided "as is" without any warranties. We are not liable for any damages arising from your use of the application.
+                Journal Inc is provided "as is" without any warranties. We are not liable for any damages arising from your use of the application.
               </p>
             </section>
 
