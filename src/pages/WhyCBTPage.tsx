@@ -130,7 +130,7 @@ export default function WhyCBTPage() {
             Ready to Start Your Journey?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Begin transforming your thought patterns today with Journal IQ's AI-powered insights and real-time cognitive distortion detection.
+            Begin transforming your thought patterns today with Journal Inc's AI-powered insights and real-time cognitive distortion detection.
           </p>
           <div className="flex gap-4 justify-center pt-4">
             <Link to="/unified">

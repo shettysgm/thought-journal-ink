@@ -1,4 +1,4 @@
-// Data models for Journal IQ app
+// Data models for Journal Inc app
 
 export type JournalEntry = {
   id: string;

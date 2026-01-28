@@ -59,7 +59,7 @@ export default function AIConsentDialog({ onConsentGiven, onConsentDeclined }: A
           </div>
           <DialogDescription className="text-left space-y-3 pt-2">
             <p>
-              Journal Ink uses AI to help identify cognitive distortions in your writing 
+              Journal Inc uses AI to help identify cognitive distortions in your writing 
               and suggest healthier thinking patterns.
             </p>
           </DialogDescription>

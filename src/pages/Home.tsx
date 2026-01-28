@@ -68,7 +68,7 @@ export default function Home() {
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <img src={quillIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal Ink</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal Inc</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             A private, secure space to explore your thoughts, identify patterns, and practice healthier thinking habits.

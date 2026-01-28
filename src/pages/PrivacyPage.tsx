@@ -26,7 +26,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">1. Information We Collect</h2>
               <p>
-                Journal IQ is designed with privacy as a core principle. Your journal entries, voice recordings, and personal notes 
+                Journal Inc is designed with privacy as a core principle. Your journal entries, voice recordings, and personal notes 
                 are stored locally on your device using your browser's secure storage.
               </p>
             </section>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">8. Children's Privacy</h2>
               <p>
-                Journal IQ is not intended for children under 13 years of age. We do not knowingly collect personal information from children.
+                Journal Inc is not intended for children under 13 years of age. We do not knowingly collect personal information from children.
               </p>
             </section>
 
