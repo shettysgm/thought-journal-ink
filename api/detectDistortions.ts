@@ -19,26 +19,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const trimmed = (text || "").slice(0, 2000); // keep prompt lean
 
     const system = `
-You are a CBT assistant. Your role is to analyze short journal entries for cognitive distortions and return ONLY structured JSON.
+You are a CBT assistant. Analyze journal entries for cognitive distortions and return ONLY structured JSON.
 
-OUTPUT RULES:
-- Output must be VALID JSON only.
-- Use this schema: 
-  [
-    {
-      "span": "<short text span (≤12 words) that shows distortion>",
-      "type": "<one of: All-or-Nothing, Catastrophizing, Mind Reading, Fortune Telling, Should Statements, Labeling, Emotional Reasoning, Overgeneralization, Personalization, Mental Filter>",
-      "reframe": "<gentle, non-judgmental alternative thought in ≤15 words>"
-    }
-  ]
-- If no clear distortion is found, return: []
+CRITICAL: BE CONSERVATIVE. Only flag CLEAR distortions. When uncertain, DO NOT FLAG.
 
-GUIDELINES:
-- Never include the entire user text, only the flagged span.
-- Keep reframes brief, compassionate, and trauma-informed.
-- Detect multiple distortions if present, each as a separate object in the array.
-- Do not add extra commentary, explanations, or formatting outside the JSON.
-- Prioritize common patterns: all-or-nothing language, predicting the future, negative labels, assumptions about others' thoughts.
+OUTPUT SCHEMA:
+[
+  {
+    "span": "<exact text span (≤12 words) showing the distortion>",
+    "type": "<one of: All-or-Nothing, Catastrophizing, Mind Reading, Fortune Telling, Should Statements, Labeling, Emotional Reasoning, Overgeneralization, Personalization, Mental Filter>",
+    "reframe": "<gentle alternative thought in ≤15 words>",
+    "confidence": <0.0-1.0>
+  }
+]
+
+If no CLEAR distortion exists, return: []
+
+CONFIDENCE THRESHOLDS (be strict):
+- 0.9-1.0: Unmistakable distortion with extreme language ("always", "never", "everyone", "I'm such a failure")
+- 0.8-0.89: Clear distortion with strong patterns
+- 0.7-0.79: Likely distortion, but requires careful consideration
+- Below 0.7: DO NOT INCLUDE - too uncertain
+
+DO NOT FLAG (these are NOT distortions):
+- Reasonable concerns or realistic worries
+- Factual observations, even if negative
+- Healthy emotional expression ("I felt sad when...")
+- Questions or curiosity about others' thoughts
+- Balanced self-reflection or self-improvement goals
+- Mild preferences or opinions
+
+ONLY FLAG when you see:
+- Absolute language: "always", "never", "everyone", "no one", "nothing"
+- Catastrophic predictions without evidence
+- Mind-reading stated as fact: "They think I'm..."
+- Self-labeling: "I'm a failure/idiot/worthless"
+- Rigid "should/must" statements implying moral failure
+
+RULES:
+- The "span" MUST be an exact quote from the user's text
+- Prefer fewer, high-confidence detections over many uncertain ones
+- When in doubt, leave it out
 `;
 
     const user = JSON.stringify({
@@ -77,11 +98,12 @@ TEXT:
     const response = await result.response;
     const json = JSON.parse(response.text() || "[]");
 
-    // Enforce response shape - expect array format
+    // Enforce response shape - expect array format with confidence scores
     const clean = Array.isArray(json) ? json.map((item: any) => ({
       span: String(item.span || "").slice(0, 80),
       type: String(item.type || ""),
-      reframe: String(item.reframe || "").slice(0, 180)
+      reframe: String(item.reframe || "").slice(0, 180),
+      confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5))
     })) : [];
 
     res.status(200).json(clean);

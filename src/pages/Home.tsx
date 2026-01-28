@@ -46,14 +46,20 @@ const navigationCards = [
 
 export default function Home() {
   console.log('Home component rendering');
-  const [introSignal, setIntroSignal] = useState(0);
+  const [introSignal, setIntroSignal] = useState<number | undefined>(undefined);
   return (
     <>
       <MobileIntroOverlay openSignal={introSignal} />
-      <div className="min-h-[100svh] bg-white p-4 md:p-6">
+      <div 
+        className="min-h-[100svh] bg-white px-4 md:px-6 pt-14 pb-6"
+        style={{ 
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => s + 1)}>
+            <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}>
               Show Intro
             </Button>
           </div>
@@ -62,7 +68,7 @@ export default function Home() {
         <header className="text-center space-y-4 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <img src={quillIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal IQ</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal Ink</h1>
           </div>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             A private, secure space to explore your thoughts, identify patterns, and practice healthier thinking habits.

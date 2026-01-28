@@ -153,7 +153,13 @@ export default function JournalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white p-4 md:p-6">
+      <div 
+        className="min-h-screen bg-white p-4 md:p-6"
+        style={{ 
+          paddingTop: 'max(1rem, env(safe-area-inset-top))',
+          paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+        }}
+      >
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="text-center">Loading your journal entries...</div>
         </div>
@@ -162,11 +168,17 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
+    <div 
+      className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+      style={{ 
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+      }}
+    >
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-4 mt-2">
           <Link to="/">
             <Button variant="outline" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />
@@ -174,8 +186,8 @@ export default function JournalPage() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground">Your Journal</h1>
-            <p className="text-muted-foreground">All your saved entries in one place</p>
+            <h1 className="text-3xl font-bold text-foreground">Journal Ink</h1>
+            <p className="text-muted-foreground">All your saved entries</p>
           </div>
         </header>
 

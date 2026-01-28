@@ -18,6 +18,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   encryptionEnabled: false,
   autoDetectDistortions: true,
   syncStatsEnabled: false,
+  aiAnalysisEnabled: true,
   loading: false,
   error: null,
 
@@ -33,10 +34,11 @@ export const useSettings = create<SettingsState>((set, get) => ({
 
   updateSettings: async (updates) => {
     const current = get();
-    const newSettings = { 
+    const newSettings: AppSettings = { 
       encryptionEnabled: current.encryptionEnabled,
       autoDetectDistortions: current.autoDetectDistortions,
       syncStatsEnabled: current.syncStatsEnabled,
+      aiAnalysisEnabled: current.aiAnalysisEnabled,
       passphraseHash: current.passphraseHash,
       ...updates 
     };

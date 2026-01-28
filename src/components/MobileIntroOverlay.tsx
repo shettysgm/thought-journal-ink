@@ -17,7 +17,7 @@ interface MobileIntroOverlayProps {
 const slides = [
   {
     icon: Feather,
-    title: "Welcome to Journal IQ",
+    title: "Welcome to Journal Ink",
     description: "Your private companion for mental wellness",
     color: "text-primary",
     bgColor: "bg-primary/10"
@@ -46,26 +46,20 @@ const slides = [
 ];
 
 export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: MobileIntroOverlayProps) {
-  const [isVisible, setIsVisible] = useState(alwaysShow);
+  // Check localStorage immediately on mount to determine initial visibility
+  const [isVisible, setIsVisible] = useState(() => {
+    if (alwaysShow) return true;
+    const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
+    return !hasSeenIntro;
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const slideRef = useRef<HTMLDivElement>(null);
 
+  // Re-open overlay when signal changes (only if signal is a number, not undefined)
   useEffect(() => {
-    if (alwaysShow) {
-      setIsVisible(true);
-    } else {
-      const hasSeenIntro = localStorage.getItem(INTRO_SEEN_KEY);
-      if (!hasSeenIntro) {
-        setTimeout(() => setIsVisible(true), 500);
-      }
-    }
-  }, [alwaysShow]);
-
-  // Re-open overlay when signal changes
-  useEffect(() => {
-    if (openSignal !== undefined) {
+    if (openSignal !== undefined && openSignal > 0) {
       setIsVisible(true);
       setCurrentSlide(0); // Reset to first slide
     }

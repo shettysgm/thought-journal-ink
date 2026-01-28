@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
+import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -22,6 +23,7 @@ type Detection = {
   span: string;
   type: string;
   reframe: string;
+  confidence?: number;
 };
 
 type AudioSegment = {
@@ -34,6 +36,7 @@ type AudioSegment = {
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
+  const { aiAnalysisEnabled, autoDetectDistortions } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
@@ -237,8 +240,14 @@ export default function UnifiedJournalPage() {
     return () => clearTimeout(saveTimeout);
   }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry]);
 
-  // Debounced AI detection
+  // Debounced AI detection - respects user's AI settings
   useEffect(() => {
+    // Skip AI analysis if disabled in settings
+    if (!aiAnalysisEnabled || !autoDetectDistortions) {
+      setLiveDetections([]);
+      return;
+    }
+
     if (!text.trim() || text.trim().length < 20) {
       setLiveDetections([]);
       return;
@@ -249,11 +258,13 @@ export default function UnifiedJournalPage() {
       try {
         const response = await detectWithAI(text.trim());
         
-        if (response.reframes && response.reframes.length > 0) {
-          const detectionsList: Detection[] = response.reframes.map(r => ({
-            span: r.span,
-            type: "Mind Reading",
-            reframe: r.suggestion
+        // Map distortions with confidence scores
+        if (response.distortions && response.distortions.length > 0) {
+          const detectionsList: Detection[] = response.distortions.map((d, idx) => ({
+            span: d.span,
+            type: d.type || "Cognitive Distortion",
+            reframe: response.reframes[idx]?.suggestion || "",
+            confidence: d.confidence
           }));
           setLiveDetections(detectionsList);
           
@@ -312,44 +323,56 @@ export default function UnifiedJournalPage() {
       if (recognition) recognition.stop();
     } catch {}
 
-    try {
-      // Save pending changes immediately before navigating
-      const currentText = (text || '').trim();
-      if (currentText && currentText !== lastSavedText.trim()) {
-        setSaveStatus('saving');
+    const currentText = (text || '').trim();
+    const needsSave = currentText && currentText !== lastSavedText.trim();
+    
+    if (needsSave) {
+      setSaveStatus('saving');
+      
+      try {
+        let savedId = entryId;
+        
         if (!entryId) {
-          const newId = await createEntry({
+          // Create new entry
+          savedId = await createEntry({
             text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false
           });
-          console.log('Created new entry:', newId);
-          setEntryId(newId);
+          console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
+          // Append to existing entry
           await appendToEntry(entryId, {
             text: currentText,
             hasAudio: audioSegments.length > 0,
           });
           console.log('Appended to entry:', entryId);
-          setIsNewSession(false);
         } else {
+          // Update existing entry
           await updateEntry(entryId, { text: currentText });
           console.log('Updated entry:', entryId);
         }
-        setLastSavedText(text);
-        setSaveStatus('saved');
+        
+        // Force reload entries to ensure persistence
         await loadEntries();
+        
+        // Small delay to ensure IndexedDB transaction commits (critical for iOS)
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        setSaveStatus('saved');
+        console.log('Save completed successfully');
+        
+      } catch (e) {
+        console.error('Save on back failed:', e);
+        toast({
+          title: "Save Failed",
+          description: "Could not save your entry. Please try again.",
+          variant: "destructive"
+        });
+        isNavigatingRef.current = false;
+        return;
       }
-    } catch (e) {
-      console.error('Save on back failed:', e);
-      toast({
-        title: "Save Failed",
-        description: "Could not save your entry. Please try again.",
-        variant: "destructive"
-      });
-      isNavigatingRef.current = false;
-      return;
     }
 
     navigate('/journal');
@@ -360,7 +383,7 @@ export default function UnifiedJournalPage() {
     const fullText = text + (isRecording ? interimTranscript : '');
     if (liveDetections.length === 0) return fullText;
     
-    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; isInterim?: boolean }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; confidence?: number; isInterim?: boolean }[] = [];
     let lastIndex = 0;
     
     const sortedDetections = [...liveDetections].sort((a, b) => {
@@ -379,7 +402,8 @@ export default function UnifiedJournalPage() {
           text: detection.span, 
           isHighlight: true, 
           reframe: detection.reframe,
-          type: detection.type 
+          type: detection.type,
+          confidence: detection.confidence
         });
         lastIndex = index + detection.span.length;
       }
@@ -489,13 +513,24 @@ export default function UnifiedJournalPage() {
           </div>
         </header>
 
-        {/* Mobile bottom action bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3 safe-area-inset-bottom">
+        {/* Mobile bottom action bar - fixed to bottom with iOS safe area */}
+        <div 
+          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3"
+          style={{ 
+            bottom: 0,
+            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+          }}
+        >
           <Button
             onClick={toggleRecording}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleRecording();
+            }}
             disabled={!isSupported}
             className={cn(
-              "flex-1 h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
+              "flex-1 min-h-[44px] h-12 gap-2 text-base font-medium transition-all duration-300 touch-manipulation",
               isRecording 
                 ? "bg-red-500 hover:bg-red-600 text-white" 
                 : "bg-green-500 hover:bg-green-600 text-white"
@@ -515,9 +550,14 @@ export default function UnifiedJournalPage() {
           </Button>
           
           <Button 
-            onClick={handleBack} 
+            onClick={handleBack}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleBack();
+            }}
             variant="outline" 
-            className="flex-1 h-12 text-base font-medium touch-manipulation"
+            className="flex-1 min-h-[44px] h-12 text-base font-medium touch-manipulation"
           >
             Done
           </Button>
@@ -559,10 +599,21 @@ export default function UnifiedJournalPage() {
                         </TooltipTrigger>
                         <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
                                 {segment.type}
                               </span>
+                              {segment.confidence !== undefined && (
+                                <span className={cn(
+                                  "text-xs px-2 py-0.5 rounded-full",
+                                  segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
+                                  segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
+                                  "bg-muted text-muted-foreground"
+                                )}>
+                                  {segment.confidence >= 0.85 ? "High confidence" :
+                                   segment.confidence >= 0.7 ? "Likely" : "Possible"}
+                                </span>
+                              )}
                             </div>
                             <p className="text-sm text-foreground">{segment.reframe}</p>
                           </div>
