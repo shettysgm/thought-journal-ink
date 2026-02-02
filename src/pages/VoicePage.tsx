@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
@@ -8,14 +8,7 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
-// Define global interface for webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-  }
-}
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 type Detection = {
   span: string;
@@ -24,11 +17,8 @@ type Detection = {
 };
 
 export default function VoicePage() {
-  const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
-  const [isSupported, setIsSupported] = useState(true);
   
   const { createEntry, updateEntry, findTodaysEntries, getEntry } = useEntries();
   const { toast } = useToast();
@@ -43,6 +33,38 @@ export default function VoicePage() {
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
 
+  // Speech recognition handlers
+  const handleSpeechResult = useCallback((text: string, isFinal: boolean) => {
+    if (isFinal) {
+      setTranscript(prev => prev + text);
+      setInterimTranscript('');
+    } else {
+      setInterimTranscript(text);
+    }
+  }, []);
+
+  const handleSpeechError = useCallback((error: string) => {
+    console.error('Speech recognition error:', error);
+    toast({
+      title: "Recording Error",
+      description: error === 'not-allowed' 
+        ? "Microphone access denied. Please enable it in Settings."
+        : "Could not access microphone. Please check permissions.",
+      variant: "destructive"
+    });
+  }, [toast]);
+
+  const handleSpeechEnd = useCallback(() => {
+    // Clear interim transcript when recording ends
+    setInterimTranscript('');
+  }, []);
+
+  const { isRecording, isSupported, isNative, startRecording, stopRecording } = useSpeechRecognition({
+    onResult: handleSpeechResult,
+    onError: handleSpeechError,
+    onEnd: handleSpeechEnd,
+  });
+
   // Load or create today's entry on mount
   useEffect(() => {
     const initializeTodaysEntry = async () => {
@@ -52,7 +74,6 @@ export default function VoicePage() {
         const voiceEntry = todaysEntries.find(e => e.tags?.includes('voice'));
         
         if (voiceEntry) {
-          // Continue today's voice entry
           setEntryId(voiceEntry.id);
           const entry = await getEntry(voiceEntry.id);
           if (entry?.text) {
@@ -61,7 +82,6 @@ export default function VoicePage() {
           }
           console.log('Continuing today\'s voice entry:', voiceEntry.id);
         } else {
-          // Will create new entry on first speech
           console.log('No voice entry for today, will create new one');
         }
       } catch (error) {
@@ -74,27 +94,11 @@ export default function VoicePage() {
     initializeTodaysEntry();
   }, [findTodaysEntries, getEntry]);
 
+  // Save when recording ends
   useEffect(() => {
-    // Check for Web Speech API support
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setIsSupported(false);
-      return;
-    }
-
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    const recognitionInstance = new SpeechRecognition();
+    if (isRecording) return; // Only run when recording stops
     
-    recognitionInstance.continuous = true;
-    recognitionInstance.interimResults = true;
-    recognitionInstance.lang = 'en-US';
-
-    recognitionInstance.onstart = () => {
-      setIsRecording(true);
-    };
-
-    recognitionInstance.onend = async () => {
-      setIsRecording(false);
-      // Force a final save when recording stops
+    const saveOnEnd = async () => {
       try {
         if ((transcript || '').trim() && transcript !== lastSavedText) {
           if (!entryId) {
@@ -117,44 +121,11 @@ export default function VoicePage() {
         console.error('Save on stop failed:', e);
       }
     };
-
-    recognitionInstance.onresult = (event: any) => {
-      let finalTranscript = '';
-      let interimText = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript + ' ';
-        } else {
-          interimText += result[0].transcript;
-        }
-      }
-
-      if (finalTranscript) {
-        setTranscript(prev => prev + finalTranscript);
-      }
-      setInterimTranscript(interimText);
-    };
-
-    recognitionInstance.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsRecording(false);
-      toast({
-        title: "Recording Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive"
-      });
-    };
-
-    setRecognition(recognitionInstance);
-
-    return () => {
-      if (recognitionInstance) {
-        recognitionInstance.stop();
-      }
-    };
-  }, [toast]);
+    
+    if (transcript.trim()) {
+      saveOnEnd();
+    }
+  }, [isRecording]);
 
   // Auto-save effect - triggers as user speaks
   useEffect(() => {
@@ -248,34 +219,11 @@ export default function VoicePage() {
     return () => clearTimeout(timeoutId);
   }, [transcript, entryId, updateEntry]);
 
-  const startRecording = async () => {
-    if (!recognition || isRecording) return;
-    
-    try {
-      // Request microphone permission explicitly for iOS
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      }
-      recognition.start();
-    } catch (error) {
-      console.error('Microphone access error:', error);
-      toast({
-        title: "Microphone Access Required",
-        description: "Please allow microphone access in your browser settings.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const stopRecording = () => {
-    if (recognition && isRecording) {
-      recognition.stop();
-    }
-  };
+  // startRecording and stopRecording now come from useSpeechRecognition hook
 
   const handleBack = async () => {
     try {
-      if (recognition) recognition.stop();
+      await stopRecording();
     } catch {}
     try {
       if ((transcript || '').trim() && transcript !== lastSavedText) {
@@ -435,12 +383,10 @@ export default function VoicePage() {
         <div className="max-w-4xl mx-auto">
           <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
             <div className="flex items-center justify-between px-6 py-3">
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back
-                </Button>
-              </Link>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate('/')}>
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
             </div>
           </header>
           
