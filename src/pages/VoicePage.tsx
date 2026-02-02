@@ -48,7 +48,7 @@ export default function VoicePage() {
     toast({
       title: "Recording Error",
       description: error === 'not-allowed' 
-        ? "Microphone access denied. Please enable it in Settings."
+        ? "Microphone or Speech Recognition access denied. Please enable it in iPhone Settings."
         : "Could not access microphone. Please check permissions.",
       variant: "destructive"
     });
@@ -59,7 +59,7 @@ export default function VoicePage() {
     setInterimTranscript('');
   }, []);
 
-  const { isRecording, isSupported, isNative, startRecording, stopRecording } = useSpeechRecognition({
+  const { isRecording, isSupported, isNative, permissionState, startRecording, stopRecording } = useSpeechRecognition({
     onResult: handleSpeechResult,
     onError: handleSpeechError,
     onEnd: handleSpeechEnd,
@@ -425,6 +425,13 @@ export default function VoicePage() {
                   <span className="ml-2 text-xs text-primary">• Today&apos;s Entry</span>
                 )}
               </span>
+
+              {/* Diagnostics (helps verify native vs web + iOS permission state) */}
+              <span className="text-[11px] text-muted-foreground">
+                • {isNative ? 'Native' : 'Web'}
+                {isNative && permissionState !== 'unknown' ? ` • Speech: ${permissionState}` : ''}
+              </span>
+
               {saveStatus === 'saving' && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
