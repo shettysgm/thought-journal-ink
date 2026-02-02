@@ -527,17 +527,18 @@ export default function UnifiedJournalPage() {
             isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
           )}>
             
-            {/* Highlight overlay */}
-            <div 
-              className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed text-transparent rounded-lg z-10"
-              style={{ 
-                font: 'inherit',
-                letterSpacing: 'inherit',
-                wordSpacing: 'inherit',
-                lineHeight: '1.75'
-              }}
-              aria-hidden="true"
-            >
+            {/* Highlight overlay - only show when there are detections */}
+            {liveDetections.length > 0 && (
+              <div 
+                className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed pointer-events-none rounded-lg z-20"
+                style={{ 
+                  font: 'inherit',
+                  letterSpacing: 'inherit',
+                  wordSpacing: 'inherit',
+                  lineHeight: '1.75'
+                }}
+                aria-hidden="true"
+              >
               {(() => {
                 const highlighted = renderHighlightedText();
                 if (typeof highlighted === 'string') {
@@ -591,6 +592,7 @@ export default function UnifiedJournalPage() {
                 ));
               })()}
             </div>
+            )}
             
             {/* Recording waveform overlay */}
             {isRecording && (

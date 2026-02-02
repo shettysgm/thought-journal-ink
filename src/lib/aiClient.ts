@@ -86,8 +86,9 @@ ${text}`;
     
     console.debug("[AI Detect] Response received:", responseData);
     
-    // Handle Vertex AI response format: { data: { result: "..." } }
+    // Handle Vertex AI response format: { data: { result: "..." } } or { result: "..." }
     const data = responseData?.data || responseData;
+    console.debug("[AI Detect] Parsed data:", data);
     
     // Validate response structure
     if (!data) {
@@ -138,6 +139,7 @@ ${text}`;
       
       try {
         const parsed = JSON.parse(jsonStr);
+        console.debug("[AI Detect] Parsed JSON from result:", parsed);
         if (Array.isArray(parsed)) {
           // Parse confidence and filter out low-confidence results
           const allDistortions = parsed.map((item: any) => ({
@@ -147,19 +149,22 @@ ${text}`;
             confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5)),
           }));
           
+          console.debug("[AI Detect] All distortions before filter:", allDistortions);
           const distortions = allDistortions.filter(d => d.confidence >= CONFIDENCE_THRESHOLD);
+          console.debug("[AI Detect] Distortions after filter (threshold", CONFIDENCE_THRESHOLD, "):", distortions);
           
           const reframes = parsed
             .filter((item: any) => (Number(item.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
             .map((item: any) => ({
               span: String(item.span || ""),
               suggestion: String(item.reframe || ""),
-              socratic: "",
+              socratic: String(item.type || ""),
             }));
+          console.debug("[AI Detect] Reframes:", reframes);
           return { distortions, reframes };
         }
       } catch (e) {
-        console.error("Failed to parse JSON from result:", e);
+        console.error("Failed to parse JSON from result:", e, "jsonStr:", jsonStr);
       }
       
       // Fallback: treat as plain text
