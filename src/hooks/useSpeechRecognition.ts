@@ -17,12 +17,15 @@ interface UseSpeechRecognitionOptions {
   lang?: string;
 }
 
+type NativePermissionState = 'prompt' | 'prompt-with-rationale' | 'granted' | 'denied' | 'unknown';
+
 export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) {
   const { onResult, onError, onEnd, lang = 'en-US' } = options;
   
   const [isRecording, setIsRecording] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [isNative, setIsNative] = useState(false);
+  const [permissionState, setPermissionState] = useState<NativePermissionState>('unknown');
   
   const webRecognitionRef = useRef<any>(null);
   const isNativeRef = useRef(false);
@@ -40,6 +43,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
       }).catch(() => {
         setIsSupported(false);
       });
+
+      // Capture current native permission state for diagnostics
+      SpeechRecognition.checkPermissions()
+        .then((status) => {
+          setPermissionState((status?.speechRecognition as NativePermissionState) ?? 'unknown');
+        })
+        .catch(() => {
+          setPermissionState('unknown');
+        });
     } else {
       // Check Web Speech API support
       const hasWebSpeech = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
@@ -112,6 +124,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     if (!isNativeRef.current) return;
     
     let listenerHandle: any = null;
+    let listeningHandle: any = null;
     
     const setupListener = async () => {
       try {
@@ -119,6 +132,13 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           if (data.matches && data.matches.length > 0) {
             // Native plugin gives us the full transcript so far
             onResult?.(data.matches[0], false);
+          }
+        });
+
+        listeningHandle = await SpeechRecognition.addListener('listeningState', (data: { status: 'started' | 'stopped' }) => {
+          setIsRecording(data.status === 'started');
+          if (data.status === 'stopped') {
+            onEnd?.();
           }
         });
       } catch (error) {
@@ -132,6 +152,9 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
       if (listenerHandle) {
         listenerHandle.remove();
       }
+      if (listeningHandle) {
+        listeningHandle.remove();
+      }
     };
   }, [onResult]);
   
@@ -140,11 +163,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     
     try {
       if (isNativeRef.current) {
-        // Native: Request permission first
-        const { speechRecognition } = await SpeechRecognition.requestPermissions();
-        
-        if (speechRecognition !== 'granted') {
-          onError?.('Microphone permission denied');
+        // Native: check + request permission (iOS uses a single alias for speech+mic)
+        const before = await SpeechRecognition.checkPermissions().catch(() => ({ speechRecognition: 'unknown' } as any));
+        setPermissionState((before?.speechRecognition as NativePermissionState) ?? 'unknown');
+
+        const requested = await SpeechRecognition.requestPermissions();
+        setPermissionState((requested?.speechRecognition as NativePermissionState) ?? 'unknown');
+
+        if (requested?.speechRecognition !== 'granted') {
+          onError?.('not-allowed');
           return;
         }
         
@@ -153,8 +180,6 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           partialResults: true,
           popup: false,
         });
-        
-        setIsRecording(true);
       } else {
         // Web: Request microphone permission explicitly for iOS Safari
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -190,6 +215,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     isRecording,
     isSupported,
     isNative,
+    permissionState,
     startRecording,
     stopRecording,
   };
