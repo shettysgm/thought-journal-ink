@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,7 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-
-// Define global interface for webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-  }
-}
+import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
 
 type Detection = {
   span: string;
@@ -49,10 +42,6 @@ export default function UnifiedJournalPage() {
   const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
   
   // Voice state
-  const [isRecording, setIsRecording] = useState(false);
-  const [interimTranscript, setInterimTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
-  const [isSupported, setIsSupported] = useState(true);
   const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
   const [playingSegmentId, setPlayingSegmentId] = useState<string | null>(null);
   
@@ -117,76 +106,49 @@ export default function UnifiedJournalPage() {
     initialize();
   }, [editEntryId, getEntry, toast, loadEntries, findTodaysEntries]);
 
-  // Initialize speech recognition
-  useEffect(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setIsSupported(false);
-      return;
-    }
+  const handleFinalTranscript = useCallback((finalText: string) => {
+    const trimmed = (finalText || '').trim();
+    if (!trimmed) return;
 
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    const recognitionInstance = new SpeechRecognition();
-    
-    recognitionInstance.continuous = true;
-    recognitionInstance.interimResults = true;
-    recognitionInstance.lang = 'en-US';
-
-    recognitionInstance.onstart = () => {
-      setIsRecording(true);
+    const segment: AudioSegment = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      transcript: trimmed,
     };
+    setAudioSegments((prev) => [...prev, segment]);
 
-    recognitionInstance.onend = () => {
-      setIsRecording(false);
-    };
+    // Append to editor text (preserve spacing from recognizer)
+    setText((prev) => prev + finalText);
+  }, []);
 
-    recognitionInstance.onresult = (event: any) => {
-      let finalTranscript = '';
-      let interimText = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript + ' ';
-        } else {
-          interimText += result[0].transcript;
-        }
-      }
-
-      if (finalTranscript) {
-        // Add voice segment
-        const segment: AudioSegment = {
-          id: Date.now().toString(),
-          timestamp: Date.now(),
-          transcript: finalTranscript.trim()
-        };
-        setAudioSegments(prev => [...prev, segment]);
-        
-        // Append to text
-        setText(prev => prev + finalTranscript);
-        setInterimTranscript('');
-      } else {
-        setInterimTranscript(interimText);
-      }
-    };
-
-    recognitionInstance.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsRecording(false);
+  const handleSpeechError = useCallback(
+    (error: string) => {
+      console.error('Speech recognition error:', error);
       toast({
-        title: "Recording Error",
-        description: "Could not access microphone. Please check permissions.",
-        variant: "destructive"
+        title: 'Recording Error',
+        description:
+          error === 'not-allowed'
+            ? 'Access denied. On iPhone: enable Microphone + Speech Recognition in Settings.'
+            : 'Could not access microphone. Please check permissions.',
+        variant: 'destructive',
       });
-    };
+    },
+    [toast]
+  );
 
-    setRecognition(recognitionInstance);
-
-    return () => {
-      if (recognitionInstance) {
-        recognitionInstance.stop();
-      }
-    };
-  }, [toast]);
+  const {
+    isRecording,
+    isSupported,
+    isNative,
+    permissionState,
+    interimTranscript,
+    start,
+    stop,
+  } = useUnifiedSpeechDictation({
+    lang: 'en-US',
+    onFinalTranscript: handleFinalTranscript,
+    onError: handleSpeechError,
+  });
 
   // Auto-save effect
   useEffect(() => {
@@ -291,24 +253,15 @@ export default function UnifiedJournalPage() {
   }, [text, entryId, updateEntry]);
 
   const toggleRecording = async () => {
-    if (!recognition || !isSupported) return;
-    
-    if (isRecording) {
-      recognition.stop();
-    } else {
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          await navigator.mediaDevices.getUserMedia({ audio: true });
-        }
-        recognition.start();
-      } catch (error) {
-        console.error('Microphone access error:', error);
-        toast({
-          title: "Microphone Access Required",
-          description: "Please allow microphone access in your browser settings.",
-          variant: "destructive"
-        });
+    if (!isSupported) return;
+    try {
+      if (isRecording) {
+        await stop();
+      } else {
+        await start();
       }
+    } catch (e) {
+      console.error('Toggle recording failed:', e);
     }
   };
   // Prevent double-execution on touch devices
@@ -320,7 +273,7 @@ export default function UnifiedJournalPage() {
     isNavigatingRef.current = true;
     
     try {
-      if (recognition) recognition.stop();
+      await stop();
     } catch {}
 
     const currentText = (text || '').trim();
@@ -476,6 +429,12 @@ export default function UnifiedJournalPage() {
               <span className="text-xs text-muted-foreground">
                 {format(new Date(), 'MMM d, yyyy • h:mm a')}
               </span>
+
+              {/* Diagnostics (helps verify native vs web + iOS permission state) */}
+              <span className="text-[11px] text-muted-foreground">
+                • {isNative ? 'Native' : 'Web'}
+                {isNative && permissionState !== 'unknown' ? ` • Speech: ${permissionState}` : ''}
+              </span>
               {saveStatus === 'saving' && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -522,7 +481,6 @@ export default function UnifiedJournalPage() {
           }}
         >
           <Button
-            onClick={toggleRecording}
             onTouchEnd={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -550,7 +508,6 @@ export default function UnifiedJournalPage() {
           </Button>
           
           <Button 
-            onClick={handleBack}
             onTouchEnd={(e) => {
               e.preventDefault();
               e.stopPropagation();
