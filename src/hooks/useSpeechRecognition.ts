@@ -153,10 +153,12 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     
     let listenerHandle: any = null;
     let listeningHandle: any = null;
+    let errorHandle: any = null;
     
     const setupListener = async () => {
       try {
         listenerHandle = await SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
+          console.debug('[Speech] partialResults:', data.matches?.[0]?.slice(0, 50));
           if (data.matches && data.matches.length > 0) {
             // Native plugin gives us the full transcript so far
             onResult?.(data.matches[0], false);
@@ -164,17 +166,36 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
         });
 
         listeningHandle = await SpeechRecognition.addListener('listeningState', (data: { status: 'started' | 'stopped' }) => {
+          console.debug('[Speech] listeningState:', data.status);
           setIsRecording(data.status === 'started');
           if (data.status === 'stopped') {
+            isStartingRef.current = false;
             onEnd?.();
           }
         });
+
+        // Listen for errors from native plugin (if supported)
+        try {
+          errorHandle = await (SpeechRecognition as any).addListener('error', (data: { message: string }) => {
+            console.error('[Speech] native error event:', data.message);
+            onError?.(data.message || 'recognition-error');
+          });
+        } catch {
+          // Error listener may not be available in all plugin versions
+          console.debug('[Speech] error listener not available');
+        }
       } catch (error) {
-        console.error('Failed to setup native listener:', error);
+        console.error('[Speech] Failed to setup native listener:', error);
       }
     };
     
     setupListener();
+    
+    return () => {
+      listenerHandle?.remove();
+      listeningHandle?.remove();
+      errorHandle?.remove();
+    };
     
     return () => {
       if (listenerHandle) {
