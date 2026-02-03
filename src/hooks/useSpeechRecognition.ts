@@ -196,16 +196,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
       listeningHandle?.remove();
       errorHandle?.remove();
     };
-    
-    return () => {
-      if (listenerHandle) {
-        listenerHandle.remove();
-      }
-      if (listeningHandle) {
-        listeningHandle.remove();
-      }
-    };
-  }, [onResult]);
+  }, [onResult, onError, onEnd]);
   
   const startRecording = useCallback(async () => {
     // Guard against double-start (critical for iOS)
