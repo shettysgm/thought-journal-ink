@@ -221,11 +221,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
         }
         
         try {
-          await SpeechRecognition.start({
+          // iOS-specific options to prevent audio session conflicts (plugin v7.2+)
+          const startOptions: Record<string, unknown> = {
             language: lang,
             partialResults: true,
             popup: false,
-          });
+            audioSessionCategory: 'playAndRecord',
+            deactivateAudioSessionOnStop: true,
+          };
+          await SpeechRecognition.start(startOptions as any);
         } catch (e) {
           console.error('[Speech] native start() failed', debugErrorObject(e));
           onError?.(normalizeSpeechError(e));
