@@ -271,6 +271,13 @@ export default function UnifiedJournalPage() {
       if (isRecording) {
         await stop();
       } else {
+        // iOS can abort native speech recognition if a keyboard/input session is active.
+        // Blurring the textarea (and any active element) helps avoid RTIInputSystemClient session warnings
+        // and reduces immediate "aborted" failures.
+        textareaRef.current?.blur();
+        const active = document.activeElement;
+        if (active && active instanceof HTMLElement) active.blur();
+
         await start();
       }
     } catch (e) {
