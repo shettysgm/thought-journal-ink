@@ -11,6 +11,7 @@ import { detectWithAI } from '@/lib/aiClient';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
+import { VoiceDiagnostics } from '@/components/VoiceDiagnostics';
 
 type Detection = {
   span: string;
@@ -48,6 +49,9 @@ export default function UnifiedJournalPage() {
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
+
+  // Voice diagnostics
+  const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
 
   // Load existing entry if editing
   useEffect(() => {
@@ -124,12 +128,13 @@ export default function UnifiedJournalPage() {
   const handleSpeechError = useCallback(
     (error: string) => {
       console.error('Speech recognition error:', error);
+      setLastSpeechError(error);
       toast({
         title: 'Recording Error',
         description:
           error === 'not-allowed'
-            ? 'Access denied. On iPhone: enable Microphone + Speech Recognition in Settings.'
-            : 'Could not access microphone. Please check permissions.',
+            ? 'Access denied. On iPhone: enable Microphone + Speech Recognition in Settings, or use keyboard dictation 🎤.'
+            : 'Could not access microphone. Please check permissions or use keyboard dictation 🎤.',
         variant: 'destructive',
       });
     },
@@ -683,6 +688,9 @@ export default function UnifiedJournalPage() {
               </span>
             </div>
           )}
+
+          {/* Voice diagnostics panel */}
+          <VoiceDiagnostics lastError={lastSpeechError} />
         </div>
         
       </div>
