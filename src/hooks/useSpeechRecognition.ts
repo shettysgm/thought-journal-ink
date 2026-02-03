@@ -19,6 +19,32 @@ interface UseSpeechRecognitionOptions {
 
 type NativePermissionState = 'prompt' | 'prompt-with-rationale' | 'granted' | 'denied' | 'unknown';
 
+function normalizeSpeechError(err: any): string {
+  const name = String(err?.name || '');
+  const message = String(err?.message || err || '');
+
+  // Map browser getUserMedia denials + native plugin denials into our common code
+  if (name === 'NotAllowedError') return 'not-allowed';
+  if (/not-allowed/i.test(message)) return 'not-allowed';
+
+  return message || 'Speech recognition error';
+}
+
+function debugErrorObject(err: any) {
+  // Avoid circular structure crashes
+  try {
+    return {
+      name: err?.name,
+      message: err?.message,
+      code: err?.code,
+      stack: err?.stack,
+      raw: typeof err === 'string' ? err : undefined,
+    };
+  } catch {
+    return { raw: String(err) };
+  }
+}
+
 export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) {
   const { onResult, onError, onEnd, lang = 'en-US' } = options;
   
@@ -162,35 +188,72 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     if (isRecording) return;
     
     try {
+      console.debug('[Speech] startRecording()', {
+        isNative: isNativeRef.current,
+        lang,
+        ua: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      });
+
       if (isNativeRef.current) {
         // Native: check + request permission (iOS uses a single alias for speech+mic)
-        const before = await SpeechRecognition.checkPermissions().catch(() => ({ speechRecognition: 'unknown' } as any));
+        const before = await SpeechRecognition.checkPermissions().catch((e) => {
+          console.warn('[Speech] checkPermissions() failed', debugErrorObject(e));
+          return { speechRecognition: 'unknown' } as any;
+        });
         setPermissionState((before?.speechRecognition as NativePermissionState) ?? 'unknown');
 
-        const requested = await SpeechRecognition.requestPermissions();
+        console.debug('[Speech] permissions(before):', before);
+
+        const requested = await SpeechRecognition.requestPermissions().catch((e) => {
+          console.error('[Speech] requestPermissions() failed', debugErrorObject(e));
+          throw e;
+        });
         setPermissionState((requested?.speechRecognition as NativePermissionState) ?? 'unknown');
 
+        console.debug('[Speech] permissions(after):', requested);
+
         if (requested?.speechRecognition !== 'granted') {
+          console.warn('[Speech] permission not granted -> not-allowed', {
+            speechRecognition: requested?.speechRecognition,
+          });
           onError?.('not-allowed');
           return;
         }
         
-        await SpeechRecognition.start({
-          language: lang,
-          partialResults: true,
-          popup: false,
-        });
+        try {
+          await SpeechRecognition.start({
+            language: lang,
+            partialResults: true,
+            popup: false,
+          });
+        } catch (e) {
+          console.error('[Speech] native start() failed', debugErrorObject(e));
+          onError?.(normalizeSpeechError(e));
+          return;
+        }
       } else {
         // Web: Request microphone permission explicitly for iOS Safari
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          await navigator.mediaDevices.getUserMedia({ audio: true });
+          try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+          } catch (e) {
+            console.error('[Speech] getUserMedia() failed', debugErrorObject(e));
+            onError?.(normalizeSpeechError(e));
+            return;
+          }
         }
         
-        webRecognitionRef.current?.start();
+        try {
+          webRecognitionRef.current?.start();
+        } catch (e) {
+          console.error('[Speech] web recognition start() failed', debugErrorObject(e));
+          onError?.(normalizeSpeechError(e));
+          return;
+        }
       }
     } catch (error: any) {
-      console.error('Start recording error:', error);
-      onError?.(error.message || 'Could not start recording');
+      console.error('[Speech] Start recording error (outer):', debugErrorObject(error));
+      onError?.(normalizeSpeechError(error));
     }
   }, [isRecording, lang, onError]);
   
