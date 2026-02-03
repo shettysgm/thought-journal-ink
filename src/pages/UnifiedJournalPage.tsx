@@ -129,12 +129,20 @@ export default function UnifiedJournalPage() {
     (error: string) => {
       console.error('Speech recognition error:', error);
       setLastSpeechError(error);
+      
+      // Different messages for different errors
+      let description = 'Could not access microphone. Please check permissions or use keyboard dictation 🎤.';
+      if (error === 'not-allowed') {
+        description = 'Access denied. On iPhone: enable Microphone + Speech Recognition in Settings, or use keyboard dictation 🎤.';
+      } else if (error === 'aborted') {
+        description = 'Recording was interrupted. Try again and speak immediately after tapping Record.';
+      } else if (error === 'not-secure') {
+        description = 'Secure connection required. Please use HTTPS.';
+      }
+      
       toast({
         title: 'Recording Error',
-        description:
-          error === 'not-allowed'
-            ? 'Access denied. On iPhone: enable Microphone + Speech Recognition in Settings, or use keyboard dictation 🎤.'
-            : 'Could not access microphone. Please check permissions or use keyboard dictation 🎤.',
+        description,
         variant: 'destructive',
       });
     },
