@@ -169,6 +169,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     
     const setupListener = async () => {
       try {
+        console.debug('[Speech] Registering partialResults listener...');
         listenerHandle = await SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
           console.debug('[Speech] partialResults:', data.matches?.[0]?.slice(0, 50));
           if (data.matches && data.matches.length > 0) {
@@ -176,7 +177,9 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
             onResult?.(data.matches[0], false);
           }
         });
+        console.debug('[Speech] partialResults listener registered');
 
+        console.debug('[Speech] Registering listeningState listener...');
         listeningHandle = await SpeechRecognition.addListener('listeningState', (data: { status: 'started' | 'stopped' }) => {
           console.debug('[Speech] listeningState:', data.status);
           setIsRecording(data.status === 'started');
@@ -185,19 +188,24 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
             onEnd?.();
           }
         });
+        console.debug('[Speech] listeningState listener registered');
 
         // Listen for errors from native plugin (if supported)
         try {
+          console.debug('[Speech] Registering error listener...');
           errorHandle = await (SpeechRecognition as any).addListener('error', (data: { message: string }) => {
             console.error('[Speech] native error event:', data.message);
             onError?.(data.message || 'recognition-error');
           });
-        } catch {
+          console.debug('[Speech] error listener registered');
+        } catch (e) {
           // Error listener may not be available in all plugin versions
-          console.debug('[Speech] error listener not available');
+          console.debug('[Speech] error listener not available:', e);
         }
+        
+        console.debug('[Speech] All native listeners registered successfully');
       } catch (error) {
-        console.error('[Speech] Failed to setup native listener:', error);
+        console.error('[Speech] Failed to setup native listener:', debugErrorObject(error));
       }
     };
     
