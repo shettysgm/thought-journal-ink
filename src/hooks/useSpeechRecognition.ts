@@ -248,19 +248,26 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
         
         try {
           // iOS-specific options to prevent audio session conflicts (plugin v7.2+)
+          // Use on-device recognition when available (doesn't require internet)
           const startOptions: Record<string, unknown> = {
             language: lang,
             partialResults: true,
             popup: false,
             audioSessionCategory: 'playAndRecord',
             deactivateAudioSessionOnStop: true,
+            // Try on-device recognition first (iOS 13+, more reliable)
+            requiresOnDeviceRecognition: false,
+            // Increase silence threshold to prevent premature abort
+            silenceThreshold: 5000,
           };
           console.debug('[Speech] calling native start() with options:', startOptions);
           await SpeechRecognition.start(startOptions as any);
           console.debug('[Speech] native start() succeeded');
           setIsRecording(true);
-        } catch (e) {
+        } catch (e: any) {
+          // If recognition failed, log detailed error for debugging
           console.error('[Speech] native start() failed', debugErrorObject(e));
+          console.error('[Speech] error code:', e?.code, 'message:', e?.message);
           onError?.(normalizeSpeechError(e));
           isStartingRef.current = false;
           return;
