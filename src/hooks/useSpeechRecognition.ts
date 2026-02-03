@@ -61,28 +61,36 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   // Check platform and initialize
   useEffect(() => {
     const isNativePlatform = Capacitor.isNativePlatform();
+    console.debug('[Speech] Platform init:', { isNativePlatform, platform: Capacitor.getPlatform() });
     setIsNative(isNativePlatform);
     isNativeRef.current = isNativePlatform;
     
     if (isNativePlatform) {
       // Check native speech recognition availability
-      SpeechRecognition.available().then(({ available }) => {
-        setIsSupported(available);
-      }).catch(() => {
-        setIsSupported(false);
-      });
+      SpeechRecognition.available()
+        .then(({ available }) => {
+          console.debug('[Speech] available() =', available);
+          setIsSupported(available);
+        })
+        .catch((e) => {
+          console.error('[Speech] available() failed:', debugErrorObject(e));
+          setIsSupported(false);
+        });
 
       // Capture current native permission state for diagnostics
       SpeechRecognition.checkPermissions()
         .then((status) => {
+          console.debug('[Speech] checkPermissions() =', status);
           setPermissionState((status?.speechRecognition as NativePermissionState) ?? 'unknown');
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error('[Speech] checkPermissions() failed:', debugErrorObject(e));
           setPermissionState('unknown');
         });
     } else {
       // Check Web Speech API support
       const hasWebSpeech = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+      console.debug('[Speech] Web Speech API support:', hasWebSpeech);
       setIsSupported(hasWebSpeech);
       
       if (hasWebSpeech) {
@@ -149,8 +157,12 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   
   // Setup native speech recognition listener
   useEffect(() => {
-    if (!isNativeRef.current) return;
+    if (!isNativeRef.current) {
+      console.debug('[Speech] Skipping native listener setup (not native platform)');
+      return;
+    }
     
+    console.debug('[Speech] Setting up native event listeners...');
     let listenerHandle: any = null;
     let listeningHandle: any = null;
     let errorHandle: any = null;
