@@ -54,7 +54,9 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   const [permissionState, setPermissionState] = useState<NativePermissionState>('unknown');
   
   const webRecognitionRef = useRef<any>(null);
+  const webStreamRef = useRef<MediaStream | null>(null);
   const isNativeRef = useRef(false);
+  const isStartingRef = useRef(false); // Guard against double-start
   
   // Check platform and initialize
   useEffect(() => {
@@ -185,14 +187,29 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   }, [onResult]);
   
   const startRecording = useCallback(async () => {
-    if (isRecording) return;
+    // Guard against double-start (critical for iOS)
+    if (isRecording || isStartingRef.current) {
+      console.debug('[Speech] startRecording() blocked - already recording or starting');
+      return;
+    }
+    isStartingRef.current = true;
     
     try {
       console.debug('[Speech] startRecording()', {
         isNative: isNativeRef.current,
         lang,
+        isSecureContext: window.isSecureContext,
+        protocol: location.protocol,
         ua: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       });
+
+      // Secure context check (mic requires HTTPS on real device)
+      if (!window.isSecureContext) {
+        console.error('[Speech] Not a secure context - mic will fail');
+        onError?.('not-secure');
+        isStartingRef.current = false;
+        return;
+      }
 
       if (isNativeRef.current) {
         // Native: check + request permission (iOS uses a single alias for speech+mic)
@@ -229,20 +246,34 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
             audioSessionCategory: 'playAndRecord',
             deactivateAudioSessionOnStop: true,
           };
+          console.debug('[Speech] calling native start() with options:', startOptions);
           await SpeechRecognition.start(startOptions as any);
+          console.debug('[Speech] native start() succeeded');
         } catch (e) {
           console.error('[Speech] native start() failed', debugErrorObject(e));
           onError?.(normalizeSpeechError(e));
+          isStartingRef.current = false;
           return;
         }
       } else {
         // Web: Request microphone permission explicitly for iOS Safari
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Use simple constraints that work best on iOS
+            console.debug('[Speech] calling getUserMedia()');
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+              },
+            });
+            // Store stream ref so we can properly clean up tracks
+            webStreamRef.current = stream;
+            console.debug('[Speech] getUserMedia() succeeded, tracks:', stream.getTracks().length);
           } catch (e) {
             console.error('[Speech] getUserMedia() failed', debugErrorObject(e));
             onError?.(normalizeSpeechError(e));
+            isStartingRef.current = false;
             return;
           }
         }
@@ -252,30 +283,45 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
         } catch (e) {
           console.error('[Speech] web recognition start() failed', debugErrorObject(e));
           onError?.(normalizeSpeechError(e));
+          isStartingRef.current = false;
           return;
         }
       }
+      isStartingRef.current = false;
     } catch (error: any) {
       console.error('[Speech] Start recording error (outer):', debugErrorObject(error));
       onError?.(normalizeSpeechError(error));
+      isStartingRef.current = false;
     }
   }, [isRecording, lang, onError]);
   
   const stopRecording = useCallback(async () => {
-    if (!isRecording) return;
+    if (!isRecording && !isStartingRef.current) return;
     
     try {
       if (isNativeRef.current) {
+        console.debug('[Speech] stopping native recognition');
         await SpeechRecognition.stop();
         setIsRecording(false);
         onEnd?.();
       } else {
+        console.debug('[Speech] stopping web recognition');
         webRecognitionRef.current?.stop();
+        
+        // Clean up audio tracks to prevent "Invalidating grant" issues
+        if (webStreamRef.current) {
+          webStreamRef.current.getTracks().forEach((track) => {
+            console.debug('[Speech] stopping track:', track.kind, track.label);
+            track.stop();
+          });
+          webStreamRef.current = null;
+        }
       }
     } catch (error) {
-      console.error('Stop recording error:', error);
+      console.error('[Speech] Stop recording error:', debugErrorObject(error));
       setIsRecording(false);
     }
+    isStartingRef.current = false;
   }, [isRecording, onEnd]);
   
   return {

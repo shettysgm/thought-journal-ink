@@ -9,6 +9,7 @@ type DiagnosticData = {
   isNative: boolean;
   iosVersion: string | null;
   isSecureContext: boolean;
+  protocol: string;
   userAgent: string;
   speechAvailable: boolean | null;
   micPermission: string;
@@ -23,6 +24,7 @@ export function VoiceDiagnostics({ lastError }: { lastError?: string | null }) {
     isNative: false,
     iosVersion: null,
     isSecureContext: false,
+    protocol: '',
     userAgent: '',
     speechAvailable: null,
     micPermission: 'unknown',
@@ -75,6 +77,7 @@ export function VoiceDiagnostics({ lastError }: { lastError?: string | null }) {
         isNative,
         iosVersion,
         isSecureContext: window.isSecureContext,
+        protocol: location.protocol,
         userAgent: ua,
         speechAvailable,
         micPermission,
@@ -111,6 +114,7 @@ export function VoiceDiagnostics({ lastError }: { lastError?: string | null }) {
           <Row label="Native" value={data.isNative ? 'Yes' : 'No'} className={statusColor(data.isNative)} />
           {data.iosVersion && <Row label="iOS" value={data.iosVersion} />}
           <Row label="Secure Context" value={data.isSecureContext ? 'Yes' : 'No'} className={statusColor(data.isSecureContext)} />
+          <Row label="Protocol" value={data.protocol} className={data.protocol === 'https:' ? 'text-green-600' : 'text-red-600'} />
           <Row label="Speech Available" value={data.speechAvailable === null ? '—' : data.speechAvailable ? 'Yes' : 'No'} className={statusColor(data.speechAvailable)} />
           <Row label="Mic Permission" value={data.micPermission} className={statusColor(data.micPermission)} />
           <Row label="Speech Permission" value={data.speechPermission} className={statusColor(data.speechPermission)} />
