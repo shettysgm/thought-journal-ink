@@ -237,6 +237,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           return;
         }
         
+        // Ensure any previous session is fully stopped before starting new one
+        try {
+          await SpeechRecognition.stop();
+          // Small delay to let iOS audio session fully release
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } catch {
+          // Ignore - might not have been running
+        }
+        
         try {
           // iOS-specific options to prevent audio session conflicts (plugin v7.2+)
           const startOptions: Record<string, unknown> = {
@@ -249,6 +258,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           console.debug('[Speech] calling native start() with options:', startOptions);
           await SpeechRecognition.start(startOptions as any);
           console.debug('[Speech] native start() succeeded');
+          setIsRecording(true);
         } catch (e) {
           console.error('[Speech] native start() failed', debugErrorObject(e));
           onError?.(normalizeSpeechError(e));
