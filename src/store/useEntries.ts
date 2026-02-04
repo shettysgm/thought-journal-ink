@@ -164,11 +164,15 @@ export const useEntries = create<EntriesState>((set, get) => ({
               await addDistortion(distortionData);
             }
           );
-          console.log('Distortion analysis completed, reframes:', reframes);
+          console.log('[useEntries] Distortion analysis completed, reframes:', JSON.stringify(reframes));
           
           // Store reframes with the entry
           if (reframes && reframes.length > 0) {
+            console.log('[useEntries] Saving reframes to entry:', id);
             await get().updateEntry(id, { reframes });
+            console.log('[useEntries] Reframes saved successfully');
+          } else {
+            console.log('[useEntries] No reframes to save');
           }
         } catch (error) {
           console.warn('Distortion analysis failed, using fallback:', error);
