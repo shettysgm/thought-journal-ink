@@ -2,6 +2,7 @@ import React from 'react';
 import TextWithStickers from './TextWithStickers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Reframe = {
   span: string;
@@ -22,7 +23,8 @@ type HighlightSegment = {
 };
 
 export default function HighlightedTextWithReframes({ text, reframes = [] }: Props) {
-  console.log('HighlightedTextWithReframes:', { textLength: text?.length, reframesCount: reframes?.length, reframes });
+  const isMobile = useIsMobile();
+  console.log('HighlightedTextWithReframes:', { textLength: text?.length, reframesCount: reframes?.length, isMobile, reframes });
 
   // If no reframes, just render plain text with stickers
   if (!reframes || reframes.length === 0) {
@@ -72,6 +74,14 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
 
   const segments = buildSegments();
 
+  // Render highlight content (shared between mobile and desktop)
+  const ReframeContent = ({ reframe }: { reframe: string }) => (
+    <div className="space-y-2">
+      <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
+      <p className="text-sm text-foreground">{reframe}</p>
+    </div>
+  );
+
   return (
     <TooltipProvider delayDuration={0}>
       <div className="relative">
@@ -81,6 +91,31 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
               return <TextWithStickers key={i} text={segment.text} />;
             }
 
+            // On mobile: use Popover only (tap to open)
+            if (isMobile) {
+              return (
+                <Popover key={i}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline bg-primary/20 rounded px-0.5 active:bg-primary/30 transition-colors cursor-pointer align-baseline underline decoration-primary/40 decoration-dotted underline-offset-2"
+                      aria-label={`Tap for reframe: ${segment.reframe}`}
+                    >
+                      <TextWithStickers text={segment.text} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    side="bottom" 
+                    align="start" 
+                    className="max-w-[min(92vw,32rem)] whitespace-normal break-words z-50"
+                  >
+                    <ReframeContent reframe={segment.reframe!} />
+                  </PopoverContent>
+                </Popover>
+              );
+            }
+
+            // On desktop: use Tooltip (hover) with Popover fallback (click)
             return (
               <Tooltip key={i}>
                 <Popover>
@@ -96,16 +131,10 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
                     </TooltipTrigger>
                   </PopoverTrigger>
                   <PopoverContent side="bottom" align="start" className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
-                      <p className="text-sm text-foreground">{segment.reframe}</p>
-                    </div>
+                    <ReframeContent reframe={segment.reframe!} />
                   </PopoverContent>
                   <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold text-primary uppercase tracking-wide">💡 Reframe Suggestion</div>
-                      <p className="text-sm text-foreground">{segment.reframe}</p>
-                    </div>
+                    <ReframeContent reframe={segment.reframe!} />
                   </TooltipContent>
                 </Popover>
               </Tooltip>
