@@ -57,6 +57,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   const webStreamRef = useRef<MediaStream | null>(null);
   const isNativeRef = useRef(false);
   const isStartingRef = useRef(false); // Guard against double-start
+  const isStoppingRef = useRef(false); // Guard against double-stop/cleanup race
   
   // Check platform and initialize
   useEffect(() => {
@@ -103,11 +104,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     }
     
     return () => {
-      // Cleanup
+      // Cleanup - ensure both web and native are stopped
       if (webRecognitionRef.current) {
         try {
           webRecognitionRef.current.stop();
         } catch {}
+      }
+      // Native cleanup on unmount
+      if (isNativeRef.current) {
+        SpeechRecognition.stop().catch(() => {});
       }
     };
   }, [lang]);
@@ -185,7 +190,8 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           setIsRecording(data.status === 'started');
           if (data.status === 'stopped') {
             isStartingRef.current = false;
-            onEnd?.();
+            isStoppingRef.current = false;
+            // Note: onEnd is called from stopRecording, not here, to avoid double-calls
           }
         });
         console.debug('[Speech] listeningState listener registered');
@@ -345,12 +351,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   }, [isRecording, lang, onError]);
   
   const stopRecording = useCallback(async () => {
-    if (!isRecording && !isStartingRef.current) return;
+    if ((!isRecording && !isStartingRef.current) || isStoppingRef.current) return;
+    isStoppingRef.current = true;
     
     try {
       if (isNativeRef.current) {
         console.debug('[Speech] stopping native recognition');
         await SpeechRecognition.stop();
+        // Small delay to let iOS audio session fully release before calling onEnd
+        await new Promise((resolve) => setTimeout(resolve, 50));
         setIsRecording(false);
         onEnd?.();
       } else {
@@ -371,6 +380,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
       setIsRecording(false);
     }
     isStartingRef.current = false;
+    isStoppingRef.current = false;
   }, [isRecording, onEnd]);
   
   return {
