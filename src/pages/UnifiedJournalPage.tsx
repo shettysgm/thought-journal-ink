@@ -653,8 +653,10 @@ export default function UnifiedJournalPage() {
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
                 value={text + (isRecording ? interimTranscript : '')}
-                onPointerDown={focusEditor}
-                onTouchStart={focusEditor}
+                // iOS: focusing on touch-start can block native caret placement.
+                // Focus on touch/pointer end so taps can still position the caret.
+                onPointerUp={focusEditor}
+                onTouchEnd={focusEditor}
                 onChange={(e) => {
                   const newValue = e.target.value;
                   // Allow editing even during recording, but adjust for interim text
