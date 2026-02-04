@@ -3,6 +3,14 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/store/useEntries';
 import { useSettings } from '@/store/useSettings';
@@ -50,8 +58,32 @@ export default function UnifiedJournalPage() {
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
 
+  // iOS/touch: Radix Tooltip is unreliable for “tap to open”. Use a modal.
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [reframeDialogOpen, setReframeDialogOpen] = useState(false);
+  const [selectedDetection, setSelectedDetection] = useState<Detection | null>(null);
+  const lastTouchTsRef = useRef(0);
+
   // Voice diagnostics
   const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(hasTouch);
+  }, []);
+
+  const openReframeDialog = useCallback((segment: { text: string; type?: string; reframe?: string; confidence?: number }, e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setSelectedDetection({
+      span: segment.text,
+      type: segment.type || 'Cognitive Distortion',
+      reframe: segment.reframe || '',
+      confidence: segment.confidence,
+    });
+    setReframeDialogOpen(true);
+  }, []);
 
   // Load existing entry if editing
   useEffect(() => {
@@ -406,6 +438,32 @@ export default function UnifiedJournalPage() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
+
+        <AlertDialog open={reframeDialogOpen} onOpenChange={setReframeDialogOpen}>
+          <AlertDialogContent className="max-w-[92vw] sm:max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-primary">Reframe suggestion</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                      {selectedDetection?.type || 'Cognitive Distortion'}
+                    </span>
+                    {typeof selectedDetection?.confidence === 'number' && (
+                      <span className="text-xs rounded-full bg-muted text-muted-foreground px-2 py-0.5">
+                        {Math.round(selectedDetection.confidence * 100)}% confidence
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-foreground text-base leading-relaxed whitespace-pre-wrap">
+                    {selectedDetection?.reframe || 'No suggestion provided.'}
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogCancel className="mt-2">Close</AlertDialogCancel>
+          </AlertDialogContent>
+        </AlertDialog>
         
         {/* Minimal header - simplified on mobile */}
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -566,38 +624,59 @@ export default function UnifiedJournalPage() {
                 }
                 return highlighted.map((segment: any, i: number) => (
                   segment.isHighlight ? (
-                    <TooltipProvider delayDuration={100} key={`prov-${i}`}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="inline pointer-events-auto cursor-pointer">
-                            <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
-                              {segment.text}
-                            </span>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                                {segment.type}
+                    isTouchDevice ? (
+                      <button
+                        key={`touch-${i}`}
+                        type="button"
+                        className="inline pointer-events-auto align-baseline"
+                        onTouchEnd={(e) => {
+                          lastTouchTsRef.current = Date.now();
+                          openReframeDialog(segment, e);
+                        }}
+                        onClick={(e) => {
+                          // Avoid double-fire: iOS often emits click after touchend.
+                          if (Date.now() - lastTouchTsRef.current < 600) return;
+                          openReframeDialog(segment, e);
+                        }}
+                      >
+                        <span className="bg-primary/20 active:bg-primary/30 rounded px-0.5 transition-colors underline decoration-primary/50 decoration-dotted underline-offset-2">
+                          {segment.text}
+                        </span>
+                      </button>
+                    ) : (
+                      <TooltipProvider delayDuration={100} key={`prov-${i}`}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline pointer-events-auto cursor-pointer">
+                              <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
+                                {segment.text}
                               </span>
-                              {segment.confidence !== undefined && (
-                                <span className={cn(
-                                  "text-xs px-2 py-0.5 rounded-full",
-                                  segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
-                                  segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
-                                  "bg-muted text-muted-foreground"
-                                )}>
-                                  {segment.confidence >= 0.85 ? "High confidence" :
-                                   segment.confidence >= 0.7 ? "Likely" : "Possible"}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                                  {segment.type}
                                 </span>
-                              )}
+                                {segment.confidence !== undefined && (
+                                  <span className={cn(
+                                    "text-xs px-2 py-0.5 rounded-full",
+                                    segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
+                                    segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
+                                    "bg-muted text-muted-foreground"
+                                  )}>
+                                    {segment.confidence >= 0.85 ? "High confidence" :
+                                     segment.confidence >= 0.7 ? "Likely" : "Possible"}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-foreground">{segment.reframe}</p>
                             </div>
-                            <p className="text-sm text-foreground">{segment.reframe}</p>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )
                   ) : (
                     <span 
                       key={i} 
