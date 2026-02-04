@@ -90,7 +90,13 @@ export async function analyzeEntryWithContext(
   saveDistortionFn: (distortion: any) => Promise<void>
 ): Promise<{ hits: Hit[]; reframes?: any[] }> {
   
+  console.log('[hybridDetection] analyzeEntryWithContext called for entry:', entryId);
   const result = await hybridDetection(text, method);
+  console.log('[hybridDetection] Result from hybridDetection:', {
+    hitsCount: result.hits.length,
+    reframesCount: result.reframes?.length || 0,
+    reframes: result.reframes
+  });
   
   // Save distortion metadata (not full text)
   for (const hit of result.hits) {

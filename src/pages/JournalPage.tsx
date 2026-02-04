@@ -34,7 +34,20 @@ export default function JournalPage() {
   const entriesPerPage = 10;
 
   useEffect(() => {
-    loadEntries();
+    loadEntries().then(() => {
+      // Debug: log entries and their reframes
+      const state = useEntries.getState();
+      console.log('[JournalPage] Loaded entries:', state.entries.length);
+      state.entries.forEach((e, i) => {
+        console.log(`[JournalPage] Entry ${i}:`, {
+          id: e.id.slice(0, 8),
+          textPreview: e.text?.slice(0, 30),
+          hasReframes: !!e.reframes,
+          reframesCount: e.reframes?.length || 0,
+          reframes: e.reframes
+        });
+      });
+    });
   }, [loadEntries]);
 
   // Reload entries when page becomes visible (user navigates back)
