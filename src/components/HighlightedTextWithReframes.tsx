@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TextWithStickers from './TextWithStickers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 type Reframe = {
@@ -24,6 +25,9 @@ type HighlightSegment = {
 
 export default function HighlightedTextWithReframes({ text, reframes = [] }: Props) {
   const isMobile = useIsMobile();
+  const [mobileDialogOpen, setMobileDialogOpen] = useState(false);
+  const [selectedReframe, setSelectedReframe] = useState<string | null>(null);
+  
   console.log('HighlightedTextWithReframes:', { textLength: text?.length, reframesCount: reframes?.length, isMobile, reframes });
 
   // If no reframes, just render plain text with stickers
@@ -82,74 +86,84 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
     </div>
   );
 
+  // Handle mobile tap - open dialog instead of popover
+  const handleMobileTap = (reframe: string, e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('[Reframe] Mobile tap, opening dialog:', reframe);
+    setSelectedReframe(reframe);
+    setMobileDialogOpen(true);
+  };
+
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="relative">
-        <div className="whitespace-pre-wrap break-words">
-          {segments.map((segment, i) => {
-            if (!segment.isHighlight) {
-              return <TextWithStickers key={i} text={segment.text} />;
-            }
+    <>
+      {/* Mobile Dialog for reframe display */}
+      <Dialog open={mobileDialogOpen} onOpenChange={setMobileDialogOpen}>
+        <DialogContent className="max-w-[90vw] rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-primary flex items-center gap-2">
+              💡 Reframe Suggestion
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-foreground leading-relaxed">{selectedReframe}</p>
+        </DialogContent>
+      </Dialog>
 
-            // On mobile: use Popover only (tap to open)
-            if (isMobile) {
-              return (
-                <Popover key={i}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      data-reframe-trigger="true"
-                      onClickCapture={(e) => e.stopPropagation()}
-                      onPointerDownCapture={(e) => e.stopPropagation()}
-                      onTouchStartCapture={(e) => e.stopPropagation()}
-                      className="inline bg-primary/20 rounded px-0.5 active:bg-primary/30 transition-colors cursor-pointer align-baseline underline decoration-primary/40 decoration-dotted underline-offset-2"
-                      aria-label={`Tap for reframe: ${segment.reframe}`}
-                    >
-                      <TextWithStickers text={segment.text} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent 
-                    side="bottom" 
-                    align="start" 
-                    className="max-w-[min(92vw,32rem)] whitespace-normal break-words z-50"
+      <TooltipProvider delayDuration={0}>
+        <div className="relative">
+          <div className="whitespace-pre-wrap break-words">
+            {segments.map((segment, i) => {
+              if (!segment.isHighlight) {
+                return <TextWithStickers key={i} text={segment.text} />;
+              }
+
+              // On mobile: use a simple button that opens a Dialog (more reliable than Popover on iOS)
+              if (isMobile) {
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    data-reframe-trigger="true"
+                    onClick={(e) => handleMobileTap(segment.reframe!, e)}
+                    onTouchEnd={(e) => handleMobileTap(segment.reframe!, e)}
+                    className="inline bg-primary/20 rounded px-0.5 active:bg-primary/30 transition-colors cursor-pointer align-baseline underline decoration-primary/40 decoration-dotted underline-offset-2"
+                    aria-label={`Tap for reframe: ${segment.reframe}`}
                   >
-                    <ReframeContent reframe={segment.reframe!} />
-                  </PopoverContent>
-                </Popover>
-              );
-            }
+                    <TextWithStickers text={segment.text} />
+                  </button>
+                );
+              }
 
-            // On desktop: use Tooltip (hover) with Popover fallback (click)
-            return (
-              <Tooltip key={i}>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        data-reframe-trigger="true"
-                        onClickCapture={(e) => e.stopPropagation()}
-                        onPointerDownCapture={(e) => e.stopPropagation()}
-                        onTouchStartCapture={(e) => e.stopPropagation()}
-                        className="inline bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help align-baseline"
-                        aria-label={`CBT Reframe: ${segment.reframe}`}
-                      >
-                        <TextWithStickers text={segment.text} />
-                      </button>
-                    </TooltipTrigger>
-                  </PopoverTrigger>
-                  <PopoverContent side="bottom" align="start" className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                    <ReframeContent reframe={segment.reframe!} />
-                  </PopoverContent>
-                  <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                    <ReframeContent reframe={segment.reframe!} />
-                  </TooltipContent>
-                </Popover>
-              </Tooltip>
-            );
-          })}
+              // On desktop: use Tooltip (hover) with Popover fallback (click)
+              return (
+                <Tooltip key={i}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          data-reframe-trigger="true"
+                          onClickCapture={(e) => e.stopPropagation()}
+                          className="inline bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help align-baseline"
+                          aria-label={`CBT Reframe: ${segment.reframe}`}
+                        >
+                          <TextWithStickers text={segment.text} />
+                        </button>
+                      </TooltipTrigger>
+                    </PopoverTrigger>
+                    <PopoverContent side="bottom" align="start" className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                      <ReframeContent reframe={segment.reframe!} />
+                    </PopoverContent>
+                    <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
+                      <ReframeContent reframe={segment.reframe!} />
+                    </TooltipContent>
+                  </Popover>
+                </Tooltip>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
+    </>
   );
 }
