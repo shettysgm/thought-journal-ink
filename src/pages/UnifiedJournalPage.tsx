@@ -708,9 +708,31 @@ export default function UnifiedJournalPage() {
                   key={`suggestion-${idx}`}
                   type="button"
                   className="w-full text-left p-4 bg-primary/5 hover:bg-primary/10 active:bg-primary/20 border border-primary/20 rounded-xl transition-colors touch-manipulation"
-                  onClick={() => {
-                    setSelectedDetection(detection);
-                    setReframeDialogOpen(true);
+                  onTouchEnd={(e) => {
+                    // iOS WKWebView: prefer touch handlers; some taps never dispatch click.
+                    lastTouchTsRef.current = Date.now();
+                    openReframeDialog(
+                      {
+                        text: detection.span,
+                        type: detection.type,
+                        reframe: detection.reframe,
+                        confidence: detection.confidence,
+                      },
+                      e,
+                    );
+                  }}
+                  onClick={(e) => {
+                    // Avoid double-fire when both touch + click dispatch.
+                    if (Date.now() - lastTouchTsRef.current < 650) return;
+                    openReframeDialog(
+                      {
+                        text: detection.span,
+                        type: detection.type,
+                        reframe: detection.reframe,
+                        confidence: detection.confidence,
+                      },
+                      e,
+                    );
                   }}
                 >
                   <div className="flex items-start gap-3">

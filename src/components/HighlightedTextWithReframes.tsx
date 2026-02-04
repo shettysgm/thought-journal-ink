@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TextWithStickers from './TextWithStickers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -34,6 +34,7 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedReframe, setSelectedReframe] = useState<string | null>(null);
+  const lastTouchTsRef = useRef(0);
   
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -134,21 +135,29 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
               // For touch devices: simple button with AlertDialog
               if (isTouchDevice) {
                 return (
-                  <span
+                  <button
                     key={i}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
                     data-reframe-trigger="true"
-                    onClick={(e) => handleHighlightTap(segment.reframe!, e)}
+                    onTouchEnd={(e) => {
+                      // iOS WKWebView: prefer touch handlers; some taps never dispatch click.
+                      lastTouchTsRef.current = Date.now();
+                      handleHighlightTap(segment.reframe!, e);
+                    }}
+                    onClick={(e) => {
+                      // Avoid double-fire when both touch + click dispatch.
+                      if (Date.now() - lastTouchTsRef.current < 650) return;
+                      handleHighlightTap(segment.reframe!, e);
+                    }}
                     onTouchStart={(e) => {
                       // Prevent parent from handling this touch
                       e.stopPropagation();
                     }}
-                    className="inline bg-primary/20 rounded px-0.5 active:bg-primary/40 transition-colors cursor-pointer align-baseline underline decoration-primary/50 decoration-dotted underline-offset-2 select-none"
+                    className="inline bg-primary/20 rounded px-0.5 active:bg-primary/40 transition-colors cursor-pointer align-baseline underline decoration-primary/50 decoration-dotted underline-offset-2 select-none touch-manipulation"
                     style={{ WebkitTapHighlightColor: 'rgba(0,0,0,0.1)' }}
                   >
                     <TextWithStickers text={segment.text} />
-                  </span>
+                  </button>
                 );
               }
 
