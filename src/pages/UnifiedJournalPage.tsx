@@ -85,19 +85,42 @@ export default function UnifiedJournalPage() {
     setReframeDialogOpen(true);
   }, []);
 
-  // iOS WKWebView: occasionally a controlled <textarea> inside complex layouts fails to
-  // focus on first tap. Force-focus on touch/pointer down without preventing default.
-  const focusEditor = useCallback(() => {
+  // iOS WKWebView: focusing must happen *synchronously within the user gesture*
+  // (touch/pointer event). Scheduling focus (e.g. requestAnimationFrame) can fail.
+  const focusEditor = useCallback((e?: React.SyntheticEvent) => {
+    // Don't preventDefault (can interfere with native focus), but do stop bubbling
+    // to avoid any parent click/touch handlers stealing the gesture.
+    e?.stopPropagation();
+
     const el = textareaRef.current;
     if (!el) return;
     // If a modal is open, don't fight focus.
     if (reframeDialogOpen) return;
 
-    if (document.activeElement === el) return;
-    requestAnimationFrame(() => {
+    if (document.activeElement !== el) {
       try {
-        el.focus();
-      } catch {}
+        // preventScroll is not supported everywhere, but safe to try.
+        (el as any).focus({ preventScroll: true });
+      } catch {
+        try {
+          el.focus();
+        } catch {}
+      }
+    }
+
+    // iOS: sometimes the keyboard opens but the caret isn't placed.
+    try {
+      const len = el.value.length;
+      el.setSelectionRange(len, len);
+    } catch {}
+
+    // Fallback: if WKWebView still didn't focus, try once more in the next frame.
+    requestAnimationFrame(() => {
+      if (textareaRef.current && document.activeElement !== textareaRef.current) {
+        try {
+          textareaRef.current.focus();
+        } catch {}
+      }
     });
   }, [reframeDialogOpen]);
 
@@ -637,8 +660,8 @@ export default function UnifiedJournalPage() {
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
                 value={text + (isRecording ? interimTranscript : '')}
-                onPointerDown={focusEditor}
-                onTouchStart={focusEditor}
+                onPointerDownCapture={focusEditor}
+                onTouchStartCapture={focusEditor}
                 onChange={(e) => {
                   const newValue = e.target.value;
                   // Allow editing even during recording, but adjust for interim text
