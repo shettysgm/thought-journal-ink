@@ -98,6 +98,10 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
                   <PopoverTrigger asChild>
                     <button
                       type="button"
+                      data-reframe-trigger="true"
+                      onClickCapture={(e) => e.stopPropagation()}
+                      onPointerDownCapture={(e) => e.stopPropagation()}
+                      onTouchStartCapture={(e) => e.stopPropagation()}
                       className="inline bg-primary/20 rounded px-0.5 active:bg-primary/30 transition-colors cursor-pointer align-baseline underline decoration-primary/40 decoration-dotted underline-offset-2"
                       aria-label={`Tap for reframe: ${segment.reframe}`}
                     >
@@ -123,6 +127,10 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
                     <TooltipTrigger asChild>
                       <button
                         type="button"
+                        data-reframe-trigger="true"
+                        onClickCapture={(e) => e.stopPropagation()}
+                        onPointerDownCapture={(e) => e.stopPropagation()}
+                        onTouchStartCapture={(e) => e.stopPropagation()}
                         className="inline bg-primary/20 rounded px-0.5 hover:bg-primary/30 transition-colors cursor-help align-baseline"
                         aria-label={`CBT Reframe: ${segment.reframe}`}
                       >

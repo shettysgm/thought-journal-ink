@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -309,8 +309,15 @@ export default function JournalPage() {
 
                       {/* Content */}
                       {entry.text && (
-                        <div className="bg-muted/30 rounded-lg p-4 mb-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                             onClick={() => navigate(`/unified?edit=${entry.id}`)}>
+                        <div
+                          className="bg-muted/30 rounded-lg p-4 mb-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={(e: MouseEvent<HTMLDivElement>) => {
+                            const target = e.target as HTMLElement | null;
+                            // If user tapped a reframe highlight (popover trigger), don't navigate away.
+                            if (target?.closest?.('[data-reframe-trigger="true"]')) return;
+                            navigate(`/unified?edit=${entry.id}`);
+                          }}
+                        >
                           <div className="text-foreground">
                             <HighlightedTextWithReframes
                               text={entry.text.length > 300 && !expandedEntries.has(entry.id)
