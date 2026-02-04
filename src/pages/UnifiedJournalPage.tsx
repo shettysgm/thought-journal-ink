@@ -605,93 +605,7 @@ export default function UnifiedJournalPage() {
             isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
           )}>
             
-            {/* Highlight overlay - only show when there are detections */}
-            {liveDetections.length > 0 && (
-              <div 
-                className="absolute inset-0 p-8 whitespace-pre-wrap break-words text-base leading-relaxed pointer-events-none rounded-lg z-20"
-                style={{ 
-                  font: 'inherit',
-                  letterSpacing: 'inherit',
-                  wordSpacing: 'inherit',
-                  lineHeight: '1.75'
-                }}
-                aria-hidden="true"
-              >
-              {(() => {
-                const highlighted = renderHighlightedText();
-                if (typeof highlighted === 'string') {
-                  return highlighted;
-                }
-                return highlighted.map((segment: any, i: number) => (
-                  segment.isHighlight ? (
-                    isTouchDevice ? (
-                      <button
-                        key={`touch-${i}`}
-                        type="button"
-                        className="inline pointer-events-auto align-baseline"
-                        onTouchEnd={(e) => {
-                          lastTouchTsRef.current = Date.now();
-                          openReframeDialog(segment, e);
-                        }}
-                        onClick={(e) => {
-                          // Avoid double-fire: iOS often emits click after touchend.
-                          if (Date.now() - lastTouchTsRef.current < 600) return;
-                          openReframeDialog(segment, e);
-                        }}
-                      >
-                        <span className="bg-primary/20 active:bg-primary/30 rounded px-0.5 transition-colors underline decoration-primary/50 decoration-dotted underline-offset-2">
-                          {segment.text}
-                        </span>
-                      </button>
-                    ) : (
-                      <TooltipProvider delayDuration={100} key={`prov-${i}`}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline pointer-events-auto cursor-pointer">
-                              <span className="bg-primary/20 hover:bg-primary/30 rounded px-0.5 transition-colors">
-                                {segment.text}
-                              </span>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" sideOffset={6} className="max-w-[min(92vw,32rem)] whitespace-normal break-words">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-bold rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                                  {segment.type}
-                                </span>
-                                {segment.confidence !== undefined && (
-                                  <span className={cn(
-                                    "text-xs px-2 py-0.5 rounded-full",
-                                    segment.confidence >= 0.85 ? "bg-green-100 text-green-700" :
-                                    segment.confidence >= 0.7 ? "bg-amber-100 text-amber-700" :
-                                    "bg-muted text-muted-foreground"
-                                  )}>
-                                    {segment.confidence >= 0.85 ? "High confidence" :
-                                     segment.confidence >= 0.7 ? "Likely" : "Possible"}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-foreground">{segment.reframe}</p>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )
-                  ) : (
-                    <span 
-                      key={i} 
-                      className={cn(
-                        "pointer-events-none",
-                        segment.isInterim && "text-muted-foreground italic opacity-60"
-                      )}
-                    >
-                      {segment.text}
-                    </span>
-                  )
-                ));
-              })()}
-            </div>
-            )}
+            {/* No overlay on native mobile - suggestions shown below editor */}
             
             {/* Recording waveform overlay */}
             {isRecording && (
@@ -780,6 +694,45 @@ export default function UnifiedJournalPage() {
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Analyzing thought patterns...
               </span>
+            </div>
+          )}
+
+          {/* AI Suggestions Panel - native-friendly tappable cards */}
+          {liveDetections.length > 0 && (
+            <div className="mt-6 space-y-3">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">
+                💡 AI Suggestions ({liveDetections.length})
+              </div>
+              {liveDetections.map((detection, idx) => (
+                <button
+                  key={`suggestion-${idx}`}
+                  type="button"
+                  className="w-full text-left p-4 bg-primary/5 hover:bg-primary/10 active:bg-primary/20 border border-primary/20 rounded-xl transition-colors touch-manipulation"
+                  onClick={() => {
+                    setSelectedDetection(detection);
+                    setReframeDialogOpen(true);
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground line-clamp-2">
+                        "{detection.span}"
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                          {detection.type}
+                        </span>
+                        {detection.confidence !== undefined && (
+                          <span className="text-xs text-muted-foreground">
+                            {Math.round(detection.confidence * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 flex-shrink-0 mt-1" />
+                  </div>
+                </button>
+              ))}
             </div>
           )}
 
