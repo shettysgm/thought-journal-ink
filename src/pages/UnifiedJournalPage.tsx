@@ -16,7 +16,6 @@ import { useEntries } from '@/store/useEntries';
 import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
 import { VoiceDiagnostics } from '@/components/VoiceDiagnostics';
@@ -85,36 +84,16 @@ export default function UnifiedJournalPage() {
     setReframeDialogOpen(true);
   }, []);
 
-  // iOS WKWebView: focusing must happen *synchronously within the user gesture*
-  // (touch/pointer event). Scheduling focus (e.g. requestAnimationFrame) can fail.
-  const focusEditor = useCallback((e?: React.SyntheticEvent) => {
+  // focusEditor is now only used for explicit focus requests (e.g., after closing dialogs)
+  // It is NOT attached to textarea touch/pointer events to preserve native iOS caret placement.
+  const focusEditor = useCallback(() => {
     const el = textareaRef.current;
-    if (!el) return;
-    // If a modal is open, don't fight focus.
-    if (reframeDialogOpen) return;
-
-    // If we're already focused, do nothing so iOS can place the caret where the user tapped.
-    if (document.activeElement === el) return;
-
+    if (!el || reframeDialogOpen) return;
     if (document.activeElement !== el) {
       try {
-        // preventScroll is not supported everywhere, but safe to try.
-        (el as any).focus({ preventScroll: true });
-      } catch {
-        try {
-          el.focus();
-        } catch {}
-      }
+        el.focus();
+      } catch {}
     }
-
-    // Fallback: if WKWebView still didn't focus, try once more in the next frame.
-    requestAnimationFrame(() => {
-      if (textareaRef.current && document.activeElement !== textareaRef.current) {
-        try {
-          textareaRef.current.focus();
-        } catch {}
-      }
-    });
   }, [reframeDialogOpen]);
 
   // Load existing entry if editing
@@ -593,7 +572,12 @@ export default function UnifiedJournalPage() {
           <Button
             onTouchEnd={(e) => {
               e.preventDefault();
-              e.stopPropagation();
+              lastTouchTsRef.current = Date.now();
+              toggleRecording();
+            }}
+            onClick={() => {
+              // Fallback for non-touch or missed touch events
+              if (Date.now() - lastTouchTsRef.current < 500) return;
               toggleRecording();
             }}
             disabled={!isSupported}
@@ -620,7 +604,11 @@ export default function UnifiedJournalPage() {
           <Button 
             onTouchEnd={(e) => {
               e.preventDefault();
-              e.stopPropagation();
+              lastTouchTsRef.current = Date.now();
+              handleBack();
+            }}
+            onClick={() => {
+              if (Date.now() - lastTouchTsRef.current < 500) return;
               handleBack();
             }}
             variant="outline" 
@@ -653,10 +641,6 @@ export default function UnifiedJournalPage() {
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
                 value={text + (isRecording ? interimTranscript : '')}
-                // iOS: focusing on touch-start can block native caret placement.
-                // Focus on touch/pointer end so taps can still position the caret.
-                onPointerUp={focusEditor}
-                onTouchEnd={focusEditor}
                 onChange={(e) => {
                   const newValue = e.target.value;
                   // Allow editing even during recording, but adjust for interim text
