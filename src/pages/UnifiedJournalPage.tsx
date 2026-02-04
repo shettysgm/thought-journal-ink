@@ -85,6 +85,22 @@ export default function UnifiedJournalPage() {
     setReframeDialogOpen(true);
   }, []);
 
+  // iOS WKWebView: occasionally a controlled <textarea> inside complex layouts fails to
+  // focus on first tap. Force-focus on touch/pointer down without preventing default.
+  const focusEditor = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    // If a modal is open, don't fight focus.
+    if (reframeDialogOpen) return;
+
+    if (document.activeElement === el) return;
+    requestAnimationFrame(() => {
+      try {
+        el.focus();
+      } catch {}
+    });
+  }, [reframeDialogOpen]);
+
   // Load existing entry if editing
   useEffect(() => {
     const initialize = async () => {
@@ -621,6 +637,8 @@ export default function UnifiedJournalPage() {
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
                 value={text + (isRecording ? interimTranscript : '')}
+                onPointerDown={focusEditor}
+                onTouchStart={focusEditor}
                 onChange={(e) => {
                   const newValue = e.target.value;
                   // Allow editing even during recording, but adjust for interim text
@@ -633,7 +651,7 @@ export default function UnifiedJournalPage() {
                   }
                 }}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
+                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto touch-manipulation bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
                 )}
                 style={{ lineHeight: '1.75' }}
                 autoFocus
