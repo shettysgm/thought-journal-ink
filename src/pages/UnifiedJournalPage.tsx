@@ -260,21 +260,34 @@ export default function UnifiedJournalPage() {
 
   // Debounced AI detection - respects user's AI settings
   useEffect(() => {
+    console.log('[AI Detection] Effect triggered:', {
+      aiAnalysisEnabled,
+      autoDetectDistortions,
+      textLength: text.trim().length,
+    });
+
     // Skip AI analysis if disabled in settings
     if (!aiAnalysisEnabled || !autoDetectDistortions) {
+      console.log('[AI Detection] Skipped: AI disabled in settings');
       setLiveDetections([]);
       return;
     }
 
     if (!text.trim() || text.trim().length < 20) {
+      console.log('[AI Detection] Skipped: text too short');
       setLiveDetections([]);
       return;
     }
 
     const timeoutId = setTimeout(async () => {
+      console.log('[AI Detection] Starting detection...');
       setIsDetecting(true);
       try {
         const response = await detectWithAI(text.trim());
+        console.log('[AI Detection] Response:', {
+          distortions: response.distortions?.length || 0,
+          reframes: response.reframes?.length || 0,
+        });
         
         // Map distortions with confidence scores
         if (response.distortions && response.distortions.length > 0) {
@@ -284,6 +297,7 @@ export default function UnifiedJournalPage() {
             reframe: response.reframes[idx]?.suggestion || "",
             confidence: d.confidence
           }));
+          console.log('[AI Detection] Setting detections:', detectionsList.length);
           setLiveDetections(detectionsList);
           
           if (entryId) {
@@ -295,10 +309,11 @@ export default function UnifiedJournalPage() {
             await updateEntry(entryId, { reframes });
           }
         } else {
+          console.log('[AI Detection] No distortions found');
           setLiveDetections([]);
         }
       } catch (error) {
-        console.error('Real-time detection error:', error);
+        console.error('[AI Detection] Error:', error);
         setLiveDetections([]);
       } finally {
         setIsDetecting(false);
@@ -306,7 +321,7 @@ export default function UnifiedJournalPage() {
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [text, entryId, updateEntry]);
+  }, [text, entryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions]);
 
   const toggleRecording = async () => {
     if (!isSupported) return;
