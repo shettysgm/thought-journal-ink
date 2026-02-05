@@ -409,12 +409,11 @@ export default function UnifiedJournalPage() {
     navigate('/journal');
   };
 
-  // Render highlighted text
+  // Render highlighted text (interim transcript now displayed separately)
   const renderHighlightedText = () => {
-    const fullText = text + (isRecording ? interimTranscript : '');
-    if (liveDetections.length === 0) return fullText;
+    if (liveDetections.length === 0) return text;
     
-    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; confidence?: number; isInterim?: boolean }[] = [];
+    const segments: { text: string; isHighlight: boolean; reframe?: string; type?: string; confidence?: number }[] = [];
     let lastIndex = 0;
     
     const sortedDetections = [...liveDetections].sort((a, b) => {
@@ -442,10 +441,6 @@ export default function UnifiedJournalPage() {
     
     if (lastIndex < text.length) {
       segments.push({ text: text.slice(lastIndex), isHighlight: false });
-    }
-    
-    if (isRecording && interimTranscript) {
-      segments.push({ text: interimTranscript, isHighlight: false, isInterim: true });
     }
     
     return segments;
@@ -650,30 +645,29 @@ export default function UnifiedJournalPage() {
               </div>
             )}
             
-            {/* Input area */}
+            {/* Input area - textarea only uses `text` for stable iOS caret placement */}
             <div className="relative">
               <Textarea
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
-                value={text + (isRecording ? interimTranscript : '')}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  // Allow editing even during recording, but adjust for interim text
-                  if (isRecording) {
-                    // Remove interim transcript portion before updating
-                    const withoutInterim = newValue.replace(interimTranscript, '');
-                    setText(withoutInterim);
-                  } else {
-                    setText(newValue);
-                  }
-                }}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 transition-all duration-300"
+                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 pb-32 transition-all duration-300"
                 )}
                 style={{ lineHeight: '1.75' }}
-                autoFocus
               />
             </div>
+            
+            {/* Interim transcript shown separately to avoid caret issues on iOS */}
+            {isRecording && interimTranscript && (
+              <div className="px-8 pb-4 -mt-24">
+                <div className="text-muted-foreground italic bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium block mb-1">Listening...</span>
+                  {interimTranscript}
+                </div>
+              </div>
+            )}
             
             {/* Audio segments */}
             {audioSegments.length > 0 && (
