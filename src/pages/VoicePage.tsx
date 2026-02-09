@@ -274,6 +274,8 @@ export default function VoicePage() {
   const handleBack = async () => {
     try {
       await stopRecording();
+      // Wait for late-arriving native partial results to be captured by the hook
+      await new Promise(resolve => setTimeout(resolve, 500));
     } catch {}
     try {
       // Use REFS not state — state is stale after await stopRecording()
