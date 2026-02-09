@@ -56,9 +56,10 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
   const webRecognitionRef = useRef<any>(null);
   const webStreamRef = useRef<MediaStream | null>(null);
   const isNativeRef = useRef(false);
-  const isStartingRef = useRef(false); // Guard against double-start
-  const isStoppingRef = useRef(false); // Guard against double-stop/cleanup race
-  const lastNativePartialRef = useRef<string>(''); // Track last native partial for finalization
+  const isStartingRef = useRef(false);
+  const isStoppingRef = useRef(false);
+  const lastNativePartialRef = useRef<string>('');
+  const nativeStoppedRef = useRef(false); // true after stop() called, prevents interim updates
   
   // Check platform and initialize
   useEffect(() => {
@@ -177,11 +178,15 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
       try {
         console.debug('[Speech] Registering partialResults listener...');
         listenerHandle = await SpeechRecognition.addListener('partialResults', (data: { matches: string[] }) => {
-          console.debug('[Speech] partialResults:', data.matches?.[0]?.slice(0, 50));
           if (data.matches && data.matches.length > 0) {
-            // Native plugin gives us the full transcript so far
             lastNativePartialRef.current = data.matches[0];
-            onResult?.(data.matches[0], false);
+            // Only send interim updates while actively recording (not after stop)
+            if (!nativeStoppedRef.current) {
+              console.debug('[Speech] partialResults (live):', data.matches[0]?.slice(0, 50));
+              onResult?.(data.matches[0], false);
+            } else {
+              console.debug('[Speech] partialResults (post-stop, captured):', data.matches[0]?.slice(0, 50));
+            }
           }
         });
         console.debug('[Speech] partialResults listener registered');
@@ -302,6 +307,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
           };
           console.debug('[Speech] calling native start() with options:', startOptions);
           lastNativePartialRef.current = '';
+          nativeStoppedRef.current = false;
           await SpeechRecognition.start(startOptions as any);
           console.debug('[Speech] native start() succeeded');
           setIsRecording(true);
@@ -360,14 +366,16 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     try {
       if (isNativeRef.current) {
         console.debug('[Speech] stopping native recognition');
+        nativeStoppedRef.current = true;
         await SpeechRecognition.stop();
-        // Finalize the last partial result as final transcript
+        // Wait for late-arriving partialResults from the native plugin
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        // Finalize whatever the last partial was (including post-stop arrivals)
         if (lastNativePartialRef.current) {
+          console.debug('[Speech] finalizing transcript:', lastNativePartialRef.current.slice(0, 50));
           onResult?.(lastNativePartialRef.current, true);
           lastNativePartialRef.current = '';
         }
-        // Small delay to let iOS audio session fully release before calling onEnd
-        await new Promise((resolve) => setTimeout(resolve, 50));
         setIsRecording(false);
         onEnd?.();
       } else {
