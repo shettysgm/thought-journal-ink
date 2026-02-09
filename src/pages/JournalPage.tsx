@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
+import { awaitPendingSave } from '@/lib/pendingSave';
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -34,7 +35,8 @@ export default function JournalPage() {
   const entriesPerPage = 10;
 
   useEffect(() => {
-    loadEntries().then(() => {
+    // Wait for any in-flight voice page save before loading entries
+    awaitPendingSave().then(() => loadEntries()).then(() => {
       // Debug: log entries and their reframes
       const state = useEntries.getState();
       console.log('[JournalPage] Loaded entries:', state.entries.length);
