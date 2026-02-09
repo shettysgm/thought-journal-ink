@@ -272,10 +272,12 @@ export default function VoicePage() {
   // startRecording and stopRecording now come from useSpeechRecognition hook
 
   const handleBack = async () => {
+    // Capture text BEFORE stopping — onEnd clears interimRef via effect
+    const preStopText = (transcriptRef.current + interimRef.current).trim();
     console.log('[VoicePage] handleBack START', {
       isRecording,
-      transcriptLen: transcriptRef.current.length,
-      interimLen: interimRef.current.length,
+      preStopTextLen: preStopText.length,
+      preStopPreview: preStopText.slice(0, 80),
       entryId: entryIdRef.current,
     });
     try {
@@ -286,7 +288,9 @@ export default function VoicePage() {
       console.error('[VoicePage] stopRecording in handleBack failed:', e);
     }
     
-    const fullText = (transcriptRef.current + interimRef.current).trim();
+    // Use whichever snapshot has more text (pre-stop captures interim that onEnd may clear)
+    const postStopText = (transcriptRef.current + interimRef.current).trim();
+    const fullText = postStopText.length >= preStopText.length ? postStopText : preStopText;
     console.log('[VoicePage] handleBack AFTER stop', {
       fullTextLen: fullText.length,
       fullTextPreview: fullText.slice(0, 80),
