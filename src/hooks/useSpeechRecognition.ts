@@ -397,7 +397,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}) 
     }
     isStartingRef.current = false;
     isStoppingRef.current = false;
-  }, [isRecording, onEnd]);
+  }, [isRecording, onResult, onEnd]);
   
   return {
     isRecording,
