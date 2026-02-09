@@ -373,6 +373,10 @@ export default function SettingsPage() {
           </DialogContent>
         </Dialog>
         
+        {/* Build version */}
+        <p className="text-center text-[10px] text-muted-foreground/50 mt-8 font-mono select-all">
+          Build: {typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev'}
+        </p>
       </div>
     </div>
   );
