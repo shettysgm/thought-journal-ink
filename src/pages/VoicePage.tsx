@@ -493,7 +493,7 @@ export default function VoicePage() {
         {/* Minimal header */}
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="flex items-center justify-between px-6 py-3">
-            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack}>
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleBack} disabled={isRecording}>
               <ArrowLeft className="w-4 h-4" />
               Back to Journal
             </Button>
