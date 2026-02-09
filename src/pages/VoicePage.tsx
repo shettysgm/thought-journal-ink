@@ -31,6 +31,7 @@ export default function VoicePage() {
   const transcriptRef = useRef(transcript);
   const entryIdRef = useRef(entryId);
   const lastSavedTextRef = useRef(lastSavedText);
+  const interimRef = useRef(interimTranscript);
   
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
@@ -101,6 +102,7 @@ export default function VoicePage() {
   useEffect(() => { transcriptRef.current = transcript; }, [transcript]);
   useEffect(() => { entryIdRef.current = entryId; }, [entryId]);
   useEffect(() => { lastSavedTextRef.current = lastSavedText; }, [lastSavedText]);
+  useEffect(() => { interimRef.current = interimTranscript; }, [interimTranscript]);
 
   // Save when recording ends
   useEffect(() => {
@@ -141,32 +143,35 @@ export default function VoicePage() {
   // Save on unmount (e.g., navigating via bottom nav)
   useEffect(() => {
     return () => {
-      const t = transcriptRef.current;
+      // On native, transcript may be empty while interim has the live text
+      const finalText = (transcriptRef.current || '') + (interimRef.current || '');
       const id = entryIdRef.current;
       const lastSaved = lastSavedTextRef.current;
-      if ((t || '').trim() && t !== lastSaved) {
+      if (finalText.trim() && finalText !== lastSaved) {
+        console.log('[VoicePage] Unmount save, text length:', finalText.trim().length);
         if (id) {
-          updateEntry(id, { text: t.trim() }).catch(e => console.error('Unmount save failed:', e));
+          updateEntry(id, { text: finalText.trim() }).catch(e => console.error('Unmount save failed:', e));
         } else {
-          createEntry({ text: t.trim(), tags: ['voice'], hasAudio: true, hasDrawing: false })
+          createEntry({ text: finalText.trim(), tags: ['voice'], hasAudio: true, hasDrawing: false })
             .catch(e => console.error('Unmount create failed:', e));
         }
       }
     };
   }, [createEntry, updateEntry]);
 
-  // Auto-save effect - triggers as user speaks
+  // Auto-save effect - triggers as user speaks (also watches interimTranscript for native)
+  const fullLiveText = transcript + interimTranscript;
   useEffect(() => {
-    if (!transcript.trim() || transcript === lastSavedText || isLoadingEntry) return;
+    if (!fullLiveText.trim() || fullLiveText === lastSavedText || isLoadingEntry) return;
 
     setSaveStatus('unsaved');
     const saveTimeout = setTimeout(async () => {
+      const textToSave = fullLiveText.trim();
       setSaveStatus('saving');
       try {
         if (!entryId) {
-          // Create new entry for today
           const newId = await createEntry({
-            text: transcript.trim(),
+            text: textToSave,
             tags: ['voice'],
             hasAudio: true,
             hasDrawing: false
@@ -175,11 +180,10 @@ export default function VoicePage() {
           console.log('Created new voice entry for today:', newId);
           toast({ title: 'Voice entry saved', description: 'Auto-saved to Journal.' });
         } else {
-          // Update today's entry
-          await updateEntry(entryId, { text: transcript.trim() });
+          await updateEntry(entryId, { text: textToSave });
           console.log('Updated today\'s voice entry:', entryId);
         }
-        setLastSavedText(transcript);
+        setLastSavedText(fullLiveText);
         setSaveStatus('saved');
       } catch (error) {
         console.error('Auto-save error:', error);
@@ -190,10 +194,10 @@ export default function VoicePage() {
           variant: "destructive"
         });
       }
-    }, 1500); // Auto-save after 1.5 seconds of no new speech
+    }, 1500);
 
     return () => clearTimeout(saveTimeout);
-  }, [transcript, entryId, lastSavedText, isLoadingEntry, createEntry, updateEntry, toast]);
+  }, [fullLiveText, entryId, lastSavedText, isLoadingEntry, createEntry, updateEntry, toast]);
 
   // Debounced AI detection - analyzes as user speaks
   useEffect(() => {
@@ -254,20 +258,22 @@ export default function VoicePage() {
       await stopRecording();
     } catch {}
     try {
-      if ((transcript || '').trim() && transcript !== lastSavedText) {
+      // Include interim text (critical for native where transcript may be empty)
+      const fullText = (transcript + interimTranscript).trim();
+      if (fullText && (transcript + interimTranscript) !== lastSavedText) {
         setSaveStatus('saving');
         if (!entryId) {
           const newId = await createEntry({
-            text: transcript.trim(),
+            text: fullText,
             tags: ['voice'],
             hasAudio: true,
             hasDrawing: false,
           });
           setEntryId(newId);
         } else {
-          await updateEntry(entryId, { text: transcript.trim() });
+          await updateEntry(entryId, { text: fullText });
         }
-        setLastSavedText(transcript);
+        setLastSavedText(transcript + interimTranscript);
         setSaveStatus('saved');
       }
     } catch (e) {
@@ -278,11 +284,12 @@ export default function VoicePage() {
 
   const saveNow = async () => {
     try {
-      if ((transcript || '').trim()) {
+      const fullText = (transcript + interimTranscript).trim();
+      if (fullText) {
         setSaveStatus('saving');
         if (!entryId) {
           const newId = await createEntry({
-            text: transcript.trim(),
+            text: fullText,
             tags: ['voice'],
             hasAudio: true,
             hasDrawing: false,
@@ -290,10 +297,10 @@ export default function VoicePage() {
           setEntryId(newId);
           toast({ title: 'Voice entry saved', description: 'Saved to Journal.' });
         } else {
-          await updateEntry(entryId, { text: transcript.trim() });
+          await updateEntry(entryId, { text: fullText });
           toast({ title: 'Voice entry updated', description: 'Journal updated.' });
         }
-        setLastSavedText(transcript);
+        setLastSavedText(transcript + interimTranscript);
         setSaveStatus('saved');
       }
     } catch (e) {
