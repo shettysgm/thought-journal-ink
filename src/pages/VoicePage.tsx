@@ -6,6 +6,7 @@ import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
+import { setPendingSave } from '@/lib/pendingSave';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -158,14 +159,20 @@ export default function VoicePage() {
       const finalText = (transcriptRef.current || '') + (interimRef.current || '');
       const id = entryIdRef.current;
       const lastSaved = lastSavedTextRef.current;
-      if (finalText.trim() && finalText !== lastSaved) {
+      if (finalText.trim() && finalText.trim() !== lastSaved?.trim()) {
         console.log('[VoicePage] Unmount save, text length:', finalText.trim().length);
+        let savePromise: Promise<void>;
         if (id) {
-          updateEntry(id, { text: finalText.trim() }).catch(e => console.error('Unmount save failed:', e));
+          savePromise = updateEntry(id, { text: finalText.trim() })
+            .then(() => console.log('[VoicePage] Unmount save completed'))
+            .catch(e => console.error('Unmount save failed:', e));
         } else {
-          createEntry({ text: finalText.trim(), tags: ['voice'], hasAudio: true, hasDrawing: false })
-            .catch(e => console.error('Unmount create failed:', e));
+          savePromise = createEntry({ text: finalText.trim(), tags: ['voice'], hasAudio: true, hasDrawing: false })
+            .then(() => console.log('[VoicePage] Unmount create completed'))
+            .catch(e => console.error('Unmount create failed:', e)) as Promise<void>;
         }
+        // Store promise so JournalPage can await it
+        setPendingSave(savePromise);
       }
     };
   }, [createEntry, updateEntry]);
