@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Square, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,9 @@ export default function VoicePage() {
   const [lastSavedText, setLastSavedText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [isLoadingEntry, setIsLoadingEntry] = useState(true);
+  const transcriptRef = useRef(transcript);
+  const entryIdRef = useRef(entryId);
+  const lastSavedTextRef = useRef(lastSavedText);
   
   // Real-time detection state
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
@@ -94,16 +97,24 @@ export default function VoicePage() {
     initializeTodaysEntry();
   }, [findTodaysEntries, getEntry]);
 
+  // Keep refs in sync for unmount save
+  useEffect(() => { transcriptRef.current = transcript; }, [transcript]);
+  useEffect(() => { entryIdRef.current = entryId; }, [entryId]);
+  useEffect(() => { lastSavedTextRef.current = lastSavedText; }, [lastSavedText]);
+
   // Save when recording ends
   useEffect(() => {
     if (isRecording) return; // Only run when recording stops
     
     const saveOnEnd = async () => {
       try {
-        if ((transcript || '').trim() && transcript !== lastSavedText) {
-          if (!entryId) {
+        const currentTranscript = transcriptRef.current;
+        const currentEntryId = entryIdRef.current;
+        const currentLastSaved = lastSavedTextRef.current;
+        if ((currentTranscript || '').trim() && currentTranscript !== currentLastSaved) {
+          if (!currentEntryId) {
             const newId = await createEntry({
-              text: transcript.trim(),
+              text: currentTranscript.trim(),
               tags: ['voice'],
               hasAudio: true,
               hasDrawing: false
@@ -111,10 +122,10 @@ export default function VoicePage() {
             setEntryId(newId);
             console.log('Created voice entry on stop:', newId);
           } else {
-            await updateEntry(entryId, { text: transcript.trim() });
-            console.log('Updated voice entry on stop:', entryId);
+            await updateEntry(currentEntryId, { text: currentTranscript.trim() });
+            console.log('Updated voice entry on stop:', currentEntryId);
           }
-          setLastSavedText(transcript);
+          setLastSavedText(currentTranscript);
           setSaveStatus('saved');
         }
       } catch (e) {
@@ -122,10 +133,27 @@ export default function VoicePage() {
       }
     };
     
-    if (transcript.trim()) {
+    if (transcriptRef.current.trim()) {
       saveOnEnd();
     }
-  }, [isRecording]);
+  }, [isRecording, createEntry, updateEntry]);
+
+  // Save on unmount (e.g., navigating via bottom nav)
+  useEffect(() => {
+    return () => {
+      const t = transcriptRef.current;
+      const id = entryIdRef.current;
+      const lastSaved = lastSavedTextRef.current;
+      if ((t || '').trim() && t !== lastSaved) {
+        if (id) {
+          updateEntry(id, { text: t.trim() }).catch(e => console.error('Unmount save failed:', e));
+        } else {
+          createEntry({ text: t.trim(), tags: ['voice'], hasAudio: true, hasDrawing: false })
+            .catch(e => console.error('Unmount create failed:', e));
+        }
+      }
+    };
+  }, [createEntry, updateEntry]);
 
   // Auto-save effect - triggers as user speaks
   useEffect(() => {
