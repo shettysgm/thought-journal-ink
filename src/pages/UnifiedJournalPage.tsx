@@ -494,6 +494,7 @@ export default function UnifiedJournalPage() {
               size="sm" 
               className="gap-2 px-2 sm:px-3 touch-manipulation" 
               onClick={handleBack}
+              disabled={isRecording}
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back to Journal</span>
@@ -551,6 +552,7 @@ export default function UnifiedJournalPage() {
                 size="sm" 
                 variant="outline" 
                 className="px-3 touch-manipulation"
+                disabled={isRecording}
               >
                 Done
               </Button>
@@ -623,6 +625,7 @@ export default function UnifiedJournalPage() {
             }}
             variant="outline" 
             className="flex-1 min-h-[44px] h-12 text-base font-medium touch-manipulation"
+            disabled={isRecording}
           >
             Done
           </Button>
