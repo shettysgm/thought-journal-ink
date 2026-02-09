@@ -272,15 +272,29 @@ export default function VoicePage() {
   // startRecording and stopRecording now come from useSpeechRecognition hook
 
   const handleBack = async () => {
+    console.log('[VoicePage] handleBack START', {
+      isRecording,
+      transcriptLen: transcriptRef.current.length,
+      interimLen: interimRef.current.length,
+      entryId: entryIdRef.current,
+    });
     try {
       await stopRecording();
       // Wait for late-arriving native partial results to be captured by the hook
-      await new Promise(resolve => setTimeout(resolve, 500));
-    } catch {}
+      await new Promise(resolve => setTimeout(resolve, 600));
+    } catch (e) {
+      console.error('[VoicePage] stopRecording in handleBack failed:', e);
+    }
+    
+    const fullText = (transcriptRef.current + interimRef.current).trim();
+    console.log('[VoicePage] handleBack AFTER stop', {
+      fullTextLen: fullText.length,
+      fullTextPreview: fullText.slice(0, 80),
+      lastSaved: lastSavedTextRef.current?.slice(0, 40),
+      entryId: entryIdRef.current,
+    });
+    
     try {
-      // Use REFS not state — state is stale after await stopRecording()
-      const fullText = (transcriptRef.current + interimRef.current).trim();
-      console.log('[VoicePage] handleBack save:', { fullTextLen: fullText.length, entryId: entryIdRef.current });
       if (fullText && fullText !== lastSavedTextRef.current?.trim()) {
         setSaveStatus('saving');
         if (!entryIdRef.current) {
@@ -292,14 +306,18 @@ export default function VoicePage() {
           });
           setEntryId(newId);
           entryIdRef.current = newId;
+          console.log('[VoicePage] handleBack CREATED entry:', newId);
         } else {
           await updateEntry(entryIdRef.current, { text: fullText });
+          console.log('[VoicePage] handleBack UPDATED entry:', entryIdRef.current);
         }
         lastSavedTextRef.current = fullText;
         setSaveStatus('saved');
+      } else {
+        console.log('[VoicePage] handleBack SKIP save:', { empty: !fullText, unchanged: fullText === lastSavedTextRef.current?.trim() });
       }
     } catch (e) {
-      console.error('Save on back failed:', e);
+      console.error('[VoicePage] handleBack save failed:', e);
     }
     navigate('/journal');
   };
