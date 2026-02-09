@@ -37,13 +37,19 @@ export default function VoicePage() {
   const [liveDetections, setLiveDetections] = useState<Detection[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
 
-  // Speech recognition handlers
+  // Speech recognition handlers — sync refs immediately so save paths always have latest text
   const handleSpeechResult = useCallback((text: string, isFinal: boolean) => {
     if (isFinal) {
-      setTranscript(prev => prev + text);
+      setTranscript(prev => {
+        const updated = prev + text;
+        transcriptRef.current = updated; // sync ref immediately (don't wait for effect)
+        return updated;
+      });
       setInterimTranscript('');
+      interimRef.current = '';
     } else {
       setInterimTranscript(text);
+      interimRef.current = text;
     }
   }, []);
 
@@ -110,24 +116,28 @@ export default function VoicePage() {
     
     const saveOnEnd = async () => {
       try {
-        const currentTranscript = transcriptRef.current;
+        // Use refs — state may be stale after stopRecording
+        const fullText = (transcriptRef.current + interimRef.current).trim();
         const currentEntryId = entryIdRef.current;
         const currentLastSaved = lastSavedTextRef.current;
-        if ((currentTranscript || '').trim() && currentTranscript !== currentLastSaved) {
+        console.log('[VoicePage] save-on-stop:', { fullTextLen: fullText.length, hasId: !!currentEntryId });
+        if (fullText && fullText !== currentLastSaved?.trim()) {
           if (!currentEntryId) {
             const newId = await createEntry({
-              text: currentTranscript.trim(),
+              text: fullText,
               tags: ['voice'],
               hasAudio: true,
               hasDrawing: false
             });
             setEntryId(newId);
+            entryIdRef.current = newId;
             console.log('Created voice entry on stop:', newId);
           } else {
-            await updateEntry(currentEntryId, { text: currentTranscript.trim() });
+            await updateEntry(currentEntryId, { text: fullText });
             console.log('Updated voice entry on stop:', currentEntryId);
           }
-          setLastSavedText(currentTranscript);
+          setLastSavedText(fullText);
+          lastSavedTextRef.current = fullText;
           setSaveStatus('saved');
         }
       } catch (e) {
@@ -135,7 +145,8 @@ export default function VoicePage() {
       }
     };
     
-    if (transcriptRef.current.trim()) {
+    const fullText = (transcriptRef.current + interimRef.current).trim();
+    if (fullText) {
       saveOnEnd();
     }
   }, [isRecording, createEntry, updateEntry]);
@@ -258,11 +269,12 @@ export default function VoicePage() {
       await stopRecording();
     } catch {}
     try {
-      // Include interim text (critical for native where transcript may be empty)
-      const fullText = (transcript + interimTranscript).trim();
-      if (fullText && (transcript + interimTranscript) !== lastSavedText) {
+      // Use REFS not state — state is stale after await stopRecording()
+      const fullText = (transcriptRef.current + interimRef.current).trim();
+      console.log('[VoicePage] handleBack save:', { fullTextLen: fullText.length, entryId: entryIdRef.current });
+      if (fullText && fullText !== lastSavedTextRef.current?.trim()) {
         setSaveStatus('saving');
-        if (!entryId) {
+        if (!entryIdRef.current) {
           const newId = await createEntry({
             text: fullText,
             tags: ['voice'],
@@ -270,10 +282,11 @@ export default function VoicePage() {
             hasDrawing: false,
           });
           setEntryId(newId);
+          entryIdRef.current = newId;
         } else {
-          await updateEntry(entryId, { text: fullText });
+          await updateEntry(entryIdRef.current, { text: fullText });
         }
-        setLastSavedText(transcript + interimTranscript);
+        lastSavedTextRef.current = fullText;
         setSaveStatus('saved');
       }
     } catch (e) {
@@ -284,10 +297,10 @@ export default function VoicePage() {
 
   const saveNow = async () => {
     try {
-      const fullText = (transcript + interimTranscript).trim();
+      const fullText = (transcriptRef.current + interimRef.current).trim();
       if (fullText) {
         setSaveStatus('saving');
-        if (!entryId) {
+        if (!entryIdRef.current) {
           const newId = await createEntry({
             text: fullText,
             tags: ['voice'],
@@ -295,12 +308,13 @@ export default function VoicePage() {
             hasDrawing: false,
           });
           setEntryId(newId);
+          entryIdRef.current = newId;
           toast({ title: 'Voice entry saved', description: 'Saved to Journal.' });
         } else {
-          await updateEntry(entryId, { text: fullText });
+          await updateEntry(entryIdRef.current, { text: fullText });
           toast({ title: 'Voice entry updated', description: 'Journal updated.' });
         }
-        setLastSavedText(transcript + interimTranscript);
+        lastSavedTextRef.current = fullText;
         setSaveStatus('saved');
       }
     } catch (e) {
