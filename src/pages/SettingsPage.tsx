@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain } from 'lucide-react';
+import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -17,11 +17,14 @@ export default function SettingsPage() {
     autoDetectDistortions, 
     syncStatsEnabled,
     aiAnalysisEnabled,
+    appLockEnabled,
     loadSettings,
     updateSettings,
     setPassphrase,
     verifyPassphrase,
-    currentPassphrase
+    currentPassphrase,
+    setAppLock,
+    removeAppLock
   } = useSettings();
   
   const { distortions } = useDistortions();
@@ -31,6 +34,9 @@ export default function SettingsPage() {
   const [confirmPassphrase, setConfirmPassphrase] = useState('');
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [isSettingPassphrase, setIsSettingPassphrase] = useState(false);
+  const [lockPassword, setLockPassword] = useState('');
+  const [confirmLockPassword, setConfirmLockPassword] = useState('');
+  const [isSettingLock, setIsSettingLock] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -185,6 +191,41 @@ export default function SettingsPage() {
                 onCheckedChange={handleEncryptionToggle}
               />
             </div>
+
+            {/* App Lock */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-base font-medium flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  App Lock
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Require a password to open the app
+                </p>
+              </div>
+              <Switch
+                checked={appLockEnabled}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setIsSettingLock(true);
+                  } else {
+                    removeAppLock();
+                    toast({
+                      title: "App Lock Disabled",
+                      description: "The app is now accessible without a password.",
+                    });
+                  }
+                }}
+              />
+            </div>
+
+            {appLockEnabled && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-sm text-primary">
+                  🔐 App lock is active. A password is required to open the app.
+                </p>
+              </div>
+            )}
 
             {/* AI Analysis Toggle */}
             <div className="flex items-center justify-between">
@@ -367,6 +408,67 @@ export default function SettingsPage() {
                 </Button>
                 <Button onClick={handleSetPassphrase}>
                   Set Passphrase
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* App Lock Password Dialog */}
+        <Dialog open={isSettingLock} onOpenChange={setIsSettingLock}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Set App Lock Password</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="lock-password">Password</Label>
+                <Input
+                  id="lock-password"
+                  type="password"
+                  value={lockPassword}
+                  onChange={(e) => setLockPassword(e.target.value)}
+                  placeholder="Enter a password"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirm-lock-password">Confirm Password</Label>
+                <Input
+                  id="confirm-lock-password"
+                  type="password"
+                  value={confirmLockPassword}
+                  onChange={(e) => setConfirmLockPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                You'll need this password every time you open the app. It cannot be recovered if forgotten.
+              </p>
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => { setIsSettingLock(false); setLockPassword(''); setConfirmLockPassword(''); }}>
+                  Cancel
+                </Button>
+                <Button onClick={async () => {
+                  if (lockPassword.length < 4) {
+                    toast({ title: "Too Short", description: "Password must be at least 4 characters.", variant: "destructive" });
+                    return;
+                  }
+                  if (lockPassword !== confirmLockPassword) {
+                    toast({ title: "Passwords Don't Match", description: "Please ensure both passwords are identical.", variant: "destructive" });
+                    return;
+                  }
+                  const success = await setAppLock(lockPassword);
+                  if (success) {
+                    toast({ title: "App Lock Enabled", description: "A password is now required to open the app." });
+                    setIsSettingLock(false);
+                    setLockPassword('');
+                    setConfirmLockPassword('');
+                  }
+                }}>
+                  Set Password
                 </Button>
               </div>
             </div>
