@@ -141,6 +141,7 @@ export async function getSettings(): Promise<AppSettings> {
     encryptionEnabled: false,
     autoDetectDistortions: true,
     syncStatsEnabled: false,
-    aiAnalysisEnabled: true, // Default to enabled for new users
+    aiAnalysisEnabled: true,
+    appLockEnabled: false,
   };
 }
