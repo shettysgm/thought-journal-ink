@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain } from 'lucide-react';
+import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -17,11 +17,14 @@ export default function SettingsPage() {
     autoDetectDistortions, 
     syncStatsEnabled,
     aiAnalysisEnabled,
+    appLockEnabled,
     loadSettings,
     updateSettings,
     setPassphrase,
     verifyPassphrase,
-    currentPassphrase
+    currentPassphrase,
+    setAppLock,
+    removeAppLock,
   } = useSettings();
   
   const { distortions } = useDistortions();
@@ -31,7 +34,9 @@ export default function SettingsPage() {
   const [confirmPassphrase, setConfirmPassphrase] = useState('');
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [isSettingPassphrase, setIsSettingPassphrase] = useState(false);
-
+  const [lockPin, setLockPin] = useState('');
+  const [confirmLockPin, setConfirmLockPin] = useState('');
+  const [isSettingLock, setIsSettingLock] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -186,6 +191,38 @@ export default function SettingsPage() {
                 onCheckedChange={handleEncryptionToggle}
               />
             </div>
+
+            {/* App Lock */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-base font-medium flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  App Lock
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Require a 4-digit PIN to open the app
+                </p>
+              </div>
+              <Switch
+                checked={appLockEnabled}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setIsSettingLock(true);
+                  } else {
+                    removeAppLock();
+                    toast({ title: "App Lock Disabled", description: "The app is now accessible without a PIN." });
+                  }
+                }}
+              />
+            </div>
+
+            {appLockEnabled && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-sm text-primary">
+                  🔐 App lock is active. If you forget your PIN, a 24-hour countdown will reset it.
+                </p>
+              </div>
+            )}
 
             {/* AI Analysis Toggle */}
             <div className="flex items-center justify-between">
@@ -368,6 +405,69 @@ export default function SettingsPage() {
                 </Button>
                 <Button onClick={handleSetPassphrase}>
                   Set Passphrase
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        {/* App Lock PIN Dialog */}
+        <Dialog open={isSettingLock} onOpenChange={setIsSettingLock}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Set App Lock PIN</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="lock-pin">4-digit PIN</Label>
+                <Input
+                  id="lock-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={lockPin}
+                  onChange={(e) => setLockPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="••••"
+                  className="text-center text-2xl tracking-[0.5em]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-lock-pin">Confirm PIN</Label>
+                <Input
+                  id="confirm-lock-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmLockPin}
+                  onChange={(e) => setConfirmLockPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="••••"
+                  className="text-center text-2xl tracking-[0.5em]"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                If you forget your PIN, a 24-hour countdown will reset it automatically.
+              </p>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => { setIsSettingLock(false); setLockPin(''); setConfirmLockPin(''); }}>
+                  Cancel
+                </Button>
+                <Button onClick={async () => {
+                  if (lockPin.length !== 4) {
+                    toast({ title: "Invalid PIN", description: "PIN must be exactly 4 digits.", variant: "destructive" });
+                    return;
+                  }
+                  if (lockPin !== confirmLockPin) {
+                    toast({ title: "PINs Don't Match", description: "Please ensure both PINs are identical.", variant: "destructive" });
+                    return;
+                  }
+                  const success = await setAppLock(lockPin);
+                  if (success) {
+                    toast({ title: "App Lock Enabled", description: "A 4-digit PIN is now required to open the app." });
+                    setIsSettingLock(false);
+                    setLockPin('');
+                    setConfirmLockPin('');
+                  }
+                }}>
+                  Set PIN
                 </Button>
               </div>
             </div>

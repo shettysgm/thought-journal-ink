@@ -31,6 +31,10 @@ export type AppSettings = {
   syncStatsEnabled: boolean;
   aiAnalysisEnabled: boolean;
   passphraseHash?: string;
+  appLockEnabled: boolean;
+  appLockHash?: string;
+  resetRequestedAt?: string;
+  failedAttempts?: number;
 };
 
 export type Hit = { 

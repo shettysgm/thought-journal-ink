@@ -5,13 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Router from "./router";
 import CrisisResourcesBanner from "@/components/CrisisResourcesBanner";
 import AIConsentDialog from "@/components/AIConsentDialog";
+import LockScreen from "@/components/LockScreen";
 import { useSettings } from "@/store/useSettings";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { loadSettings, updateSettings } = useSettings();
+  const { loadSettings, updateSettings, appLockEnabled, unlocked, loading } = useSettings();
 
   useEffect(() => {
     loadSettings();
@@ -24,14 +25,19 @@ const App = () => {
   const handleAIConsentDeclined = () => {
     updateSettings({ aiAnalysisEnabled: false });
   };
-  
+
+  // Show lock screen if app lock is enabled and not yet unlocked
+  if (appLockEnabled && !unlocked && !loading) {
+    return <LockScreen />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CrisisResourcesBanner />
         <Toaster />
         <Sonner />
-        <AIConsentDialog 
+        <AIConsentDialog
           onConsentGiven={handleAIConsentGiven}
           onConsentDeclined={handleAIConsentDeclined}
         />
