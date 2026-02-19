@@ -142,6 +142,5 @@ export async function getSettings(): Promise<AppSettings> {
     autoDetectDistortions: true,
     syncStatsEnabled: false,
     aiAnalysisEnabled: true,
-    appLockEnabled: false,
   };
 }
