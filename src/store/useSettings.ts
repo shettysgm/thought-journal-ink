@@ -7,15 +7,11 @@ interface SettingsState extends AppSettings {
   currentPassphrase?: string; // Kept in memory only
   loading: boolean;
   error: string | null;
-  unlocked: boolean; // In-memory lock state
   loadSettings: () => Promise<void>;
   updateSettings: (updates: Partial<AppSettings>) => Promise<void>;
   setPassphrase: (passphrase: string) => Promise<boolean>;
   clearPassphrase: () => void;
   verifyPassphrase: (passphrase: string) => Promise<boolean>;
-  setAppLock: (password: string) => Promise<boolean>;
-  removeAppLock: () => Promise<void>;
-  verifyAppLock: (password: string) => Promise<boolean>;
 }
 
 export const useSettings = create<SettingsState>((set, get) => ({
@@ -23,8 +19,6 @@ export const useSettings = create<SettingsState>((set, get) => ({
   autoDetectDistortions: true,
   syncStatsEnabled: false,
   aiAnalysisEnabled: true,
-  appLockEnabled: false,
-  unlocked: false,
   loading: false,
   error: null,
 
@@ -45,9 +39,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
       autoDetectDistortions: current.autoDetectDistortions,
       syncStatsEnabled: current.syncStatsEnabled,
       aiAnalysisEnabled: current.aiAnalysisEnabled,
-      appLockEnabled: current.appLockEnabled,
       passphraseHash: current.passphraseHash,
-      appLockHash: current.appLockHash,
       ...updates 
     };
     
@@ -88,33 +80,4 @@ export const useSettings = create<SettingsState>((set, get) => ({
     }
   },
 
-  setAppLock: async (password: string) => {
-    try {
-      const hash = await hashPassphrase(password);
-      await get().updateSettings({ appLockEnabled: true, appLockHash: hash });
-      set({ unlocked: true });
-      return true;
-    } catch (error) {
-      set({ error: 'Failed to set app lock' });
-      return false;
-    }
-  },
-
-  removeAppLock: async () => {
-    await get().updateSettings({ appLockEnabled: false, appLockHash: undefined });
-    set({ unlocked: false });
-  },
-
-  verifyAppLock: async (password: string) => {
-    const current = get();
-    if (!current.appLockHash) return false;
-    try {
-      const hash = await hashPassphrase(password);
-      const isValid = hash === current.appLockHash;
-      if (isValid) set({ unlocked: true });
-      return isValid;
-    } catch (error) {
-      return false;
-    }
-  },
 }));
