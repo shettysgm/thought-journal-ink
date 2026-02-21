@@ -85,7 +85,7 @@ export default function LockScreen() {
       <div className={`w-full max-w-xs flex flex-col items-center gap-8 ${shake ? 'animate-shake' : ''}`}>
         {/* Title */}
         <div className="text-center space-y-2">
-          <h1 className="text-xl font-semibold text-foreground">Thought Journal</h1>
+          <h1 className="text-xl font-semibold text-foreground">Journal Inc</h1>
           {isResetPending ? (
             <div className="flex flex-col items-center gap-2">
               <Clock className="w-8 h-8 text-muted-foreground" />
