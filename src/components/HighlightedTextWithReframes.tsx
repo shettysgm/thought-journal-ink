@@ -107,20 +107,36 @@ export default function HighlightedTextWithReframes({ text, reframes = [] }: Pro
     console.log('[Reframe] Dialog should now be open');
   };
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      // Clear selected reframe after close to prevent stale state
+      setTimeout(() => setSelectedReframe(null), 200);
+    }
+  };
+
   return (
     <>
       {/* AlertDialog for reframe display - more reliable than Dialog on iOS */}
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+      <AlertDialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
+        <AlertDialogContent 
+          className="max-w-[90vw] sm:max-w-md"
+          onClick={(e) => e.stopPropagation()}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-primary">
               💡 Reframe Suggestion
             </AlertDialogTitle>
             <AlertDialogDescription className="text-foreground text-base leading-relaxed">
-              {selectedReframe}
+              {selectedReframe || ''}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogCancel className="mt-2">Close</AlertDialogCancel>
+          <AlertDialogCancel 
+            className="mt-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Close
+          </AlertDialogCancel>
         </AlertDialogContent>
       </AlertDialog>
 
