@@ -330,7 +330,13 @@ export default function JournalPage() {
                             const target = e.target as HTMLElement | null;
                             // If user tapped a reframe highlight (popover trigger), don't navigate away.
                             if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                            navigate(`/unified?edit=${entry.id}`);
+                            // Don't navigate if click originated from a dialog/overlay
+                            if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
+                            try {
+                              navigate(`/unified?edit=${entry.id}`);
+                            } catch (err) {
+                              console.error('[JournalPage] Navigation error:', err);
+                            }
                           }}
                         >
                           <div className="text-foreground">
