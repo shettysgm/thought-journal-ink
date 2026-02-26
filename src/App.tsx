@@ -18,6 +18,18 @@ const App = () => {
     loadSettings();
   }, [loadSettings]);
 
+  // Re-lock app when user leaves and returns (background/foreground)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && appLockEnabled) {
+        // Re-lock when app goes to background
+        useSettings.setState({ unlocked: false });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [appLockEnabled]);
+
   const handleAIConsentGiven = () => {
     updateSettings({ aiAnalysisEnabled: true });
   };
