@@ -41,7 +41,7 @@ Format:
   {
     "span": "exact phrase from entry showing distortion",
     "type": "Mind Reading" or "Catastrophizing" or "All-or-Nothing" etc.,
-    "reframe": "brief compassionate alternative thought",
+    "reframe": "a specific, personalized alternative thought",
     "confidence": 0.85
   }
 ]
@@ -52,13 +52,21 @@ Confidence scoring:
 - 0.5-0.69: Possible distortion, context-dependent
 - Below 0.5: Uncertain, only flag with evidence
 
+REFRAME GUIDELINES (critical — avoid generic platitudes):
+- Reference the user's SPECIFIC situation, words, or context — don't just say "things might be okay"
+- BAD: "Things might not be as bad as you think" (vague, generic)
+- GOOD: "One tough meeting doesn't erase the projects you've delivered well" (specific)
+- BAD: "Consider other possibilities" (empty advice)
+- GOOD: "Sarah might have been distracted by her own deadline, not judging your idea" (uses their context)
+- Reframes should feel like a wise friend who actually READ what you wrote, not a fortune cookie
+- 15-30 words is ideal — long enough to be meaningful, short enough to be digestible
+- Use warm, conversational tone — not clinical or preachy
+
 Rules:
 - Return ONLY the JSON array
 - Keep spans under 15 words
-- Keep reframes under 20 words
-- Use compassionate, friendly language
-- If no distortions found, return []
 - Be conservative: prefer lower confidence over false positives
+- If no distortions found, return []
 
 Journal entry:
 ${text}`;
