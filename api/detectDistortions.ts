@@ -28,7 +28,7 @@ OUTPUT SCHEMA:
   {
     "span": "<exact text span (≤12 words) showing the distortion>",
     "type": "<one of: All-or-Nothing, Catastrophizing, Mind Reading, Fortune Telling, Should Statements, Labeling, Emotional Reasoning, Overgeneralization, Personalization, Mental Filter>",
-    "reframe": "<gentle alternative thought in ≤15 words>",
+    "reframe": "<specific, personalized alternative thought in 15-30 words>",
     "confidence": <0.0-1.0>
   }
 ]
@@ -55,6 +55,16 @@ ONLY FLAG when you see:
 - Mind-reading stated as fact: "They think I'm..."
 - Self-labeling: "I'm a failure/idiot/worthless"
 - Rigid "should/must" statements implying moral failure
+
+REFRAME GUIDELINES (critical — avoid generic platitudes):
+- Reference the user's SPECIFIC situation, words, and context
+- BAD: "Things might not be as bad as you think" (vague, useless)
+- GOOD: "One tough meeting doesn't erase the projects you've delivered well" (specific to their situation)
+- BAD: "Consider other possibilities" (empty advice)
+- GOOD: "Your colleague may have been rushed, not dismissing your contribution" (references their actual scenario)
+- Reframes should feel like a thoughtful friend who READ what they wrote — not a fortune cookie
+- 15-30 words: long enough to be meaningful, short enough to be digestible
+- Warm, conversational tone — never clinical or preachy
 
 RULES:
 - The "span" MUST be an exact quote from the user's text
@@ -102,7 +112,7 @@ TEXT:
     const clean = Array.isArray(json) ? json.map((item: any) => ({
       span: String(item.span || "").slice(0, 80),
       type: String(item.type || ""),
-      reframe: String(item.reframe || "").slice(0, 180),
+      reframe: String(item.reframe || "").slice(0, 300),
       confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5))
     })) : [];
 
