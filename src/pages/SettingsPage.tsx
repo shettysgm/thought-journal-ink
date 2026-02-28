@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain, Lock } from 'lucide-react';
+import { ArrowLeft, Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useSettings } from '@/store/useSettings';
 import { useDistortions } from '@/store/useDistortions';
 import { useToast } from '@/hooks/use-toast';
+import { exportJournalsToFile } from '@/lib/exportJournals';
+import { useEntries } from '@/store/useEntries';
 
 export default function SettingsPage() {
   const { 
@@ -29,6 +31,7 @@ export default function SettingsPage() {
   
   const { distortions } = useDistortions();
   const { toast } = useToast();
+  const { entries, loadEntries } = useEntries();
   
   const [passphrase, setPassphraseInput] = useState('');
   const [confirmPassphrase, setConfirmPassphrase] = useState('');
@@ -37,6 +40,7 @@ export default function SettingsPage() {
   const [lockPin, setLockPin] = useState('');
   const [confirmLockPin, setConfirmLockPin] = useState('');
   const [isSettingLock, setIsSettingLock] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -142,6 +146,25 @@ export default function SettingsPage() {
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleExportJournals = async () => {
+    setExporting(true);
+    try {
+      await exportJournalsToFile();
+      toast({
+        title: "Journals Exported",
+        description: "Your journal entries are ready to save to Files or iCloud Drive.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Could not export journal entries.",
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -329,6 +352,22 @@ export default function SettingsPage() {
                   className="hidden"
                 />
               </Label>
+            </div>
+
+            {/* Export Journals to Files / iCloud */}
+            <div className="border-t pt-6 space-y-2">
+              <Label className="text-base font-medium">Export Journal Entries</Label>
+              <p className="text-sm text-muted-foreground">
+                Save all your journals as a file. On iOS, use the share sheet to save to iCloud Drive or Files.
+              </p>
+              <Button
+                onClick={handleExportJournals}
+                disabled={exporting}
+                className="gap-2 w-full"
+              >
+                <FileDown className="w-4 h-4" />
+                {exporting ? 'Exporting…' : 'Export Journals to Files'}
+              </Button>
             </div>
             
           </CardContent>
