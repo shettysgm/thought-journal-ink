@@ -68,6 +68,8 @@ export const useSettings = create<SettingsState>((set, get) => ({
       appLockHash: current.appLockHash,
       resetRequestedAt: current.resetRequestedAt,
       failedAttempts: current.failedAttempts,
+      feedbackCount: current.feedbackCount,
+      lastFeedbackAt: current.lastFeedbackAt,
       ...updates,
     };
     await saveSettings(newSettings);
