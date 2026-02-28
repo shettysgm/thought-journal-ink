@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Delete, Clock } from 'lucide-react';
 import { useSettings } from '@/store/useSettings';
+import { toast } from 'sonner';
 
 const PIN_LENGTH = 4;
 const MAX_ATTEMPTS = 5;
@@ -20,6 +21,7 @@ export default function LockScreen() {
   const [shake, setShake] = useState(false);
   const [loading, setLoading] = useState(false);
   const [remainingTime, setRemainingTime] = useState('');
+  const [showForgotConfirm, setShowForgotConfirm] = useState(false);
   const isResetPending = !!resetRequestedAt;
   const isLockedOut = (failedAttempts || 0) >= MAX_ATTEMPTS || isResetPending;
 
@@ -71,7 +73,9 @@ export default function LockScreen() {
   }, [loading, isLockedOut]);
 
   const handleForgotPin = async () => {
+    setShowForgotConfirm(false);
     await requestReset();
+    toast.info('PIN reset started. The app will unlock in 24 hours.');
   };
 
   return (
@@ -134,13 +138,23 @@ export default function LockScreen() {
                 </button>
               ))}
               {/* Bottom row */}
-              <button
-                onClick={handleForgotPin}
-                className="w-18 h-18 rounded-full flex items-center justify-center text-xs text-muted-foreground select-none"
-                style={{ width: 72, height: 72 }}
-              >
-                Forgot?
-              </button>
+              {showForgotConfirm ? (
+                <button
+                  onClick={handleForgotPin}
+                  className="w-18 h-18 rounded-full flex items-center justify-center text-xs text-destructive font-medium select-none"
+                  style={{ width: 72, height: 72 }}
+                >
+                  Confirm
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowForgotConfirm(true)}
+                  className="w-18 h-18 rounded-full flex items-center justify-center text-xs text-muted-foreground select-none"
+                  style={{ width: 72, height: 72 }}
+                >
+                  Forgot?
+                </button>
+              )}
               <button
                 onClick={() => handleDigit('0')}
                 disabled={loading}
