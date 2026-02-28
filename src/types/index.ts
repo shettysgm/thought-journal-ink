@@ -35,6 +35,8 @@ export type AppSettings = {
   appLockHash?: string;
   resetRequestedAt?: string;
   failedAttempts?: number;
+  feedbackCount?: number;
+  lastFeedbackAt?: string;
 };
 
 export type Hit = { 
