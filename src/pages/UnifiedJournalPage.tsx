@@ -766,20 +766,16 @@ export default function UnifiedJournalPage() {
                   selectedSticker={bannerSticker}
                   onImageChange={(blob) => {
                     setBannerImageBlob(blob);
-                    if (blob && entryId) {
-                      import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
-                        getJournalEntry(entryId).then(existing => {
-                          if (existing) {
-                            saveJournalEntry({ ...existing, bannerBlob: blob } as any);
-                          }
-                        });
-                      });
+                    // Immediately persist if entry exists
+                    if (entryId) {
+                      // Use a microtask so ref is updated first
+                      setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
                   onStickerChange={(id) => {
                     setBannerSticker(id);
                     if (entryId) {
-                      updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                      setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
                 />
