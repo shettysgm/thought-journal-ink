@@ -70,6 +70,12 @@ export default function UnifiedJournalPage() {
   // Banner state
   const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
   const [bannerSticker, setBannerSticker] = useState<string | null>(null);
+  const bannerImageBlobRef = useRef<Blob | null>(null);
+  const bannerStickerRef = useRef<string | null>(null);
+
+  // Keep refs in sync
+  useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
+  useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
 
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -218,6 +224,26 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
+  // Persist banner blob + sticker to IDB for a given entry
+  const saveBannerData = useCallback(async (eid: string) => {
+    const blob = bannerImageBlobRef.current;
+    const sticker = bannerStickerRef.current;
+    try {
+      const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
+      const existing = await getJournalEntry(eid);
+      if (existing) {
+        const updated = { ...existing, bannerSticker: sticker || undefined } as any;
+        if (blob) updated.bannerBlob = blob;
+        else delete updated.bannerBlob;
+        await saveJournalEntry(updated);
+      }
+      // Also persist bannerSticker via the store so it appears in the entries list
+      await updateEntry(eid, { bannerSticker: sticker || undefined } as any);
+    } catch (e) {
+      console.error('Banner save error:', e);
+    }
+  }, [updateEntry]);
+
   // Auto-save effect
   useEffect(() => {
     if (!text.trim() || text === lastSavedText) return;
@@ -226,16 +252,23 @@ export default function UnifiedJournalPage() {
     const saveTimeout = setTimeout(async () => {
       setSaveStatus('saving');
       try {
+        let savedId = entryId;
         if (!entryId) {
           // Create new entry for today
           const newId = await createEntry({
             text: text.trim(),
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
-          });
+            hasDrawing: false,
+            bannerSticker: bannerStickerRef.current || undefined,
+          } as any);
           setEntryId(newId);
+          savedId = newId;
           setIsNewSession(false);
+          // Save banner blob after entry exists
+          if (bannerImageBlobRef.current) {
+            await saveBannerData(newId);
+          }
         } else {
           // Check if we're in a new session with existing entry ID
           if (isNewSession && entryId) {
@@ -268,7 +301,7 @@ export default function UnifiedJournalPage() {
     }, 1500);
 
     return () => clearTimeout(saveTimeout);
-  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry]);
+  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry, saveBannerData]);
 
   // Debounced AI detection - respects user's AI settings
   useEffect(() => {
@@ -381,8 +414,9 @@ export default function UnifiedJournalPage() {
             text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
-          });
+            hasDrawing: false,
+            bannerSticker: bannerStickerRef.current || undefined,
+          } as any);
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
           // Append to existing entry
@@ -390,11 +424,18 @@ export default function UnifiedJournalPage() {
             text: currentText,
             hasAudio: audioSegments.length > 0,
           });
+          savedId = entryId;
           console.log('Appended to entry:', entryId);
         } else {
           // Update existing entry
           await updateEntry(entryId, { text: currentText });
+          savedId = entryId;
           console.log('Updated entry:', entryId);
+        }
+
+        // Persist banner data
+        if (savedId) {
+          await saveBannerData(savedId);
         }
         
         // Force reload entries to ensure persistence
@@ -725,20 +766,16 @@ export default function UnifiedJournalPage() {
                   selectedSticker={bannerSticker}
                   onImageChange={(blob) => {
                     setBannerImageBlob(blob);
-                    if (blob && entryId) {
-                      import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
-                        getJournalEntry(entryId).then(existing => {
-                          if (existing) {
-                            saveJournalEntry({ ...existing, bannerBlob: blob } as any);
-                          }
-                        });
-                      });
+                    // Immediately persist if entry exists
+                    if (entryId) {
+                      // Use a microtask so ref is updated first
+                      setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
                   onStickerChange={(id) => {
                     setBannerSticker(id);
                     if (entryId) {
-                      updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                      setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
                 />
