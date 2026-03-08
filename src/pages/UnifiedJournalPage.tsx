@@ -671,7 +671,7 @@ export default function UnifiedJournalPage() {
             className="h-12 w-12 flex-shrink-0 touch-manipulation"
             onClick={() => setMobileStickerDrawerOpen(true)}
           >
-            <Sparkles className="h-5 w-5" />
+            <img src={stickerBtnIcon} alt="Stickers" className="h-8 w-8 object-contain" />
           </Button>
 
           <Button
