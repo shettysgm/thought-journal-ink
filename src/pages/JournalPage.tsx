@@ -305,10 +305,20 @@ export default function JournalPage() {
         ) : (
           <div className="space-y-6">
             <div className="space-y-4">
-              {paginatedEntries.map((entry) => (
+              {paginatedEntries.map((entry) => {
+                const stickerDef = (entry as any).bannerSticker
+                  ? ALL_STICKERS.find(s => s.id === (entry as any).bannerSticker)
+                  : null;
+                return (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
+                    {/* Sticker decoration */}
+                    {stickerDef && (
+                      <div className="flex-shrink-0 mt-1">
+                        <stickerDef.component size={36} {...(stickerDef.props as any)} />
+                      </div>
+                    )}
                     <div className="flex-1">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
