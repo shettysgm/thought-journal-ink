@@ -322,7 +322,17 @@ export default function JournalPage() {
                   : null;
                 const entryBlob = bannerBlobs[entry.id];
                 return (
-              <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
+              <Card
+                key={entry.id}
+                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+                onClick={(e: MouseEvent<HTMLDivElement>) => {
+                  const target = e.target as HTMLElement | null;
+                  if (target?.closest?.('button')) return;
+                  if (target?.closest?.('[data-reframe-trigger="true"]')) return;
+                  if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
+                  navigate(`/unified?edit=${entry.id}`);
+                }}
+              >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">
@@ -348,19 +358,7 @@ export default function JournalPage() {
                       {/* Content */}
                       {entry.text && (
                         <div
-                          className="bg-muted/30 rounded-lg p-4 mb-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                          onClick={(e: MouseEvent<HTMLDivElement>) => {
-                            const target = e.target as HTMLElement | null;
-                            // If user tapped a reframe highlight (popover trigger), don't navigate away.
-                            if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                            // Don't navigate if click originated from a dialog/overlay
-                            if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
-                            try {
-                              navigate(`/unified?edit=${entry.id}`);
-                            } catch (err) {
-                              console.error('[JournalPage] Navigation error:', err);
-                            }
-                          }}
+                          className="bg-muted/30 rounded-lg p-4 mb-3"
                         >
                           <div className="text-foreground">
                             <HighlightedTextWithReframes
