@@ -418,9 +418,9 @@ export default function JournalPage() {
                       )}
 
                       {/* Tags */}
-                      {entry.tags && entry.tags.length > 0 && (
+                      {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
                         <div className="flex flex-wrap gap-1">
-                          {entry.tags.map((tag, index) => (
+                          {entry.tags.filter(t => t !== 'unified').map((tag, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               #{tag}
                             </Badge>
