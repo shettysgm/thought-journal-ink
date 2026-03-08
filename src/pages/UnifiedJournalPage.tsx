@@ -67,6 +67,10 @@ export default function UnifiedJournalPage() {
   // Voice diagnostics
   const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
 
+  // Banner state
+  const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
+  const [bannerSticker, setBannerSticker] = useState<string | null>(null);
+
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     setIsTouchDevice(hasTouch);
