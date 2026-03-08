@@ -327,11 +327,12 @@ export default function JournalPage() {
                 className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   const target = e.target as HTMLElement | null;
-                  if (target?.closest?.('button')) return;
+                  console.log('[JournalPage] Card clicked, target:', target?.tagName, target?.className, 'entry:', entry.id);
+                  if (target?.closest?.('button:not([data-entry-card])')) return;
                   if (target?.closest?.('[data-reframe-trigger="true"]')) return;
                   if (target?.closest?.('[role="alertdialog"]')) return;
-                  e.preventDefault();
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
