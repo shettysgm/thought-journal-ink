@@ -1,4 +1,4 @@
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,13 @@ import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
+import { CANVA_STICKERS } from '@/components/CanvaSticker';
+import { MODERN_STICKERS } from '@/components/ModernStickers';
+
+const ALL_STICKERS = [
+  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
+  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
+];
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -298,10 +305,20 @@ export default function JournalPage() {
         ) : (
           <div className="space-y-6">
             <div className="space-y-4">
-              {paginatedEntries.map((entry) => (
+              {paginatedEntries.map((entry) => {
+                const stickerDef = (entry as any).bannerSticker
+                  ? ALL_STICKERS.find(s => s.id === (entry as any).bannerSticker)
+                  : null;
+                return (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
+                    {/* Sticker decoration */}
+                    {stickerDef && (
+                      <div className="flex-shrink-0 mt-1">
+                        <stickerDef.component size={36} {...(stickerDef.props as any)} />
+                      </div>
+                    )}
                     <div className="flex-1">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
@@ -423,7 +440,8 @@ export default function JournalPage() {
                   </div>
                 </CardContent>
               </Card>
-              ))}
+              );
+              })}
             </div>
 
             {/* Pagination */}
