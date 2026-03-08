@@ -39,23 +39,29 @@ export default function JournalPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
   const entriesPerPage = 10;
 
   useEffect(() => {
     // Wait for any in-flight voice page save before loading entries
-    awaitPendingSave().then(() => loadEntries()).then(() => {
-      // Debug: log entries and their reframes
+    awaitPendingSave().then(() => loadEntries()).then(async () => {
       const state = useEntries.getState();
       console.log('[JournalPage] Loaded entries:', state.entries.length);
-      state.entries.forEach((e, i) => {
-        console.log(`[JournalPage] Entry ${i}:`, {
-          id: e.id.slice(0, 8),
-          textPreview: e.text?.slice(0, 30),
-          hasReframes: !!e.reframes,
-          reframesCount: e.reframes?.length || 0,
-          reframes: e.reframes
-        });
-      });
+      
+      // Load banner blobs from IDB
+      try {
+        const { getJournalEntry } = await import('@/lib/idb');
+        const blobs: Record<string, Blob> = {};
+        for (const entry of state.entries) {
+          const raw = await getJournalEntry(entry.id) as any;
+          if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
+            blobs[entry.id] = raw.bannerBlob;
+          }
+        }
+        setBannerBlobs(blobs);
+      } catch (e) {
+        console.error('Failed to load banner blobs:', e);
+      }
     });
   }, [loadEntries]);
 
@@ -306,12 +312,18 @@ export default function JournalPage() {
           <div className="space-y-6">
             <div className="space-y-4">
               {paginatedEntries.map((entry) => {
-                const stickerDef = (entry as any).bannerSticker
-                  ? ALL_STICKERS.find(s => s.id === (entry as any).bannerSticker)
+                const rawSticker = (entry as any).bannerSticker;
+                // Guard against corrupted serialized undefined
+                const stickerId = typeof rawSticker === 'string' ? rawSticker : null;
+                const stickerDef = stickerId
+                  ? ALL_STICKERS.find(s => s.id === stickerId)
                   : null;
+                const entryBlob = bannerBlobs[entry.id];
                 return (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
+                  {/* Banner image */}
+                  {entryBlob && <BlobImage blob={entryBlob} alt="Journal banner" />}
                   <div className="flex items-start gap-4">
                     {/* Sticker decoration */}
                     {stickerDef && (
