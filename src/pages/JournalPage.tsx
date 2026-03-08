@@ -322,7 +322,17 @@ export default function JournalPage() {
                   : null;
                 const entryBlob = bannerBlobs[entry.id];
                 return (
-              <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
+              <Card
+                key={entry.id}
+                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+                onClick={(e: MouseEvent<HTMLDivElement>) => {
+                  const target = e.target as HTMLElement | null;
+                  if (target?.closest?.('button')) return;
+                  if (target?.closest?.('[data-reframe-trigger="true"]')) return;
+                  if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
+                  navigate(`/unified?edit=${entry.id}`);
+                }}
+              >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">
