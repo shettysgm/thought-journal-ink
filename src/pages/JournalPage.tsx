@@ -235,16 +235,6 @@ export default function JournalPage() {
             <h1 className="text-3xl font-bold text-foreground">Journal Inc</h1>
             <p className="text-muted-foreground">All your saved entries</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleExportJournals}
-            disabled={exporting}
-          >
-            <FileDown className="w-4 h-4" />
-            {exporting ? 'Exporting…' : 'Export'}
-          </Button>
         </header>
 
         {/* Search and Calendar */}
@@ -294,6 +284,17 @@ export default function JournalPage() {
               />
             </CardContent>
           </Card>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 w-full"
+            onClick={handleExportJournals}
+            disabled={exporting}
+          >
+            <FileDown className="w-4 h-4" />
+            {exporting ? 'Exporting…' : 'Export Journals'}
+          </Button>
           
           {filteredEntries.length > 0 && (
             <div className="text-sm text-muted-foreground">
