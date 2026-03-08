@@ -1,4 +1,4 @@
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,13 @@ import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
+import { CANVA_STICKERS } from '@/components/CanvaSticker';
+import { MODERN_STICKERS } from '@/components/ModernStickers';
+
+const ALL_STICKERS = [
+  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
+  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
+];
 
 function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
   const [url, setUrl] = useState<string | null>(null);
