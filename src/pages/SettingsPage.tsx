@@ -354,21 +354,6 @@ export default function SettingsPage() {
               </Label>
             </div>
 
-            {/* Export Journals to Files / iCloud */}
-            <div className="border-t pt-6 space-y-2">
-              <Label className="text-base font-medium">Export Journal Entries</Label>
-              <p className="text-sm text-muted-foreground">
-                Save all your journals as a file. On iOS, use the share sheet to save to iCloud Drive or Files.
-              </p>
-              <Button
-                onClick={handleExportJournals}
-                disabled={exporting}
-                className="gap-2 w-full"
-              >
-                <FileDown className="w-4 h-4" />
-                {exporting ? 'Exporting…' : 'Export Journals to Files'}
-              </Button>
-            </div>
             
           </CardContent>
         </Card>
