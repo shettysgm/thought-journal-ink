@@ -104,13 +104,14 @@ export default function JournalPage() {
   const datesWithEntries = getDatesWithEntries();
 
   const filteredEntries = entries
-    .filter(entry => !entry.hasDrawing) // Filter out handwriting entries
+    .filter(entry => !entry.hasDrawing)
     .filter(entry => {
-      // Filter by selected date
       if (selectedDate) {
         return isSameDay(new Date(entry.createdAt), selectedDate);
       }
-      return true;
+      // Default: only show last 3 days
+      const threeDaysAgo = startOfDayFn(subDays(new Date(), 2));
+      return isAfter(new Date(entry.createdAt), threeDaysAgo);
     })
     .filter(entry => {
       // If no search term, show all entries
