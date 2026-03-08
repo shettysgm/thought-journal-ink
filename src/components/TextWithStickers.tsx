@@ -1,6 +1,5 @@
 import React from 'react';
-import { CANVA_STICKERS } from './CanvaSticker';
-import { MODERN_STICKERS } from './ModernStickers';
+import { ALL_STICKERS } from './KawaiiStickers';
 
 interface TextWithStickersProps {
   text: string;
@@ -8,98 +7,52 @@ interface TextWithStickersProps {
 }
 
 export default function TextWithStickers({ text, className }: TextWithStickersProps) {
-  // Create a map of all available stickers
-  const allStickers = {
-    ...Object.values(CANVA_STICKERS).reduce((acc, category) => {
-      category.stickers.forEach(sticker => {
-        acc[sticker.id] = sticker;
-      });
-      return acc;
-    }, {} as any),
-    ...Object.values(MODERN_STICKERS).reduce((acc, category) => {
-      category.stickers.forEach(sticker => {
-        acc[sticker.id] = sticker;
-      });
-      return acc;
-    }, {} as any),
-  };
+  const allStickersMap = ALL_STICKERS.reduce((acc, sticker) => {
+    acc[sticker.id] = sticker;
+    return acc;
+  }, {} as Record<string, any>);
 
-  // Parse text and replace sticker placeholders with actual components
   const parseTextWithStickers = (text: string) => {
-    const parts = [];
+    const parts: any[] = [];
     let lastIndex = 0;
-    
-    // Regex to match sticker placeholders like [sticker-id]
     const stickerRegex = /\[([^\]]+)\]/g;
     let match;
-    
+
     while ((match = stickerRegex.exec(text)) !== null) {
       const [fullMatch, stickerId] = match;
       const matchStart = match.index;
-      
-      // Add text before the sticker
+
       if (matchStart > lastIndex) {
         const textPart = text.substring(lastIndex, matchStart);
-        if (textPart) {
-          parts.push({
-            type: 'text',
-            content: textPart,
-            key: `text-${parts.length}`
-          });
-        }
+        if (textPart) parts.push({ type: 'text', content: textPart, key: `text-${parts.length}` });
       }
-      
-      // Add the sticker component if it exists
-      const stickerData = allStickers[stickerId];
+
+      const stickerData = allStickersMap[stickerId];
       if (stickerData) {
-        parts.push({
-          type: 'sticker',
-          stickerId,
-          stickerData,
-          key: `sticker-${parts.length}`
-        });
+        parts.push({ type: 'sticker', stickerId, stickerData, key: `sticker-${parts.length}` });
       } else {
-        // If sticker not found, keep the original placeholder
-        parts.push({
-          type: 'text',
-          content: fullMatch,
-          key: `placeholder-${parts.length}`
-        });
+        parts.push({ type: 'text', content: fullMatch, key: `placeholder-${parts.length}` });
       }
-      
+
       lastIndex = matchStart + fullMatch.length;
     }
-    
-    // Add remaining text
+
     if (lastIndex < text.length) {
-      const remainingText = text.substring(lastIndex);
-      if (remainingText) {
-        parts.push({
-          type: 'text',
-          content: remainingText,
-          key: `text-final`
-        });
-      }
+      parts.push({ type: 'text', content: text.substring(lastIndex), key: `text-final` });
     }
-    
+
     return parts;
   };
 
   const parts = parseTextWithStickers(text);
-  
-  if (parts.length === 0) {
-    return <span className={className}>{text}</span>;
-  }
+
+  if (parts.length === 0) return <span className={className}>{text}</span>;
 
   return (
     <span className={className}>
       {parts.map((part) => {
         if (part.type === 'text') {
-          return (
-            <span key={part.key} style={{ whiteSpace: 'pre-wrap' }}>
-              {part.content}
-            </span>
-          );
+          return <span key={part.key} style={{ whiteSpace: 'pre-wrap' }}>{part.content}</span>;
         } else if (part.type === 'sticker') {
           const StickerComponent = part.stickerData.component;
           return (

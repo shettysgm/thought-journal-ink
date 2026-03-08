@@ -1,55 +1,46 @@
 import React from 'react';
+
+// Full body animals
+import kawaiiCatFull from '@/assets/stickers/kawaii-cat-full.png';
+import kawaiiBearFull from '@/assets/stickers/kawaii-bear-full.png';
+import kawaiiBunnyFull from '@/assets/stickers/kawaii-bunny-full.png';
+import kawaiiPuppyFull from '@/assets/stickers/kawaii-puppy-full.png';
+import kawaiiFoxFull from '@/assets/stickers/kawaii-fox-full.png';
+import kawaiiPandaFull from '@/assets/stickers/kawaii-panda-full.png';
+import kawaiiPenguinFull from '@/assets/stickers/kawaii-penguin-full.png';
+import kawaiiOwlFull from '@/assets/stickers/kawaii-owl-full.png';
+
 // Mood stickers
-import kawaiiHappy from '@/assets/stickers/kawaii-happy.png';
-import kawaiiSad from '@/assets/stickers/kawaii-sad.png';
-import kawaiiAnxious from '@/assets/stickers/kawaii-anxious.png';
-import kawaiiCalm from '@/assets/stickers/kawaii-calm.png';
-import kawaiiGrateful from '@/assets/stickers/kawaii-grateful.png';
-import kawaiiAngry from '@/assets/stickers/kawaii-angry.png';
-import kawaiiLove from '@/assets/stickers/kawaii-love.png';
-import kawaiiSleepy from '@/assets/stickers/kawaii-sleepy.png';
-// Animal face stickers
-import kawaiiCat from '@/assets/stickers/kawaii-cat.png';
-import kawaiiBear from '@/assets/stickers/kawaii-bear.png';
-import kawaiiBunny from '@/assets/stickers/kawaii-bunny.png';
-import kawaiiPanda from '@/assets/stickers/kawaii-panda.png';
-import kawaiiFox from '@/assets/stickers/kawaii-fox.png';
-import kawaiiPenguin from '@/assets/stickers/kawaii-penguin.png';
-import kawaiiPuppy from '@/assets/stickers/kawaii-puppy.png';
-import kawaiiOwl from '@/assets/stickers/kawaii-owl.png';
-// Cat activities
-import kawaiiCatSleeping from '@/assets/stickers/kawaii-cat-sleeping.png';
-import kawaiiCatEating from '@/assets/stickers/kawaii-cat-eating.png';
-import kawaiiCatPlaying from '@/assets/stickers/kawaii-cat-playing.png';
-import kawaiiCatSad from '@/assets/stickers/kawaii-cat-sad.png';
-// Bear activities
-import kawaiiBearSleeping from '@/assets/stickers/kawaii-bear-sleeping.png';
-import kawaiiBearEating from '@/assets/stickers/kawaii-bear-eating.png';
-import kawaiiBearPlaying from '@/assets/stickers/kawaii-bear-playing.png';
-import kawaiiBearSad from '@/assets/stickers/kawaii-bear-sad.png';
-// Bunny activities
-import kawaiiBunnyEating from '@/assets/stickers/kawaii-bunny-eating.png';
-import kawaiiBunnyPlaying from '@/assets/stickers/kawaii-bunny-playing.png';
-import kawaiiBunnySad from '@/assets/stickers/kawaii-bunny-sad.png';
-// Puppy activities
-import kawaiiPuppySleeping from '@/assets/stickers/kawaii-puppy-sleeping.png';
-import kawaiiPuppyEating from '@/assets/stickers/kawaii-puppy-eating.png';
-import kawaiiPuppyPlaying from '@/assets/stickers/kawaii-puppy-playing.png';
-import kawaiiPuppySad from '@/assets/stickers/kawaii-puppy-sad.png';
-// Flowers
+import kawaiiMoodHappy from '@/assets/stickers/kawaii-mood-happy.png';
+import kawaiiMoodSad from '@/assets/stickers/kawaii-mood-sad.png';
+import kawaiiMoodCalm from '@/assets/stickers/kawaii-mood-calm.png';
+import kawaiiMoodLove from '@/assets/stickers/kawaii-mood-love.png';
+import kawaiiMoodSleepy from '@/assets/stickers/kawaii-mood-sleepy.png';
+import kawaiiMoodAnxious from '@/assets/stickers/kawaii-mood-anxious.png';
+import kawaiiMoodGrateful from '@/assets/stickers/kawaii-mood-grateful.png';
+import kawaiiMoodAngry from '@/assets/stickers/kawaii-mood-angry.png';
+
+// Nature (existing)
 import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
 import kawaiiSunflower from '@/assets/stickers/kawaii-sunflower.png';
 import kawaiiRose from '@/assets/stickers/kawaii-rose.png';
 import kawaiiTulip from '@/assets/stickers/kawaii-tulip.png';
 import kawaiiDaisy from '@/assets/stickers/kawaii-daisy.png';
 import kawaiiBouquet from '@/assets/stickers/kawaii-bouquet.png';
-// Cute objects
+import kawaiiCactus from '@/assets/stickers/kawaii-cactus.png';
 import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
 import kawaiiStar from '@/assets/stickers/kawaii-star.png';
 import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
+
+// Objects (existing)
 import kawaiiCoffee from '@/assets/stickers/kawaii-coffee.png';
 import kawaiiBook from '@/assets/stickers/kawaii-book.png';
-import kawaiiCactus from '@/assets/stickers/kawaii-cactus.png';
+
+export interface StickerDef {
+  id: string;
+  component: React.FC<{ size?: number; className?: string }>;
+  props: Record<string, any>;
+}
 
 interface KawaiiStickerProps {
   size?: number;
@@ -61,9 +52,35 @@ const KawaiiImg = ({ size = 32, src, className }: KawaiiStickerProps) => (
   <img src={src} alt="" width={size} height={size} className={className} style={{ objectFit: 'contain' }} />
 );
 
-export const KAWAII_STICKERS = {
-  kawaiiFlowers: {
-    name: 'Kawaii Flowers',
+export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDef[] }> = {
+  animals: {
+    name: 'Cute Animals',
+    stickers: [
+      { id: 'kawaii-cat', component: KawaiiImg, props: { src: kawaiiCatFull } },
+      { id: 'kawaii-bear', component: KawaiiImg, props: { src: kawaiiBearFull } },
+      { id: 'kawaii-bunny', component: KawaiiImg, props: { src: kawaiiBunnyFull } },
+      { id: 'kawaii-puppy', component: KawaiiImg, props: { src: kawaiiPuppyFull } },
+      { id: 'kawaii-fox', component: KawaiiImg, props: { src: kawaiiFoxFull } },
+      { id: 'kawaii-panda', component: KawaiiImg, props: { src: kawaiiPandaFull } },
+      { id: 'kawaii-penguin', component: KawaiiImg, props: { src: kawaiiPenguinFull } },
+      { id: 'kawaii-owl', component: KawaiiImg, props: { src: kawaiiOwlFull } },
+    ]
+  },
+  moods: {
+    name: 'Moods',
+    stickers: [
+      { id: 'kawaii-happy', component: KawaiiImg, props: { src: kawaiiMoodHappy } },
+      { id: 'kawaii-sad', component: KawaiiImg, props: { src: kawaiiMoodSad } },
+      { id: 'kawaii-calm', component: KawaiiImg, props: { src: kawaiiMoodCalm } },
+      { id: 'kawaii-love', component: KawaiiImg, props: { src: kawaiiMoodLove } },
+      { id: 'kawaii-sleepy', component: KawaiiImg, props: { src: kawaiiMoodSleepy } },
+      { id: 'kawaii-anxious', component: KawaiiImg, props: { src: kawaiiMoodAnxious } },
+      { id: 'kawaii-grateful', component: KawaiiImg, props: { src: kawaiiMoodGrateful } },
+      { id: 'kawaii-angry', component: KawaiiImg, props: { src: kawaiiMoodAngry } },
+    ]
+  },
+  flowers: {
+    name: 'Flowers',
     stickers: [
       { id: 'kawaii-sakura', component: KawaiiImg, props: { src: kawaiiSakura } },
       { id: 'kawaii-sunflower', component: KawaiiImg, props: { src: kawaiiSunflower } },
@@ -74,8 +91,8 @@ export const KAWAII_STICKERS = {
       { id: 'kawaii-cactus', component: KawaiiImg, props: { src: kawaiiCactus } },
     ]
   },
-  kawaiiObjects: {
-    name: 'Kawaii Objects',
+  objects: {
+    name: 'Nature & Objects',
     stickers: [
       { id: 'kawaii-rainbow', component: KawaiiImg, props: { src: kawaiiRainbow } },
       { id: 'kawaii-star', component: KawaiiImg, props: { src: kawaiiStar } },
@@ -84,65 +101,7 @@ export const KAWAII_STICKERS = {
       { id: 'kawaii-book', component: KawaiiImg, props: { src: kawaiiBook } },
     ]
   },
-  kawaii: {
-    name: 'Kawaii Moods',
-    stickers: [
-      { id: 'kawaii-happy', component: KawaiiImg, props: { src: kawaiiHappy } },
-      { id: 'kawaii-sad', component: KawaiiImg, props: { src: kawaiiSad } },
-      { id: 'kawaii-anxious', component: KawaiiImg, props: { src: kawaiiAnxious } },
-      { id: 'kawaii-calm', component: KawaiiImg, props: { src: kawaiiCalm } },
-      { id: 'kawaii-grateful', component: KawaiiImg, props: { src: kawaiiGrateful } },
-      { id: 'kawaii-angry', component: KawaiiImg, props: { src: kawaiiAngry } },
-      { id: 'kawaii-love', component: KawaiiImg, props: { src: kawaiiLove } },
-      { id: 'kawaii-sleepy', component: KawaiiImg, props: { src: kawaiiSleepy } },
-    ]
-  },
-  kawaiiAnimals: {
-    name: 'Kawaii Animals',
-    stickers: [
-      { id: 'kawaii-cat', component: KawaiiImg, props: { src: kawaiiCat } },
-      { id: 'kawaii-bear', component: KawaiiImg, props: { src: kawaiiBear } },
-      { id: 'kawaii-bunny', component: KawaiiImg, props: { src: kawaiiBunny } },
-      { id: 'kawaii-panda', component: KawaiiImg, props: { src: kawaiiPanda } },
-      { id: 'kawaii-fox', component: KawaiiImg, props: { src: kawaiiFox } },
-      { id: 'kawaii-penguin', component: KawaiiImg, props: { src: kawaiiPenguin } },
-      { id: 'kawaii-puppy', component: KawaiiImg, props: { src: kawaiiPuppy } },
-      { id: 'kawaii-owl', component: KawaiiImg, props: { src: kawaiiOwl } },
-    ]
-  },
-  kawaiiCatLife: {
-    name: 'Cat Life',
-    stickers: [
-      { id: 'kawaii-cat-sleeping', component: KawaiiImg, props: { src: kawaiiCatSleeping } },
-      { id: 'kawaii-cat-eating', component: KawaiiImg, props: { src: kawaiiCatEating } },
-      { id: 'kawaii-cat-playing', component: KawaiiImg, props: { src: kawaiiCatPlaying } },
-      { id: 'kawaii-cat-sad', component: KawaiiImg, props: { src: kawaiiCatSad } },
-    ]
-  },
-  kawaiiBearLife: {
-    name: 'Bear Life',
-    stickers: [
-      { id: 'kawaii-bear-sleeping', component: KawaiiImg, props: { src: kawaiiBearSleeping } },
-      { id: 'kawaii-bear-eating', component: KawaiiImg, props: { src: kawaiiBearEating } },
-      { id: 'kawaii-bear-playing', component: KawaiiImg, props: { src: kawaiiBearPlaying } },
-      { id: 'kawaii-bear-sad', component: KawaiiImg, props: { src: kawaiiBearSad } },
-    ]
-  },
-  kawaiiBunnyLife: {
-    name: 'Bunny Life',
-    stickers: [
-      { id: 'kawaii-bunny-eating', component: KawaiiImg, props: { src: kawaiiBunnyEating } },
-      { id: 'kawaii-bunny-playing', component: KawaiiImg, props: { src: kawaiiBunnyPlaying } },
-      { id: 'kawaii-bunny-sad', component: KawaiiImg, props: { src: kawaiiBunnySad } },
-    ]
-  },
-  kawaiiPuppyLife: {
-    name: 'Puppy Life',
-    stickers: [
-      { id: 'kawaii-puppy-sleeping', component: KawaiiImg, props: { src: kawaiiPuppySleeping } },
-      { id: 'kawaii-puppy-eating', component: KawaiiImg, props: { src: kawaiiPuppyEating } },
-      { id: 'kawaii-puppy-playing', component: KawaiiImg, props: { src: kawaiiPuppyPlaying } },
-      { id: 'kawaii-puppy-sad', component: KawaiiImg, props: { src: kawaiiPuppySad } },
-    ]
-  },
 };
+
+/** Flat list of all stickers for lookups */
+export const ALL_STICKERS = Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers);

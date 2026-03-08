@@ -6,9 +6,7 @@ import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { CANVA_STICKERS } from '@/components/CanvaSticker';
-import { MODERN_STICKERS } from '@/components/ModernStickers';
-import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
+import { ALL_STICKERS } from '@/components/KawaiiStickers';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -89,11 +87,7 @@ export default function UnifiedJournalPage() {
   const bannerImageBlobRef = useRef<Blob | null>(null);
   const bannerStickerRef = useRef<string | null>(null);
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
-  const MOBILE_ALL_STICKERS = [
-    ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
-    ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
-    ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
-  ];
+  const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keep refs in sync

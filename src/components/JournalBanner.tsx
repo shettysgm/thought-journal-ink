@@ -2,16 +2,9 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { ImagePlus, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CANVA_STICKERS } from './CanvaSticker';
-import { MODERN_STICKERS } from './ModernStickers';
-import { KAWAII_STICKERS } from './KawaiiStickers';
+import { ALL_STICKERS } from './KawaiiStickers';
 
-// Curated banner stickers – a flat list from all catalogs
-const BANNER_STICKERS = [
-  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
-];
+const BANNER_STICKERS = ALL_STICKERS;
 
 interface JournalBannerProps {
   imageBlob: Blob | null;
