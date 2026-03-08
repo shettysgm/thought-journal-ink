@@ -9,6 +9,7 @@ export type JournalEntry = {
   hasAudio?: boolean;
   tags?: string[];
   stickers?: string[];         // emoji stickers
+  bannerSticker?: string;      // sticker ID for header banner decoration
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
   reframes?: Array<{           // AI-generated reframes
     span: string;
