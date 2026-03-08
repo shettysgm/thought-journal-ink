@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, Sparkles, ImagePlus } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus } from 'lucide-react';
+import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -670,7 +671,7 @@ export default function UnifiedJournalPage() {
             className="h-12 w-12 flex-shrink-0 touch-manipulation"
             onClick={() => setMobileStickerDrawerOpen(true)}
           >
-            <Sparkles className="h-5 w-5" />
+            <img src={stickerBtnIcon} alt="Stickers" className="h-8 w-8 object-contain" />
           </Button>
 
           <Button
