@@ -36,6 +36,20 @@ import kawaiiPuppySleeping from '@/assets/stickers/kawaii-puppy-sleeping.png';
 import kawaiiPuppyEating from '@/assets/stickers/kawaii-puppy-eating.png';
 import kawaiiPuppyPlaying from '@/assets/stickers/kawaii-puppy-playing.png';
 import kawaiiPuppySad from '@/assets/stickers/kawaii-puppy-sad.png';
+// Flowers
+import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
+import kawaiiSunflower from '@/assets/stickers/kawaii-sunflower.png';
+import kawaiiRose from '@/assets/stickers/kawaii-rose.png';
+import kawaiiTulip from '@/assets/stickers/kawaii-tulip.png';
+import kawaiiDaisy from '@/assets/stickers/kawaii-daisy.png';
+import kawaiiBouquet from '@/assets/stickers/kawaii-bouquet.png';
+// Cute objects
+import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
+import kawaiiStar from '@/assets/stickers/kawaii-star.png';
+import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
+import kawaiiCoffee from '@/assets/stickers/kawaii-coffee.png';
+import kawaiiBook from '@/assets/stickers/kawaii-book.png';
+import kawaiiCactus from '@/assets/stickers/kawaii-cactus.png';
 
 interface KawaiiStickerProps {
   size?: number;
@@ -48,6 +62,28 @@ const KawaiiImg = ({ size = 32, src, className }: KawaiiStickerProps) => (
 );
 
 export const KAWAII_STICKERS = {
+  kawaiiFlowers: {
+    name: 'Kawaii Flowers',
+    stickers: [
+      { id: 'kawaii-sakura', component: KawaiiImg, props: { src: kawaiiSakura } },
+      { id: 'kawaii-sunflower', component: KawaiiImg, props: { src: kawaiiSunflower } },
+      { id: 'kawaii-rose', component: KawaiiImg, props: { src: kawaiiRose } },
+      { id: 'kawaii-tulip', component: KawaiiImg, props: { src: kawaiiTulip } },
+      { id: 'kawaii-daisy', component: KawaiiImg, props: { src: kawaiiDaisy } },
+      { id: 'kawaii-bouquet', component: KawaiiImg, props: { src: kawaiiBouquet } },
+      { id: 'kawaii-cactus', component: KawaiiImg, props: { src: kawaiiCactus } },
+    ]
+  },
+  kawaiiObjects: {
+    name: 'Kawaii Objects',
+    stickers: [
+      { id: 'kawaii-rainbow', component: KawaiiImg, props: { src: kawaiiRainbow } },
+      { id: 'kawaii-star', component: KawaiiImg, props: { src: kawaiiStar } },
+      { id: 'kawaii-moon', component: KawaiiImg, props: { src: kawaiiMoon } },
+      { id: 'kawaii-coffee', component: KawaiiImg, props: { src: kawaiiCoffee } },
+      { id: 'kawaii-book', component: KawaiiImg, props: { src: kawaiiBook } },
+    ]
+  },
   kawaii: {
     name: 'Kawaii Moods',
     stickers: [
