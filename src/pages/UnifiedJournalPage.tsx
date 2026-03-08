@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, Sparkles, ImagePlus } from 'lucide-react';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { CANVA_STICKERS } from '@/components/CanvaSticker';
+import { MODERN_STICKERS } from '@/components/ModernStickers';
+import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -72,6 +76,13 @@ export default function UnifiedJournalPage() {
   const [bannerSticker, setBannerSticker] = useState<string | null>(null);
   const bannerImageBlobRef = useRef<Blob | null>(null);
   const bannerStickerRef = useRef<string | null>(null);
+  const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
+  const MOBILE_ALL_STICKERS = [
+    ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
+    ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
+    ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
+  ];
+  const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
@@ -635,12 +646,22 @@ export default function UnifiedJournalPage() {
 
         {/* Mobile bottom action bar - fixed to bottom with iOS safe area */}
         <div 
-          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-4 flex sm:hidden items-center justify-between gap-3"
+          className="fixed left-0 right-0 z-[9999] bg-background/95 backdrop-blur border-t p-3 flex sm:hidden items-center justify-between gap-2"
           style={{ 
             bottom: 0,
-            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+            paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'
           }}
         >
+          {/* Sticker/Photo button */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 flex-shrink-0 touch-manipulation"
+            onClick={() => setMobileStickerDrawerOpen(true)}
+          >
+            <Sparkles className="h-5 w-5" />
+          </Button>
+
           <Button
             onTouchEnd={(e) => {
               e.preventDefault();
@@ -648,7 +669,6 @@ export default function UnifiedJournalPage() {
               toggleRecording();
             }}
             onClick={() => {
-              // Fallback for non-touch or missed touch events
               if (Date.now() - lastTouchTsRef.current < 500) return;
               toggleRecording();
             }}
@@ -690,6 +710,64 @@ export default function UnifiedJournalPage() {
             Done
           </Button>
         </div>
+
+        {/* Mobile sticker/photo drawer */}
+        <Drawer open={mobileStickerDrawerOpen} onOpenChange={setMobileStickerDrawerOpen}>
+          <DrawerContent className="max-h-[70vh]">
+            <DrawerHeader>
+              <DrawerTitle>Add Sticker or Photo</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-6 space-y-4">
+              {/* Photo upload */}
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => mobileFileInputRef.current?.click()}
+              >
+                <ImagePlus className="w-4 h-4" />
+                {bannerImageBlob ? 'Change Photo' : 'Upload Photo'}
+              </Button>
+              <input
+                ref={mobileFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || file.size > 5 * 1024 * 1024) return;
+                  setBannerImageBlob(file);
+                  setBannerSticker(null);
+                  setMobileStickerDrawerOpen(false);
+                  if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                }}
+              />
+
+              {/* Sticker grid */}
+              <div className="grid grid-cols-6 gap-2 max-h-[40vh] overflow-y-auto">
+                {MOBILE_ALL_STICKERS.map(sticker => {
+                  const Comp = sticker.component;
+                  return (
+                    <button
+                      key={sticker.id}
+                      onClick={() => {
+                        setBannerSticker(bannerSticker === sticker.id ? null : sticker.id);
+                        setBannerImageBlob(null);
+                        setMobileStickerDrawerOpen(false);
+                        if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                      }}
+                      className={cn(
+                        'flex items-center justify-center p-2 rounded-lg hover:bg-accent/50 transition-colors aspect-square',
+                        bannerSticker === sticker.id && 'ring-2 ring-primary bg-accent/30',
+                      )}
+                    >
+                      <Comp size={36} {...(sticker.props as any)} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
 
         {/* Unified editor */}
         <div className="px-4 sm:px-6 py-6 sm:py-8 pb-24 sm:pb-8">
