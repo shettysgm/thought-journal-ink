@@ -358,19 +358,7 @@ export default function JournalPage() {
                       {/* Content */}
                       {entry.text && (
                         <div
-                          className="bg-muted/30 rounded-lg p-4 mb-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                          onClick={(e: MouseEvent<HTMLDivElement>) => {
-                            const target = e.target as HTMLElement | null;
-                            // If user tapped a reframe highlight (popover trigger), don't navigate away.
-                            if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                            // Don't navigate if click originated from a dialog/overlay
-                            if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
-                            try {
-                              navigate(`/unified?edit=${entry.id}`);
-                            } catch (err) {
-                              console.error('[JournalPage] Navigation error:', err);
-                            }
-                          }}
+                          className="bg-muted/30 rounded-lg p-4 mb-3"
                         >
                           <div className="text-foreground">
                             <HighlightedTextWithReframes
