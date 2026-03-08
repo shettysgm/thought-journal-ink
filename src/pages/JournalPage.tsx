@@ -44,19 +44,24 @@ export default function JournalPage() {
 
   useEffect(() => {
     // Wait for any in-flight voice page save before loading entries
-    awaitPendingSave().then(() => loadEntries()).then(() => {
-      // Debug: log entries and their reframes
+    awaitPendingSave().then(() => loadEntries()).then(async () => {
       const state = useEntries.getState();
       console.log('[JournalPage] Loaded entries:', state.entries.length);
-      state.entries.forEach((e, i) => {
-        console.log(`[JournalPage] Entry ${i}:`, {
-          id: e.id.slice(0, 8),
-          textPreview: e.text?.slice(0, 30),
-          hasReframes: !!e.reframes,
-          reframesCount: e.reframes?.length || 0,
-          reframes: e.reframes
-        });
-      });
+      
+      // Load banner blobs from IDB
+      try {
+        const { getJournalEntry } = await import('@/lib/idb');
+        const blobs: Record<string, Blob> = {};
+        for (const entry of state.entries) {
+          const raw = await getJournalEntry(entry.id) as any;
+          if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
+            blobs[entry.id] = raw.bannerBlob;
+          }
+        }
+        setBannerBlobs(blobs);
+      } catch (e) {
+        console.error('Failed to load banner blobs:', e);
+      }
     });
   }, [loadEntries]);
 
