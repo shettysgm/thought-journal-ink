@@ -14,15 +14,7 @@ import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframe
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
-import { CANVA_STICKERS } from '@/components/CanvaSticker';
-import { MODERN_STICKERS } from '@/components/ModernStickers';
-import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
-
-const ALL_STICKERS = [
-  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
-];
+import { ALL_STICKERS } from '@/components/KawaiiStickers';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);

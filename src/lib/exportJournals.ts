@@ -6,17 +6,7 @@ import { decryptText } from '@/lib/crypto';
 import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import html2canvas from 'html2canvas';
-import { CANVA_STICKERS } from '@/components/CanvaSticker';
-import { MODERN_STICKERS } from '@/components/ModernStickers';
-import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
-import ReactDOM from 'react-dom/client';
-import React from 'react';
-
-const ALL_STICKERS = [
-  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
-  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
-];
+import { ALL_STICKERS } from '@/components/KawaiiStickers';
 
 /** Render a React sticker component into a container and wait for images to load */
 async function renderStickerToElement(stickerId: string, size: number): Promise<HTMLElement | null> {

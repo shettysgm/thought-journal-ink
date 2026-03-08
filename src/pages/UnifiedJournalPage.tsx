@@ -87,11 +87,7 @@ export default function UnifiedJournalPage() {
   const bannerImageBlobRef = useRef<Blob | null>(null);
   const bannerStickerRef = useRef<string | null>(null);
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
-  const MOBILE_ALL_STICKERS = [
-    ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
-    ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
-    ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
-  ];
+  const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keep refs in sync
