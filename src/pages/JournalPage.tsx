@@ -14,8 +14,10 @@ import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { CANVA_STICKERS } from '@/components/CanvaSticker';
 import { MODERN_STICKERS } from '@/components/ModernStickers';
+import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
 
 const ALL_STICKERS = [
+  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
   ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
   ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
 ];
