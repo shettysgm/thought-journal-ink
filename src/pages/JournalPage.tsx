@@ -329,7 +329,7 @@ export default function JournalPage() {
                   const target = e.target as HTMLElement | null;
                   if (target?.closest?.('button')) return;
                   if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                  if (target?.closest?.('[role="alertdialog"]') || target?.closest?.('[data-state]')) return;
+                  if (target?.closest?.('[role="alertdialog"]')) return;
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
