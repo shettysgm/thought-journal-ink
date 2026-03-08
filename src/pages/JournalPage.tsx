@@ -1,7 +1,7 @@
 import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { subDays, isAfter, startOfDay as startOfDayFn } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
+import { exportJournalsToFile } from '@/lib/exportJournals';
 import { CANVA_STICKERS } from '@/components/CanvaSticker';
 import { MODERN_STICKERS } from '@/components/ModernStickers';
 import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
@@ -43,7 +44,20 @@ export default function JournalPage() {
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
+  const [exporting, setExporting] = useState(false);
   const entriesPerPage = 10;
+
+  const handleExportJournals = async () => {
+    setExporting(true);
+    try {
+      await exportJournalsToFile();
+      toast({ title: "Journals Exported", description: "Your journal entries are ready to save." });
+    } catch {
+      toast({ title: "Export Failed", description: "Could not export journal entries.", variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     // Wait for any in-flight voice page save before loading entries
@@ -221,6 +235,16 @@ export default function JournalPage() {
             <h1 className="text-3xl font-bold text-foreground">Journal Inc</h1>
             <p className="text-muted-foreground">All your saved entries</p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleExportJournals}
+            disabled={exporting}
+          >
+            <FileDown className="w-4 h-4" />
+            {exporting ? 'Exporting…' : 'Export'}
+          </Button>
         </header>
 
         {/* Search and Calendar */}
