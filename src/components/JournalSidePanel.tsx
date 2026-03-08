@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CANVA_STICKERS } from './CanvaSticker';
 import { MODERN_STICKERS } from './ModernStickers';
+import { KAWAII_STICKERS } from './KawaiiStickers';
 
 const BANNER_STICKERS = [
+  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
   ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
   ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
 ];
