@@ -446,12 +446,12 @@ export default function JournalPage() {
 
                     {/* Photo or sticker on the right */}
                     {entryBlob ? (
-                      <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
+                      <div className="flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36">
                         <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
                       </div>
                     ) : stickerDef ? (
-                      <div className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center">
-                        <stickerDef.component size={64} {...(stickerDef.props as any)} />
+                      <div className="flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center">
+                        <stickerDef.component size={100} {...(stickerDef.props as any)} />
                       </div>
                     ) : null}
                   </div>
