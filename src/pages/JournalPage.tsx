@@ -13,6 +13,7 @@ import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
+import { exportJournalsToFile } from '@/lib/exportJournals';
 import { CANVA_STICKERS } from '@/components/CanvaSticker';
 import { MODERN_STICKERS } from '@/components/ModernStickers';
 import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
