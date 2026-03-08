@@ -312,12 +312,18 @@ export default function JournalPage() {
           <div className="space-y-6">
             <div className="space-y-4">
               {paginatedEntries.map((entry) => {
-                const stickerDef = (entry as any).bannerSticker
-                  ? ALL_STICKERS.find(s => s.id === (entry as any).bannerSticker)
+                const rawSticker = (entry as any).bannerSticker;
+                // Guard against corrupted serialized undefined
+                const stickerId = typeof rawSticker === 'string' ? rawSticker : null;
+                const stickerDef = stickerId
+                  ? ALL_STICKERS.find(s => s.id === stickerId)
                   : null;
+                const entryBlob = bannerBlobs[entry.id];
                 return (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-6">
+                  {/* Banner image */}
+                  {entryBlob && <BlobImage blob={entryBlob} alt="Journal banner" />}
                   <div className="flex items-start gap-4">
                     {/* Sticker decoration */}
                     {stickerDef && (
