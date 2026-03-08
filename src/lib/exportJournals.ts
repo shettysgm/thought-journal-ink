@@ -6,6 +6,44 @@ import { decryptText } from '@/lib/crypto';
 import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import html2canvas from 'html2canvas';
+import { CANVA_STICKERS } from '@/components/CanvaSticker';
+import { MODERN_STICKERS } from '@/components/ModernStickers';
+import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
+import ReactDOM from 'react-dom/client';
+import React from 'react';
+
+const ALL_STICKERS = [
+  ...Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers),
+  ...Object.values(CANVA_STICKERS).flatMap(cat => cat.stickers),
+  ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
+];
+
+/** Render a React sticker component into a container and wait for images to load */
+async function renderStickerToElement(stickerId: string, size: number): Promise<HTMLElement | null> {
+  const stickerDef = ALL_STICKERS.find(s => s.id === stickerId);
+  if (!stickerDef) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `display: inline-block; width: ${size}px; height: ${size}px;`;
+
+  const root = ReactDOM.createRoot(wrapper);
+  root.render(React.createElement(stickerDef.component, { size, ...(stickerDef.props as any) }));
+
+  // Give React time to render + images to load
+  await new Promise(r => setTimeout(r, 200));
+
+  // Wait for any images inside to load
+  const imgs = wrapper.querySelectorAll('img');
+  await Promise.all(Array.from(imgs).map(img =>
+    new Promise<void>(resolve => {
+      if (img.complete) return resolve();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+    })
+  ));
+
+  return wrapper;
+}
 
 /** Build a self-contained HTML card for one entry and capture it as a PNG blob */
 async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Promise<Blob> {
@@ -19,6 +57,8 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
     border: 1px solid #e5e7eb;
   `;
 
+  document.body.appendChild(container);
+
   // Date header
   const dateStr = entry.updatedAt
     ? `${format(new Date(entry.createdAt), 'MMM d, yyyy')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
@@ -29,22 +69,36 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
   dateEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${dateStr}</span>`;
   container.appendChild(dateEl);
 
-  // Banner image
+  // Content row: text on left, sticker/image on right
+  const contentRow = document.createElement('div');
+  contentRow.style.cssText = 'display: flex; gap: 16px; align-items: flex-start;';
+
+  const leftCol = document.createElement('div');
+  leftCol.style.cssText = 'flex: 1; min-width: 0;';
+
+  const rightCol = document.createElement('div');
+  rightCol.style.cssText = 'flex-shrink: 0; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;';
+
+  // Banner image or banner sticker on the right
+  let hasRightContent = false;
   if (bannerBlobUrl) {
-    const imgWrap = document.createElement('div');
-    imgWrap.style.cssText = 'margin-bottom: 16px; border-radius: 10px; overflow: hidden;';
     const img = document.createElement('img');
     img.src = bannerBlobUrl;
-    img.style.cssText = 'width: 100%; height: 160px; object-fit: cover; display: block;';
     img.crossOrigin = 'anonymous';
-    imgWrap.appendChild(img);
-    container.appendChild(imgWrap);
-    // Wait for image to load
-    await new Promise<void>((resolve) => {
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 10px;';
+    rightCol.appendChild(img);
+    hasRightContent = true;
+    await new Promise<void>(resolve => {
       img.onload = () => resolve();
       img.onerror = () => resolve();
       if (img.complete) resolve();
     });
+  } else if (entry.bannerSticker && typeof entry.bannerSticker === 'string') {
+    const stickerEl = await renderStickerToElement(entry.bannerSticker, 100);
+    if (stickerEl) {
+      rightCol.appendChild(stickerEl);
+      hasRightContent = true;
+    }
   }
 
   // Journal text
@@ -52,16 +106,24 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
     const textBox = document.createElement('div');
     textBox.style.cssText = `
       background: #f9fafb; border-radius: 10px; padding: 16px;
-      margin-bottom: 16px; font-size: 15px; line-height: 1.6;
+      margin-bottom: 12px; font-size: 15px; line-height: 1.6;
       color: #1f2937; white-space: pre-wrap; word-break: break-word;
     `;
     textBox.textContent = entry.text;
-    container.appendChild(textBox);
+    leftCol.appendChild(textBox);
   }
 
-  // Mood stickers
+  // Mood stickers row with actual sticker images
   if (entry.stickers && entry.stickers.length > 0) {
-    const stickerMap: Record<string, string> = {
+    const moodRow = document.createElement('div');
+    moodRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;';
+    const label = document.createElement('span');
+    label.style.cssText = 'font-size: 13px; color: #6b7280;';
+    label.textContent = 'Mood:';
+    moodRow.appendChild(label);
+
+    // Emoji fallback map
+    const emojiMap: Record<string, string> = {
       'heart-pink': '💗', 'heart-red': '❤️', 'heart-purple': '💜',
       'sun': '☀️', 'cloud': '☁️', 'rainbow': '🌈',
       'flower-pink': '🌸', 'flower-purple': '🌺', 'butterfly': '🦋',
@@ -69,19 +131,22 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
       'diamond': '💎', 'bubble-blue': '💬', 'bubble-green': '💭',
       'arrow-purple': '↗️', 'arrow-orange': '➡️', 'thumbs-up': '👍',
     };
-    const moodRow = document.createElement('div');
-    moodRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;';
-    const label = document.createElement('span');
-    label.style.cssText = 'font-size: 13px; color: #6b7280;';
-    label.textContent = 'Mood:';
-    moodRow.appendChild(label);
-    entry.stickers.forEach((id: string) => {
-      const badge = document.createElement('span');
-      badge.style.cssText = 'font-size: 18px; background: #f3f4f6; border-radius: 6px; padding: 2px 8px; border: 1px solid #e5e7eb;';
-      badge.textContent = stickerMap[id] || id;
-      moodRow.appendChild(badge);
-    });
-    container.appendChild(moodRow);
+
+    for (const id of entry.stickers) {
+      // Try to render actual sticker component
+      const stickerEl = await renderStickerToElement(id, 28);
+      if (stickerEl) {
+        stickerEl.style.cssText += 'background: #f3f4f6; border-radius: 6px; padding: 2px 4px; border: 1px solid #e5e7eb; display: inline-flex; align-items: center; justify-content: center;';
+        moodRow.appendChild(stickerEl);
+      } else {
+        // Fallback to emoji
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size: 18px; background: #f3f4f6; border-radius: 6px; padding: 2px 8px; border: 1px solid #e5e7eb;';
+        badge.textContent = emojiMap[id] || id;
+        moodRow.appendChild(badge);
+      }
+    }
+    leftCol.appendChild(moodRow);
   }
 
   // Tags
@@ -95,8 +160,14 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
       chip.textContent = `#${tag}`;
       tagRow.appendChild(chip);
     });
-    container.appendChild(tagRow);
+    leftCol.appendChild(tagRow);
   }
+
+  contentRow.appendChild(leftCol);
+  if (hasRightContent) {
+    contentRow.appendChild(rightCol);
+  }
+  container.appendChild(contentRow);
 
   // Watermark
   const watermark = document.createElement('div');
@@ -104,12 +175,11 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
   watermark.textContent = 'Journal Inc';
   container.appendChild(watermark);
 
-  document.body.appendChild(container);
-
   const canvas = await html2canvas(container, {
     backgroundColor: '#ffffff',
     scale: 2,
     useCORS: true,
+    allowTaint: true,
     logging: false,
   });
 
@@ -127,14 +197,12 @@ export async function exportJournalsToFile(): Promise<void> {
   const entries = await getAllJournalEntries();
   const settings = useSettings.getState();
 
-  // Sort by date descending
   const sorted = [...entries]
     .filter((e: any) => !e.hasDrawing)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (sorted.length === 0) throw new Error('No entries to export');
 
-  // Process each entry: decrypt + render to image
   for (let i = 0; i < sorted.length; i++) {
     const entry = { ...sorted[i] } as any;
 
@@ -164,7 +232,6 @@ export async function exportJournalsToFile(): Promise<void> {
     const fileName = `journal-${dateLabel}-${i + 1}.png`;
 
     if (Capacitor.isNativePlatform()) {
-      // Convert blob to base64 for Capacitor
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve) => {
         reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
@@ -183,7 +250,6 @@ export async function exportJournalsToFile(): Promise<void> {
         dialogTitle: 'Save journal image',
       });
     } else {
-      // Web: download each image
       const url = URL.createObjectURL(imageBlob);
       const a = document.createElement('a');
       a.href = url;
