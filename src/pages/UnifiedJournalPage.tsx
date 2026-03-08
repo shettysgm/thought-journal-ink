@@ -786,6 +786,31 @@ export default function UnifiedJournalPage() {
                 </div>
               )}
 
+              {/* Selected sticker/photo preview inside editor */}
+              {(bannerImageBlob || bannerSticker) && (
+                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20">
+                  {bannerImageBlob && (
+                    <MobileBlobPreview blob={bannerImageBlob} />
+                  )}
+                  {bannerSticker && !bannerImageBlob && (() => {
+                    const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
+                    if (!def) return null;
+                    return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
+                  })()}
+                  <button
+                    onClick={() => {
+                      setBannerImageBlob(null);
+                      setBannerSticker(null);
+                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                    }}
+                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <span className="sr-only">Remove</span>
+                    ✕
+                  </button>
+                </div>
+              )}
+
               {/* Input area */}
               <div className="relative">
               <Textarea
