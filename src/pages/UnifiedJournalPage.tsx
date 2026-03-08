@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, Sparkles, ImagePlus } from 'lucide-react';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { CANVA_STICKERS } from '@/components/CanvaSticker';
+import { MODERN_STICKERS } from '@/components/ModernStickers';
+import { KAWAII_STICKERS } from '@/components/KawaiiStickers';
 import {
   AlertDialog,
   AlertDialogCancel,
