@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
+import JournalBanner from '@/components/JournalBanner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -66,6 +67,10 @@ export default function UnifiedJournalPage() {
   // Voice diagnostics
   const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
 
+  // Banner state
+  const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
+  const [bannerSticker, setBannerSticker] = useState<string | null>(null);
+
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     setIsTouchDevice(hasTouch);
@@ -111,6 +116,13 @@ export default function UnifiedJournalPage() {
             setText(entry.text || '');
             setLastSavedText(entry.text || '');
             setEntryId(editEntryId);
+            setBannerSticker((entry as any).bannerSticker || null);
+            // Load banner blob from IDB
+            const { getJournalEntry } = await import('@/lib/idb');
+            const raw = await getJournalEntry(editEntryId);
+            if (raw && (raw as any).bannerBlob) {
+              setBannerImageBlob((raw as any).bannerBlob);
+            }
             if (entry.reframes) {
               const detectionsList: Detection[] = entry.reframes.map(r => ({
                 span: r.span,
@@ -648,6 +660,31 @@ export default function UnifiedJournalPage() {
               </div>
             )}
             
+            {/* Banner area */}
+            <JournalBanner
+              imageBlob={bannerImageBlob}
+              selectedSticker={bannerSticker}
+              onImageChange={(blob) => {
+                setBannerImageBlob(blob);
+                if (blob && entryId) {
+                  // Save image blob to IDB alongside entry
+                  import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
+                    getJournalEntry(entryId).then(existing => {
+                      if (existing) {
+                        saveJournalEntry({ ...existing, bannerBlob: blob } as any);
+                      }
+                    });
+                  });
+                }
+              }}
+              onStickerChange={(id) => {
+                setBannerSticker(id);
+                if (entryId) {
+                  updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                }
+              }}
+            />
+
             {/* Input area - textarea only uses `text` for stable iOS caret placement */}
             <div className="relative">
               <Textarea
