@@ -39,6 +39,17 @@ type AudioSegment = {
   duration?: number;
 };
 
+function MobileBlobPreview({ blob }: { blob: Blob }) {
+  const [url, setUrl] = React.useState('');
+  React.useEffect(() => {
+    const u = URL.createObjectURL(blob);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [blob]);
+  if (!url) return null;
+  return <img src={url} alt="Journal photo" className="max-h-32 rounded-lg object-contain" />;
+}
+
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
