@@ -325,12 +325,6 @@ export default function JournalPage() {
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
-                    {/* Sticker decoration */}
-                    {stickerDef && !entryBlob && (
-                      <div className="flex-shrink-0 mt-1">
-                        <stickerDef.component size={36} {...(stickerDef.props as any)} />
-                      </div>
-                    )}
                     <div className="flex-1 min-w-0">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
