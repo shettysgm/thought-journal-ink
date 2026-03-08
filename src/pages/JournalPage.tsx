@@ -440,7 +440,8 @@ export default function JournalPage() {
                   </div>
                 </CardContent>
               </Card>
-              ))}
+              );
+              })}
             </div>
 
             {/* Pagination */}
