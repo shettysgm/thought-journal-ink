@@ -447,6 +447,14 @@ export default function JournalPage() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
+                    </div>
+
+                    {/* Photo on the right */}
+                    {entryBlob && (
+                      <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
+                        <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
