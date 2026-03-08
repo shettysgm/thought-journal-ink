@@ -343,14 +343,6 @@ export default function JournalPage() {
                     <div className="flex-1 min-w-0">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
-                        {getEntryIcon(entry)}
-                        <div className="flex gap-1">
-                          {getEntryTypes(entry).map((type, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {type}
-                            </Badge>
-                          ))}
-                        </div>
                          <div className="flex items-center gap-1 text-muted-foreground text-sm">
                            <CalendarIcon className="w-3 h-3" />
                            {entry.updatedAt 
