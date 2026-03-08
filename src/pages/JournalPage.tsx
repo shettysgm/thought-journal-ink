@@ -436,17 +436,16 @@ export default function JournalPage() {
                           ))}
                         </div>
                       )}
-                    </div>
 
-                    {/* Actions */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(entry.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      {/* Actions */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(entry.id)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
 
                     {/* Photo on the right */}
