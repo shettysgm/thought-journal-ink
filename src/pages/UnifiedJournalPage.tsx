@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause } from 'lucide-react';
-import JournalBanner from '@/components/JournalBanner';
+import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -645,48 +645,23 @@ export default function UnifiedJournalPage() {
 
         {/* Unified editor */}
         <div className="px-4 sm:px-6 py-6 sm:py-8 pb-24 sm:pb-8">
-          <div className={cn(
-            "relative bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
-            isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
-          )}>
+          <div className="flex gap-4">
+            {/* Main editor */}
+            <div className={cn(
+              "relative flex-1 bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
+              isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
+            )}>
             
-            {/* No overlay on native mobile - suggestions shown below editor */}
-            
-            {/* Recording waveform overlay */}
-            {isRecording && (
-              <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
-              </div>
-            )}
-            
-            {/* Banner area */}
-            <JournalBanner
-              imageBlob={bannerImageBlob}
-              selectedSticker={bannerSticker}
-              onImageChange={(blob) => {
-                setBannerImageBlob(blob);
-                if (blob && entryId) {
-                  // Save image blob to IDB alongside entry
-                  import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
-                    getJournalEntry(entryId).then(existing => {
-                      if (existing) {
-                        saveJournalEntry({ ...existing, bannerBlob: blob } as any);
-                      }
-                    });
-                  });
-                }
-              }}
-              onStickerChange={(id) => {
-                setBannerSticker(id);
-                if (entryId) {
-                  updateEntry(entryId, { bannerSticker: id || undefined } as any);
-                }
-              }}
-            />
+              {/* Recording waveform overlay */}
+              {isRecording && (
+                <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+                </div>
+              )}
 
-            {/* Input area - textarea only uses `text` for stable iOS caret placement */}
-            <div className="relative">
+              {/* Input area */}
+              <div className="relative">
               <Textarea
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
@@ -740,6 +715,35 @@ export default function UnifiedJournalPage() {
                 ))}
               </div>
             )}
+            </div>
+
+            {/* Right side panel - hidden on mobile, shown on sm+ */}
+            <div className="hidden sm:block w-48 lg:w-56 flex-shrink-0">
+              <div className="sticky top-20 bg-card rounded-lg shadow-sm border">
+                <JournalSidePanel
+                  imageBlob={bannerImageBlob}
+                  selectedSticker={bannerSticker}
+                  onImageChange={(blob) => {
+                    setBannerImageBlob(blob);
+                    if (blob && entryId) {
+                      import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
+                        getJournalEntry(entryId).then(existing => {
+                          if (existing) {
+                            saveJournalEntry({ ...existing, bannerBlob: blob } as any);
+                          }
+                        });
+                      });
+                    }
+                  }}
+                  onStickerChange={(id) => {
+                    setBannerSticker(id);
+                    if (entryId) {
+                      updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Footer stats */}
