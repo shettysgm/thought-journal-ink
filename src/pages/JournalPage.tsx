@@ -284,6 +284,17 @@ export default function JournalPage() {
               />
             </CardContent>
           </Card>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 w-full"
+            onClick={handleExportJournals}
+            disabled={exporting}
+          >
+            <FileDown className="w-4 h-4" />
+            {exporting ? 'Exporting…' : 'Export Journals'}
+          </Button>
           
           {filteredEntries.length > 0 && (
             <div className="text-sm text-muted-foreground">
