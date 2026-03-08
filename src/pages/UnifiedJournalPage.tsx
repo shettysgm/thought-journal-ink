@@ -39,6 +39,17 @@ type AudioSegment = {
   duration?: number;
 };
 
+function MobileBlobPreview({ blob }: { blob: Blob }) {
+  const [url, setUrl] = React.useState('');
+  React.useEffect(() => {
+    const u = URL.createObjectURL(blob);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [blob]);
+  if (!url) return null;
+  return <img src={url} alt="Journal photo" className="max-h-32 rounded-lg object-contain" />;
+}
+
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
@@ -783,6 +794,31 @@ export default function UnifiedJournalPage() {
                 <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
                   <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+                </div>
+              )}
+
+              {/* Selected sticker/photo preview inside editor */}
+              {(bannerImageBlob || bannerSticker) && (
+                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20">
+                  {bannerImageBlob && (
+                    <MobileBlobPreview blob={bannerImageBlob} />
+                  )}
+                  {bannerSticker && !bannerImageBlob && (() => {
+                    const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
+                    if (!def) return null;
+                    return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
+                  })()}
+                  <button
+                    onClick={() => {
+                      setBannerImageBlob(null);
+                      setBannerSticker(null);
+                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                    }}
+                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <span className="sr-only">Remove</span>
+                    ✕
+                  </button>
                 </div>
               )}
 
