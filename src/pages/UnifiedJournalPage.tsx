@@ -70,6 +70,12 @@ export default function UnifiedJournalPage() {
   // Banner state
   const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
   const [bannerSticker, setBannerSticker] = useState<string | null>(null);
+  const bannerImageBlobRef = useRef<Blob | null>(null);
+  const bannerStickerRef = useRef<string | null>(null);
+
+  // Keep refs in sync
+  useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
+  useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
 
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
