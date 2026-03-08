@@ -232,17 +232,24 @@ export default function UnifiedJournalPage() {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
       if (existing) {
-        const updated = { ...existing, bannerSticker: sticker || undefined } as any;
-        if (blob) updated.bannerBlob = blob;
-        else delete updated.bannerBlob;
+        const updated = { ...existing } as any;
+        // Clean: explicitly set or delete to avoid undefined serialization issues
+        if (sticker) {
+          updated.bannerSticker = sticker;
+        } else {
+          delete updated.bannerSticker;
+        }
+        if (blob) {
+          updated.bannerBlob = blob;
+        } else {
+          delete updated.bannerBlob;
+        }
         await saveJournalEntry(updated);
       }
-      // Also persist bannerSticker via the store so it appears in the entries list
-      await updateEntry(eid, { bannerSticker: sticker || undefined } as any);
     } catch (e) {
       console.error('Banner save error:', e);
     }
-  }, [updateEntry]);
+  }, []);
 
   // Auto-save effect
   useEffect(() => {
