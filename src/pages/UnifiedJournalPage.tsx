@@ -715,6 +715,35 @@ export default function UnifiedJournalPage() {
                 ))}
               </div>
             )}
+            </div>
+
+            {/* Right side panel - hidden on mobile, shown on sm+ */}
+            <div className="hidden sm:block w-48 lg:w-56 flex-shrink-0">
+              <div className="sticky top-20 bg-card rounded-lg shadow-sm border">
+                <JournalSidePanel
+                  imageBlob={bannerImageBlob}
+                  selectedSticker={bannerSticker}
+                  onImageChange={(blob) => {
+                    setBannerImageBlob(blob);
+                    if (blob && entryId) {
+                      import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
+                        getJournalEntry(entryId).then(existing => {
+                          if (existing) {
+                            saveJournalEntry({ ...existing, bannerBlob: blob } as any);
+                          }
+                        });
+                      });
+                    }
+                  }}
+                  onStickerChange={(id) => {
+                    setBannerSticker(id);
+                    if (entryId) {
+                      updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Footer stats */}
