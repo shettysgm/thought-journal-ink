@@ -422,7 +422,7 @@ export default function UnifiedJournalPage() {
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
-            bannerSticker: bannerStickerRef.current || undefined,
+            ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
