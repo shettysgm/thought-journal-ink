@@ -224,6 +224,26 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
+  // Persist banner blob + sticker to IDB for a given entry
+  const saveBannerData = useCallback(async (eid: string) => {
+    const blob = bannerImageBlobRef.current;
+    const sticker = bannerStickerRef.current;
+    try {
+      const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
+      const existing = await getJournalEntry(eid);
+      if (existing) {
+        const updated = { ...existing, bannerSticker: sticker || undefined } as any;
+        if (blob) updated.bannerBlob = blob;
+        else delete updated.bannerBlob;
+        await saveJournalEntry(updated);
+      }
+      // Also persist bannerSticker via the store so it appears in the entries list
+      await updateEntry(eid, { bannerSticker: sticker || undefined } as any);
+    } catch (e) {
+      console.error('Banner save error:', e);
+    }
+  }, [updateEntry]);
+
   // Auto-save effect
   useEffect(() => {
     if (!text.trim() || text === lastSavedText) return;
@@ -232,16 +252,23 @@ export default function UnifiedJournalPage() {
     const saveTimeout = setTimeout(async () => {
       setSaveStatus('saving');
       try {
+        let savedId = entryId;
         if (!entryId) {
           // Create new entry for today
           const newId = await createEntry({
             text: text.trim(),
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
-          });
+            hasDrawing: false,
+            bannerSticker: bannerStickerRef.current || undefined,
+          } as any);
           setEntryId(newId);
+          savedId = newId;
           setIsNewSession(false);
+          // Save banner blob after entry exists
+          if (bannerImageBlobRef.current) {
+            await saveBannerData(newId);
+          }
         } else {
           // Check if we're in a new session with existing entry ID
           if (isNewSession && entryId) {
@@ -274,7 +301,7 @@ export default function UnifiedJournalPage() {
     }, 1500);
 
     return () => clearTimeout(saveTimeout);
-  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry]);
+  }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry, saveBannerData]);
 
   // Debounced AI detection - respects user's AI settings
   useEffect(() => {
