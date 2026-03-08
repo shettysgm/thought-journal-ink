@@ -116,6 +116,13 @@ export default function UnifiedJournalPage() {
             setText(entry.text || '');
             setLastSavedText(entry.text || '');
             setEntryId(editEntryId);
+            setBannerSticker((entry as any).bannerSticker || null);
+            // Load banner blob from IDB
+            const { getJournalEntry } = await import('@/lib/idb');
+            const raw = await getJournalEntry(editEntryId);
+            if (raw && (raw as any).bannerBlob) {
+              setBannerImageBlob((raw as any).bannerBlob);
+            }
             if (entry.reframes) {
               const detectionsList: Detection[] = entry.reframes.map(r => ({
                 span: r.span,
