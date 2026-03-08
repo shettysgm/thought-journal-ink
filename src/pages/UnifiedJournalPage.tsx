@@ -653,6 +653,31 @@ export default function UnifiedJournalPage() {
               </div>
             )}
             
+            {/* Banner area */}
+            <JournalBanner
+              imageBlob={bannerImageBlob}
+              selectedSticker={bannerSticker}
+              onImageChange={(blob) => {
+                setBannerImageBlob(blob);
+                if (blob && entryId) {
+                  // Save image blob to IDB alongside entry
+                  import('@/lib/idb').then(({ saveJournalEntry, getJournalEntry }) => {
+                    getJournalEntry(entryId).then(existing => {
+                      if (existing) {
+                        saveJournalEntry({ ...existing, bannerBlob: blob } as any);
+                      }
+                    });
+                  });
+                }
+              }}
+              onStickerChange={(id) => {
+                setBannerSticker(id);
+                if (entryId) {
+                  updateEntry(entryId, { bannerSticker: id || undefined } as any);
+                }
+              }}
+            />
+
             {/* Input area - textarea only uses `text` for stable iOS caret placement */}
             <div className="relative">
               <Textarea
