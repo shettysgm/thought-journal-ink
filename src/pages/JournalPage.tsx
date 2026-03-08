@@ -20,7 +20,7 @@ const ALL_STICKERS = [
   ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
 ];
 
-function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
+function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     const objectUrl = URL.createObjectURL(blob);
@@ -28,7 +28,7 @@ function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
     return () => URL.revokeObjectURL(objectUrl);
   }, [blob]);
   if (!url) return null;
-  return <img src={url} alt={alt} loading="lazy" className="w-full max-h-40 object-contain rounded-md mb-3" />;
+  return <img src={url} alt={alt} loading="lazy" className={cn("object-cover rounded-lg", className)} />;
 }
 
 export default function JournalPage() {
@@ -321,17 +321,15 @@ export default function JournalPage() {
                 const entryBlob = bannerBlobs[entry.id];
                 return (
               <Card key={entry.id} className="shadow-soft hover:shadow-medium transition-shadow">
-                <CardContent className="p-6">
-                  {/* Banner image */}
-                  {entryBlob && <BlobImage blob={entryBlob} alt="Journal banner" />}
-                  <div className="flex items-start gap-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex gap-4">
                     {/* Sticker decoration */}
-                    {stickerDef && (
+                    {stickerDef && !entryBlob && (
                       <div className="flex-shrink-0 mt-1">
                         <stickerDef.component size={36} {...(stickerDef.props as any)} />
                       </div>
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-3">
                         {getEntryIcon(entry)}
@@ -438,17 +436,24 @@ export default function JournalPage() {
                           ))}
                         </div>
                       )}
+
+                      {/* Actions */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(entry.id)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
 
-                    {/* Actions */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(entry.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* Photo on the right */}
+                    {entryBlob && (
+                      <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
+                        <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
