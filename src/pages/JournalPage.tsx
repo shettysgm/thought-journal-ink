@@ -326,10 +326,12 @@ export default function JournalPage() {
                 key={entry.id}
                 className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
+                  e.stopPropagation();
                   const target = e.target as HTMLElement | null;
                   if (target?.closest?.('button')) return;
                   if (target?.closest?.('[data-reframe-trigger="true"]')) return;
                   if (target?.closest?.('[role="alertdialog"]')) return;
+                  e.preventDefault();
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
