@@ -414,8 +414,9 @@ export default function UnifiedJournalPage() {
             text: currentText,
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
-            hasDrawing: false
-          });
+            hasDrawing: false,
+            bannerSticker: bannerStickerRef.current || undefined,
+          } as any);
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
           // Append to existing entry
@@ -423,11 +424,18 @@ export default function UnifiedJournalPage() {
             text: currentText,
             hasAudio: audioSegments.length > 0,
           });
+          savedId = entryId;
           console.log('Appended to entry:', entryId);
         } else {
           // Update existing entry
           await updateEntry(entryId, { text: currentText });
+          savedId = entryId;
           console.log('Updated entry:', entryId);
+        }
+
+        // Persist banner data
+        if (savedId) {
+          await saveBannerData(savedId);
         }
         
         // Force reload entries to ensure persistence
