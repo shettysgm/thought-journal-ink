@@ -20,7 +20,7 @@ const ALL_STICKERS = [
   ...Object.values(MODERN_STICKERS).flatMap(cat => cat.stickers),
 ];
 
-function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
+function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     const objectUrl = URL.createObjectURL(blob);
@@ -28,7 +28,7 @@ function BlobImage({ blob, alt }: { blob: Blob; alt: string }) {
     return () => URL.revokeObjectURL(objectUrl);
   }, [blob]);
   if (!url) return null;
-  return <img src={url} alt={alt} loading="lazy" className="w-full max-h-40 object-contain rounded-md mb-3" />;
+  return <img src={url} alt={alt} loading="lazy" className={cn("object-cover rounded-lg", className)} />;
 }
 
 export default function JournalPage() {
