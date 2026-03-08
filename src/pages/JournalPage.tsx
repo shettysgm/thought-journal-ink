@@ -44,7 +44,20 @@ export default function JournalPage() {
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
+  const [exporting, setExporting] = useState(false);
   const entriesPerPage = 10;
+
+  const handleExportJournals = async () => {
+    setExporting(true);
+    try {
+      await exportJournalsToFile();
+      toast({ title: "Journals Exported", description: "Your journal entries are ready to save." });
+    } catch {
+      toast({ title: "Export Failed", description: "Could not export journal entries.", variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     // Wait for any in-flight voice page save before loading entries
