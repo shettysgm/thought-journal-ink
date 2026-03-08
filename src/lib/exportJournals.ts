@@ -6,6 +6,8 @@ import { decryptText } from '@/lib/crypto';
 import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
 import html2canvas from 'html2canvas';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
 
 /** Render a React sticker component into a container and wait for images to load */
