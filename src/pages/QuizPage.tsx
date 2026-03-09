@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Brain, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { Brain, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -88,17 +88,9 @@ export default function QuizPage() {
         }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
-          <header className="flex items-center gap-4 mt-2">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-            </Link>
-            <div>
+          <header className="mt-2">
               <h1 className="text-3xl font-bold text-foreground">CBT Quiz</h1>
               <p className="text-muted-foreground">Practice identifying cognitive distortions</p>
-            </div>
           </header>
 
           <Card className="shadow-medium">
@@ -134,17 +126,9 @@ export default function QuizPage() {
         }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
-          <header className="flex items-center gap-4 mt-2">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-            </Link>
-            <div>
+          <header className="mt-2">
               <h1 className="text-3xl font-bold text-foreground">Quiz Complete!</h1>
               <p className="text-muted-foreground">Here's how you did</p>
-            </div>
           </header>
 
           <Card className="shadow-medium">
@@ -232,17 +216,9 @@ export default function QuizPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4 mt-2">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div className="flex-1">
+        <header className="mt-2">
             <h1 className="text-3xl font-bold text-foreground">CBT Quiz</h1>
             <p className="text-muted-foreground">Practice identifying cognitive distortions</p>
-          </div>
         </header>
 
         {/* Progress */}

@@ -1,7 +1,7 @@
 import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { subDays, isAfter, startOfDay as startOfDayFn } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, Search, Trash2, FileDown, Smile, CalendarRange } from 'lucide-react';
+import { FileText, Mic, Search, Trash2, FileDown, Smile, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -265,17 +265,9 @@ export default function JournalPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4 mt-2">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div className="flex-1">
+        <header className="mt-2">
             <h1 className="text-3xl font-bold text-foreground">Journal Inc</h1>
             <p className="text-muted-foreground">All your saved entries</p>
-          </div>
         </header>
 
         {/* Search and Calendar */}

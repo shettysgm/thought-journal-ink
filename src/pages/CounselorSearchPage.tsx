@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Phone, ExternalLink, Heart, Search, ShieldCheck } from 'lucide-react';
+import { MapPin, Phone, ExternalLink, Heart, Search, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,17 +56,9 @@ export default function CounselorSearchPage() {
     >
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <header className="flex items-center gap-4 mt-2">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div className="flex-1">
+        <header className="mt-2">
             <h1 className="text-2xl font-bold text-foreground">Find a Counselor</h1>
             <p className="text-sm text-muted-foreground">Trusted directories & crisis resources</p>
-          </div>
         </header>
 
         {/* Zip code input */}
