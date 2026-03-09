@@ -131,10 +131,11 @@ export default function CardBackgroundPicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-64 p-3"
+        className="w-64 p-3 z-50"
         side="top"
         align="start"
         onClick={(e) => e.stopPropagation()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between">
