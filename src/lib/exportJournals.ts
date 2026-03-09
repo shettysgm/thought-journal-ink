@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
+import { CARD_PATTERNS, CARD_BORDERS } from '@/components/CardBackgroundPicker';
 
 /** Render a React sticker component into a container and wait for images to load */
 async function renderStickerToElement(stickerId: string, size: number): Promise<HTMLElement | null> {
@@ -21,10 +22,8 @@ async function renderStickerToElement(stickerId: string, size: number): Promise<
   const root = ReactDOM.createRoot(wrapper);
   root.render(React.createElement(stickerDef.component, { size, ...(stickerDef.props as any) }));
 
-  // Give React time to render + images to load
   await new Promise(r => setTimeout(r, 200));
 
-  // Wait for any images inside to load
   const imgs = wrapper.querySelectorAll('img');
   await Promise.all(Array.from(imgs).map(img =>
     new Promise<void>(resolve => {
@@ -37,19 +36,104 @@ async function renderStickerToElement(stickerId: string, size: number): Promise<
   return wrapper;
 }
 
+/** Convert CSS hsl(var(--xxx)) patterns to actual colors for export */
+function resolvePatternStyle(patternId: string | undefined): string {
+  if (!patternId || patternId === 'none') return '';
+  const pattern = CARD_PATTERNS.find(p => p.id === patternId);
+  if (!pattern?.style) return '';
+
+  // Get computed CSS variables from root
+  const root = document.documentElement;
+  const computedStyle = getComputedStyle(root);
+
+  let css = '';
+  const style = pattern.style;
+  if (style.backgroundImage) {
+    let bgImage = style.backgroundImage as string;
+    // Replace hsl(var(--xxx) / y) with actual computed values
+    bgImage = bgImage.replace(/hsl\(var\(--([^)]+)\)\s*\/\s*([^)]+)\)/g, (_, varName, alpha) => {
+      const val = computedStyle.getPropertyValue(`--${varName}`).trim();
+      return val ? `hsla(${val}, ${alpha.trim()})` : 'transparent';
+    });
+    bgImage = bgImage.replace(/hsl\(var\(--([^)]+)\)\)/g, (_, varName) => {
+      const val = computedStyle.getPropertyValue(`--${varName}`).trim();
+      return val ? `hsl(${val})` : 'transparent';
+    });
+    css += `background-image: ${bgImage};`;
+  }
+  if (style.backgroundSize) {
+    css += ` background-size: ${style.backgroundSize};`;
+  }
+  return css;
+}
+
+/** Get border style for export */
+function resolveBorderStyle(borderId: string | undefined): string {
+  if (!borderId || borderId === 'none') return 'border: 1px solid #e5e7eb;';
+  const border = CARD_BORDERS.find(b => b.id === borderId);
+  if (!border) return 'border: 1px solid #e5e7eb;';
+
+  const colorMap: Record<string, string> = {
+    rose: '#fda4af', sky: '#7dd3fc', amber: '#fcd34d',
+    emerald: '#6ee7b7', violet: '#c4b5fd', orange: '#fdba74',
+  };
+
+  switch (borderId) {
+    case 'dashed': return 'border: 2px dashed rgba(107,114,128,0.3);';
+    case 'double': return 'border: 4px double rgba(107,114,128,0.25);';
+    case 'thick': return 'border: 3px solid rgba(31,41,55,0.15);';
+    default: return `border: 2px solid ${colorMap[borderId] || '#e5e7eb'};`;
+  }
+}
+
 /** Build a self-contained HTML card for one entry and capture it as a PNG blob */
 async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Promise<Blob> {
+  const patternCss = resolvePatternStyle(entry.cardBackground);
+  const borderCss = resolveBorderStyle(entry.cardBorder);
+
   const container = document.createElement('div');
   container.style.cssText = `
     position: fixed; left: -9999px; top: 0;
-    width: 420px; padding: 28px; 
+    width: 420px;
     background: #fff; border-radius: 16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    border: 1px solid #e5e7eb;
+    ${borderCss}
+    ${patternCss}
+    overflow: hidden;
   `;
 
   document.body.appendChild(container);
+
+  // Banner image on top (full width)
+  if (bannerBlobUrl) {
+    const bannerWrapper = document.createElement('div');
+    bannerWrapper.style.cssText = 'width: 100%; height: 160px; overflow: hidden;';
+    const img = document.createElement('img');
+    img.src = bannerBlobUrl;
+    img.crossOrigin = 'anonymous';
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+    bannerWrapper.appendChild(img);
+    container.appendChild(bannerWrapper);
+    await new Promise<void>(resolve => {
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      if (img.complete) resolve();
+    });
+  }
+
+  // Content area with padding
+  const contentArea = document.createElement('div');
+  contentArea.style.cssText = 'padding: 20px 28px 28px;';
+
+  // Banner sticker floated top-right (only when no photo)
+  if (!bannerBlobUrl && entry.bannerSticker && typeof entry.bannerSticker === 'string') {
+    const stickerEl = await renderStickerToElement(entry.bannerSticker, 72);
+    if (stickerEl) {
+      stickerEl.style.cssText += 'float: right; margin: -4px -8px 8px 12px;';
+      contentArea.appendChild(stickerEl);
+    }
+  }
 
   // Date header
   const dateStr = entry.updatedAt
@@ -59,62 +143,29 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
   const dateEl = document.createElement('div');
   dateEl.style.cssText = 'font-size: 13px; color: #6b7280; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;';
   dateEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${dateStr}</span>`;
-  container.appendChild(dateEl);
-
-  // Content row: text on left, sticker/image on right
-  const contentRow = document.createElement('div');
-  contentRow.style.cssText = 'display: flex; gap: 16px; align-items: flex-start;';
-
-  const leftCol = document.createElement('div');
-  leftCol.style.cssText = 'flex: 1; min-width: 0;';
-
-  const rightCol = document.createElement('div');
-  rightCol.style.cssText = 'flex-shrink: 0; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;';
-
-  // Banner image or banner sticker on the right
-  let hasRightContent = false;
-  if (bannerBlobUrl) {
-    const img = document.createElement('img');
-    img.src = bannerBlobUrl;
-    img.crossOrigin = 'anonymous';
-    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 10px;';
-    rightCol.appendChild(img);
-    hasRightContent = true;
-    await new Promise<void>(resolve => {
-      img.onload = () => resolve();
-      img.onerror = () => resolve();
-      if (img.complete) resolve();
-    });
-  } else if (entry.bannerSticker && typeof entry.bannerSticker === 'string') {
-    const stickerEl = await renderStickerToElement(entry.bannerSticker, 100);
-    if (stickerEl) {
-      rightCol.appendChild(stickerEl);
-      hasRightContent = true;
-    }
-  }
+  contentArea.appendChild(dateEl);
 
   // Journal text
   if (entry.text) {
     const textBox = document.createElement('div');
     textBox.style.cssText = `
-      background: #f9fafb; border-radius: 10px; padding: 16px;
+      background: rgba(249,250,251,0.8); border-radius: 10px; padding: 16px;
       margin-bottom: 12px; font-size: 15px; line-height: 1.6;
       color: #1f2937; white-space: pre-wrap; word-break: break-word;
     `;
     textBox.textContent = entry.text;
-    leftCol.appendChild(textBox);
+    contentArea.appendChild(textBox);
   }
 
-  // Mood stickers row with actual sticker images
+  // Mood stickers row
   if (entry.stickers && entry.stickers.length > 0) {
     const moodRow = document.createElement('div');
-    moodRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;';
+    moodRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; clear: both;';
     const label = document.createElement('span');
     label.style.cssText = 'font-size: 13px; color: #6b7280;';
     label.textContent = 'Mood:';
     moodRow.appendChild(label);
 
-    // Emoji fallback map
     const emojiMap: Record<string, string> = {
       'heart-pink': '💗', 'heart-red': '❤️', 'heart-purple': '💜',
       'sun': '☀️', 'cloud': '☁️', 'rainbow': '🌈',
@@ -125,47 +176,41 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
     };
 
     for (const id of entry.stickers) {
-      // Try to render actual sticker component
       const stickerEl = await renderStickerToElement(id, 28);
       if (stickerEl) {
         stickerEl.style.cssText += 'background: #f3f4f6; border-radius: 6px; padding: 2px 4px; border: 1px solid #e5e7eb; display: inline-flex; align-items: center; justify-content: center;';
         moodRow.appendChild(stickerEl);
       } else {
-        // Fallback to emoji
         const badge = document.createElement('span');
         badge.style.cssText = 'font-size: 18px; background: #f3f4f6; border-radius: 6px; padding: 2px 8px; border: 1px solid #e5e7eb;';
         badge.textContent = emojiMap[id] || id;
         moodRow.appendChild(badge);
       }
     }
-    leftCol.appendChild(moodRow);
+    contentArea.appendChild(moodRow);
   }
 
   // Tags
   const tags = (entry.tags || []).filter((t: string) => t !== 'unified');
   if (tags.length > 0) {
     const tagRow = document.createElement('div');
-    tagRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 6px;';
+    tagRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 6px; clear: both;';
     tags.forEach((tag: string) => {
       const chip = document.createElement('span');
       chip.style.cssText = 'font-size: 12px; color: #6b7280; border: 1px solid #e5e7eb; border-radius: 9999px; padding: 2px 10px; background: #fff;';
       chip.textContent = `#${tag}`;
       tagRow.appendChild(chip);
     });
-    leftCol.appendChild(tagRow);
+    contentArea.appendChild(tagRow);
   }
-
-  contentRow.appendChild(leftCol);
-  if (hasRightContent) {
-    contentRow.appendChild(rightCol);
-  }
-  container.appendChild(contentRow);
 
   // Watermark
   const watermark = document.createElement('div');
-  watermark.style.cssText = 'margin-top: 16px; text-align: right; font-size: 11px; color: #d1d5db;';
+  watermark.style.cssText = 'margin-top: 16px; text-align: right; font-size: 11px; color: #d1d5db; clear: both;';
   watermark.textContent = 'Journal Inc';
-  container.appendChild(watermark);
+  contentArea.appendChild(watermark);
+
+  container.appendChild(contentArea);
 
   const canvas = await html2canvas(container, {
     backgroundColor: '#ffffff',
