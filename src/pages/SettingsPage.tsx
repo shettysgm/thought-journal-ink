@@ -498,15 +498,8 @@ export default function SettingsPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Discreet help link */}
-        <div className="text-center mt-6">
-          <Link to="/counselors" className="text-xs text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline">
-            Find a counselor near you
-          </Link>
-        </div>
-
         {/* Build version */}
-        <p className="text-center text-[10px] text-muted-foreground/50 mt-4 font-mono select-all">
+        <p className="text-center text-[10px] text-muted-foreground/50 mt-8 font-mono select-all">
           Build: {typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev'}
         </p>
       </div>

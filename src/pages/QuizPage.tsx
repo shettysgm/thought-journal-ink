@@ -315,6 +315,13 @@ export default function QuizPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Help link */}
+        <div className="text-center mt-8">
+          <Link to="/counselors" className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline">
+            Need support? Find a counselor near you →
+          </Link>
+        </div>
         
       </div>
     </div>
