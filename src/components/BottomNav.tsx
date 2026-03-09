@@ -18,11 +18,6 @@ const navItems = [
     label: 'Journal' 
   },
   { 
-    path: '/counselors', 
-    icon: Search, 
-    label: 'Find Help' 
-  },
-  { 
     path: '/quiz', 
     icon: Brain, 
     label: 'Quiz' 
