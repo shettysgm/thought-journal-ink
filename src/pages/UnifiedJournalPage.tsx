@@ -454,6 +454,7 @@ export default function UnifiedJournalPage() {
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
+            ...(Object.values(cornerStickersRef.current).some(Boolean) ? { cornerStickers: cornerStickersRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
