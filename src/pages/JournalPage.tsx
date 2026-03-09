@@ -463,12 +463,7 @@ export default function JournalPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                        <span className="text-xs text-muted-foreground">
-                          {entry.updatedAt 
-                            ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
-                            : format(new Date(entry.createdAt), 'MMM d, yyyy')
-                          }
-                        </span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{entry.updatedAt ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}` : format(new Date(entry.createdAt), 'MMM d, yyyy')}</span>
                       </div>
                     </div>
 
