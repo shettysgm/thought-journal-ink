@@ -3,7 +3,6 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
-import { CornerDecorationsDisplay, CornerPicker, type CornerPositions } from '@/components/CornerDecorations';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -91,11 +90,6 @@ export default function UnifiedJournalPage() {
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Corner decorations state
-  const [cornerStickers, setCornerStickers] = useState<CornerPositions>({});
-  const cornerStickersRef = useRef<CornerPositions>({});
-  useEffect(() => { cornerStickersRef.current = cornerStickers; }, [cornerStickers]);
-
   // Keep refs in sync
   useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
@@ -146,7 +140,6 @@ export default function UnifiedJournalPage() {
             setLastSavedText(entry.text || '');
             setEntryId(editEntryId);
             setBannerSticker((entry as any).bannerSticker || null);
-            setCornerStickers((entry as any).cornerStickers || {});
             // Load banner blob from IDB
             const { getJournalEntry } = await import('@/lib/idb');
             const raw = await getJournalEntry(editEntryId);
@@ -248,11 +241,10 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
-  // Persist banner blob + sticker + corners to IDB for a given entry
+  // Persist banner blob + sticker to IDB for a given entry
   const saveBannerData = useCallback(async (eid: string) => {
     const blob = bannerImageBlobRef.current;
     const sticker = bannerStickerRef.current;
-    const corners = cornerStickersRef.current;
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
@@ -268,11 +260,6 @@ export default function UnifiedJournalPage() {
           updated.bannerBlob = blob;
         } else {
           delete updated.bannerBlob;
-        }
-        if (corners && Object.values(corners).some(Boolean)) {
-          updated.cornerStickers = corners;
-        } else {
-          delete updated.cornerStickers;
         }
         await saveJournalEntry(updated);
       }
@@ -298,7 +285,6 @@ export default function UnifiedJournalPage() {
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
-            ...(Object.values(cornerStickersRef.current).some(Boolean) ? { cornerStickers: cornerStickersRef.current } : {}),
           } as any);
           setEntryId(newId);
           savedId = newId;
@@ -454,7 +440,6 @@ export default function UnifiedJournalPage() {
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
-            ...(Object.values(cornerStickersRef.current).some(Boolean) ? { cornerStickers: cornerStickersRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
         } else if (isNewSession && entryId) {
@@ -786,18 +771,6 @@ export default function UnifiedJournalPage() {
                   );
                 })}
               </div>
-
-              {/* Corner decorations picker in mobile drawer */}
-              <div className="border-t pt-3">
-                <CornerPicker
-                  corners={cornerStickers}
-                  onChange={(c) => {
-                    setCornerStickers(c);
-                    cornerStickersRef.current = c;
-                    if (entryId) setTimeout(() => saveBannerData(entryId), 0);
-                  }}
-                />
-              </div>
             </div>
           </DrawerContent>
         </Drawer>
@@ -811,9 +784,6 @@ export default function UnifiedJournalPage() {
               isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             )}>
             
-              {/* Corner decorations overlay */}
-              <CornerDecorationsDisplay corners={cornerStickers} />
-
               {/* Recording waveform overlay */}
               {isRecording && (
                 <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
@@ -912,7 +882,9 @@ export default function UnifiedJournalPage() {
                   selectedSticker={bannerSticker}
                   onImageChange={(blob) => {
                     setBannerImageBlob(blob);
+                    // Immediately persist if entry exists
                     if (entryId) {
+                      // Use a microtask so ref is updated first
                       setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
@@ -923,19 +895,6 @@ export default function UnifiedJournalPage() {
                     }
                   }}
                 />
-                <div className="border-t px-3 py-3">
-                  <CornerPicker
-                    corners={cornerStickers}
-                    onChange={(c) => {
-                      setCornerStickers(c);
-                      if (entryId) {
-                        // Update ref immediately so saveBannerData picks it up
-                        cornerStickersRef.current = c;
-                        setTimeout(() => saveBannerData(entryId), 0);
-                      }
-                    }}
-                  />
-                </div>
               </div>
             </div>
           </div>

@@ -10,12 +10,6 @@ export type JournalEntry = {
   tags?: string[];
   stickers?: string[];         // emoji stickers
   bannerSticker?: string;      // sticker ID for header banner decoration
-  cornerStickers?: {           // washi-tape style corner decorations
-    topLeft?: string;
-    topRight?: string;
-    bottomLeft?: string;
-    bottomRight?: string;
-  };
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
   reframes?: Array<{           // AI-generated reframes
     span: string;

@@ -11,7 +11,6 @@ import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
-import { CornerDecorationsDisplay, type CornerPositions } from '@/components/CornerDecorations';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
@@ -344,7 +343,7 @@ export default function JournalPage() {
                 return (
               <Card
                 key={entry.id}
-                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer relative overflow-hidden"
+                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -356,8 +355,6 @@ export default function JournalPage() {
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
-                {/* Corner decorations */}
-                {(entry as any).cornerStickers && <CornerDecorationsDisplay corners={(entry as any).cornerStickers} />}
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">
