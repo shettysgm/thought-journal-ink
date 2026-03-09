@@ -11,6 +11,7 @@ import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
 import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
+import { CornerDecorationsDisplay, type CornerPositions } from '@/components/CornerDecorations';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
