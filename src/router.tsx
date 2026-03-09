@@ -12,6 +12,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const WhyCBTPage = lazy(() => import("./pages/WhyCBTPage"));
+const CounselorSearchPage = lazy(() => import("./pages/CounselorSearchPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
