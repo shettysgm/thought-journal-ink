@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Type, Mic, BookOpen, Brain, Heart, Search } from 'lucide-react';
+import { Type, Mic, BookOpen, Brain, Heart } from 'lucide-react';
 
 const navItems = [
   { 
