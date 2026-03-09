@@ -95,7 +95,7 @@ export default function QuizPage() {
 
           <Card className="shadow-medium">
             <CardContent className="p-8 text-center">
-              <Brain className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <HelpCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Not Enough Data</h3>
               <p className="text-muted-foreground mb-4">
                 You need to journal more to generate quiz questions from your own thought patterns.
