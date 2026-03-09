@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, Brain, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
+import { Mic, HelpCircle, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import { useState } from "react";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
@@ -29,7 +29,7 @@ const navigationCards = [
   {
     title: "CBT Quiz",
     description: "Practice identifying distortions",
-    icon: Brain,
+    icon: HelpCircle,
     href: "/quiz",
     gradient: "bg-gradient-secondary", 
     color: "secondary"
