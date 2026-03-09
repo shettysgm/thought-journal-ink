@@ -16,6 +16,7 @@ import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { ALL_STICKERS, KAWAII_STICKERS } from '@/components/KawaiiStickers';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import CardBackgroundPicker, { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
