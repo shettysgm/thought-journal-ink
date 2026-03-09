@@ -91,6 +91,11 @@ export default function UnifiedJournalPage() {
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Corner decorations state
+  const [cornerStickers, setCornerStickers] = useState<CornerPositions>({});
+  const cornerStickersRef = useRef<CornerPositions>({});
+  useEffect(() => { cornerStickersRef.current = cornerStickers; }, [cornerStickers]);
+
   // Keep refs in sync
   useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
