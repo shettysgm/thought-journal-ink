@@ -362,121 +362,116 @@ export default function JournalPage() {
                 }}
               >
                 <CardContent className="p-4 sm:p-6">
-                  <div className="flex gap-4">
-                    <div className="flex-1 min-w-0">
-
-                      {/* Content */}
-                      {entry.text && (
-                        <div
-                          className="bg-muted/30 rounded-lg p-4 mb-3"
-                        >
-                          <div className="text-foreground">
-                            <HighlightedTextWithReframes
-                              text={entry.text.length > 300 && !expandedEntries.has(entry.id)
-                                ? entry.text.substring(0, 300)
-                                : entry.text
-                              }
-                              reframes={entry.reframes}
-                            />
-                          </div>
-                          {entry.text.length > 300 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpanded(entry.id);
-                              }}
-                              className="mt-2 p-0 h-auto text-primary hover:text-primary/80"
-                            >
-                              {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                      {entry.stickers && entry.stickers.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3 items-center">
-                          <span className="text-sm text-muted-foreground mr-1">Stickers:</span>
-                          {entry.stickers.map((stickerId: string, index: number) => {
-                            const stickerDef = ALL_STICKERS.find(s => s.id === stickerId);
-                            if (stickerDef) {
-                              return (
-                                <button
-                                  key={`${stickerId}-${index}`}
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const updated = [...(entry.stickers || [])];
-                                    updated.splice(index, 1);
-                                    await updateEntry(entry.id, { stickers: updated });
-                                    toast({ title: "Sticker Removed" });
-                                  }}
-                                  className="relative group"
-                                  title="Click to remove"
-                                >
-                                  <stickerDef.component size={36} {...(stickerDef.props as any)} />
-                                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</span>
-                                </button>
-                              );
-                            }
-                            return (
-                              <Badge key={`${stickerId}-${index}`} variant="outline" className="text-base">
-                                {stickerId}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {/* Tags */}
-                      {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {entry.tags.filter(t => t !== 'unified').map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              #{tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1 mt-2">
-                        <CardBackgroundPicker
-                          entryId={entry.id}
-                          currentPattern={entry.cardBackground}
-                          currentBorder={entry.cardBorder}
-                          open={bgPickerOpen === entry.id}
-                          onOpenChange={(open) => setBgPickerOpen(open ? entry.id : null)}
-                          onSelectPattern={async (id, patternId) => {
-                            await updateEntry(id, { cardBackground: patternId });
-                            toast({ title: patternId === 'none' ? "Background Removed" : "Background Applied" });
-                          }}
-                          onSelectBorder={async (id, borderId) => {
-                            await updateEntry(id, { cardBorder: borderId });
-                            toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
-                          }}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
-                          className="text-muted-foreground hover:text-destructive ml-auto"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">{entry.updatedAt ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}` : format(new Date(entry.createdAt), 'MMM d, yyyy')}</span>
-                      </div>
-                    </div>
-
-                    {/* Photo or sticker on the right */}
+                  <div>
+                    {/* Photo or sticker floated right */}
                     {entryBlob ? (
-                      <div className="flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36">
+                      <div className="float-right ml-3 mb-2 w-24 h-24 sm:w-36 sm:h-36 rounded-lg overflow-hidden">
                         <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
                       </div>
                     ) : stickerDef ? (
-                      <div className="flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center">
-                        <stickerDef.component size={100} {...(stickerDef.props as any)} />
+                      <div className="float-right ml-3 mb-2 w-24 h-24 sm:w-36 sm:h-36 flex items-center justify-center">
+                        <stickerDef.component size={80} {...(stickerDef.props as any)} />
                       </div>
                     ) : null}
+
+                    {/* Content */}
+                    {entry.text && (
+                      <div className="bg-muted/30 rounded-lg p-4 mb-3">
+                        <div className="text-foreground">
+                          <HighlightedTextWithReframes
+                            text={entry.text.length > 300 && !expandedEntries.has(entry.id)
+                              ? entry.text.substring(0, 300)
+                              : entry.text
+                            }
+                            reframes={entry.reframes}
+                          />
+                        </div>
+                        {entry.text.length > 300 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpanded(entry.id);
+                            }}
+                            className="mt-2 p-0 h-auto text-primary hover:text-primary/80"
+                          >
+                            {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    {entry.stickers && entry.stickers.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3 items-center">
+                        <span className="text-sm text-muted-foreground mr-1">Stickers:</span>
+                        {entry.stickers.map((stickerId: string, index: number) => {
+                          const stickerDef = ALL_STICKERS.find(s => s.id === stickerId);
+                          if (stickerDef) {
+                            return (
+                              <button
+                                key={`${stickerId}-${index}`}
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const updated = [...(entry.stickers || [])];
+                                  updated.splice(index, 1);
+                                  await updateEntry(entry.id, { stickers: updated });
+                                  toast({ title: "Sticker Removed" });
+                                }}
+                                className="relative group"
+                                title="Click to remove"
+                              >
+                                <stickerDef.component size={36} {...(stickerDef.props as any)} />
+                                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                              </button>
+                            );
+                          }
+                          return (
+                            <Badge key={`${stickerId}-${index}`} variant="outline" className="text-base">
+                              {stickerId}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {entry.tags.filter(t => t !== 'unified').map((tag, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            #{tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 mt-2 clear-both">
+                      <CardBackgroundPicker
+                        entryId={entry.id}
+                        currentPattern={entry.cardBackground}
+                        currentBorder={entry.cardBorder}
+                        open={bgPickerOpen === entry.id}
+                        onOpenChange={(open) => setBgPickerOpen(open ? entry.id : null)}
+                        onSelectPattern={async (id, patternId) => {
+                          await updateEntry(id, { cardBackground: patternId });
+                          toast({ title: patternId === 'none' ? "Background Removed" : "Background Applied" });
+                        }}
+                        onSelectBorder={async (id, borderId) => {
+                          await updateEntry(id, { cardBorder: borderId });
+                          toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
+                        className="text-muted-foreground hover:text-destructive ml-auto"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{entry.updatedAt ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}` : format(new Date(entry.createdAt), 'MMM d, yyyy')}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
