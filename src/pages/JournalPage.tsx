@@ -453,12 +453,16 @@ export default function JournalPage() {
                         <CardBackgroundPicker
                           entryId={entry.id}
                           currentPattern={entry.cardBackground}
+                          currentBorder={entry.cardBorder}
                           open={bgPickerOpen === entry.id}
                           onOpenChange={(open) => setBgPickerOpen(open ? entry.id : null)}
-                          onSelect={async (id, patternId) => {
+                          onSelectPattern={async (id, patternId) => {
                             await updateEntry(id, { cardBackground: patternId });
-                            setBgPickerOpen(null);
                             toast({ title: patternId === 'none' ? "Background Removed" : "Background Applied" });
+                          }}
+                          onSelectBorder={async (id, borderId) => {
+                            await updateEntry(id, { cardBorder: borderId });
+                            toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
                           }}
                         />
                         <Button
