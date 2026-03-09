@@ -455,20 +455,20 @@ export default function JournalPage() {
                             toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
                           }}
                         />
-                        <span className="text-xs text-muted-foreground ml-auto">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
+                          className="text-muted-foreground hover:text-destructive ml-auto"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
                           {entry.updatedAt 
                             ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
                             : format(new Date(entry.createdAt), 'MMM d, yyyy')
                           }
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
                       </div>
                     </div>
 
