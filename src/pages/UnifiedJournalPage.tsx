@@ -799,6 +799,9 @@ export default function UnifiedJournalPage() {
               isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             )}>
             
+              {/* Corner decorations overlay */}
+              <CornerDecorationsDisplay corners={cornerStickers} />
+
               {/* Recording waveform overlay */}
               {isRecording && (
                 <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
