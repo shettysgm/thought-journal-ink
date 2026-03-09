@@ -146,6 +146,7 @@ export default function UnifiedJournalPage() {
             setLastSavedText(entry.text || '');
             setEntryId(editEntryId);
             setBannerSticker((entry as any).bannerSticker || null);
+            setCornerStickers((entry as any).cornerStickers || {});
             // Load banner blob from IDB
             const { getJournalEntry } = await import('@/lib/idb');
             const raw = await getJournalEntry(editEntryId);
