@@ -46,6 +46,10 @@ export default function JournalPage() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportFrom, setExportFrom] = useState<Date | undefined>(undefined);
   const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteFrom, setDeleteFrom] = useState<Date | undefined>(undefined);
+  const [deleteTo, setDeleteTo] = useState<Date | undefined>(undefined);
+  const [deleting, setDeleting] = useState(false);
   const entriesPerPage = 10;
 
   const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
@@ -166,6 +170,41 @@ export default function JournalPage() {
           variant: "destructive"
         });
       }
+    }
+  };
+
+  const handleDeleteByDateRange = async () => {
+    if (!deleteFrom || !deleteTo) return;
+    const from = startOfDay(deleteFrom);
+    const to = new Date(startOfDay(deleteTo));
+    to.setHours(23, 59, 59, 999);
+
+    const toDelete = entries.filter(e => {
+      if (e.hasDrawing) return false;
+      const d = new Date(e.createdAt);
+      return d >= from && d <= to;
+    });
+
+    if (toDelete.length === 0) {
+      toast({ title: "No Entries Found", description: "No entries exist in the selected date range." });
+      return;
+    }
+
+    if (!confirm(`Delete ${toDelete.length} entries from ${format(from, 'MMM d')} to ${format(to, 'MMM d, yyyy')}? This cannot be undone.`)) return;
+
+    setDeleting(true);
+    try {
+      for (const entry of toDelete) {
+        await deleteEntry(entry.id);
+      }
+      toast({ title: "Entries Deleted", description: `${toDelete.length} entries removed.` });
+      setDeleteDialogOpen(false);
+      setDeleteFrom(undefined);
+      setDeleteTo(undefined);
+    } catch {
+      toast({ title: "Delete Failed", description: "Could not delete some entries.", variant: "destructive" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -351,6 +390,58 @@ export default function JournalPage() {
                     }}
                   >
                     {exporting ? 'Exporting…' : 'Export Range'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 flex-1 text-destructive hover:text-destructive">
+                  <Trash2 className="w-4 h-4" />
+                  Delete by Date
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Delete Date Range</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">All entries within the selected range will be permanently deleted.</p>
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">From</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !deleteFrom && "text-muted-foreground")}>
+                          {deleteFrom ? format(deleteFrom, 'MMM d, yyyy') : 'Pick start date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={deleteFrom} onSelect={setDeleteFrom} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">To</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !deleteTo && "text-muted-foreground")}>
+                          {deleteTo ? format(deleteTo, 'MMM d, yyyy') : 'Pick end date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={deleteTo} onSelect={setDeleteTo} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={!deleteFrom || !deleteTo || deleting}
+                    onClick={handleDeleteByDateRange}
+                  >
+                    {deleting ? 'Deleting…' : 'Delete Range'}
                   </Button>
                 </DialogFooter>
               </DialogContent>
