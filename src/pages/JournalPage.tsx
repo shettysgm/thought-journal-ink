@@ -38,6 +38,8 @@ export default function JournalPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
   const [exporting, setExporting] = useState(false);
+  const [stickerPickerOpen, setStickerPickerOpen] = useState<string | null>(null);
+  const [stickerCategory, setStickerCategory] = useState('moods');
   const entriesPerPage = 10;
 
   const handleExportJournals = async () => {
