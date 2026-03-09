@@ -16,7 +16,7 @@ import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { ALL_STICKERS, KAWAII_STICKERS } from '@/components/KawaiiStickers';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import CardBackgroundPicker, { getPatternStyle } from '@/components/CardBackgroundPicker';
+import CardBackgroundPicker, { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -348,7 +348,7 @@ export default function JournalPage() {
                 return (
               <Card
                 key={entry.id}
-                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden"
+                className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
                 style={getPatternStyle(entry.cardBackground)}
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
@@ -453,12 +453,16 @@ export default function JournalPage() {
                         <CardBackgroundPicker
                           entryId={entry.id}
                           currentPattern={entry.cardBackground}
+                          currentBorder={entry.cardBorder}
                           open={bgPickerOpen === entry.id}
                           onOpenChange={(open) => setBgPickerOpen(open ? entry.id : null)}
-                          onSelect={async (id, patternId) => {
+                          onSelectPattern={async (id, patternId) => {
                             await updateEntry(id, { cardBackground: patternId });
-                            setBgPickerOpen(null);
                             toast({ title: patternId === 'none' ? "Background Removed" : "Background Applied" });
+                          }}
+                          onSelectBorder={async (id, borderId) => {
+                            await updateEntry(id, { cardBorder: borderId });
+                            toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
                           }}
                         />
                         <Button
