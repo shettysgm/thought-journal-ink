@@ -29,7 +29,7 @@ const navigationCards = [
   {
     title: "CBT Quiz",
     description: "Practice identifying distortions",
-    icon: Brain,
+    icon: HelpCircle,
     href: "/quiz",
     gradient: "bg-gradient-secondary", 
     color: "secondary"
