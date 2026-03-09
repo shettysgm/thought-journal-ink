@@ -1,5 +1,15 @@
 import React from 'react';
 
+// Corner decoration stickers (washi tape style)
+import cornerFloralPink from '@/assets/stickers/corner-floral-pink.png';
+import cornerStarsMint from '@/assets/stickers/corner-stars-mint.png';
+import cornerButterflyPurple from '@/assets/stickers/corner-butterfly-purple.png';
+import cornerSunflowerPeach from '@/assets/stickers/corner-sunflower-peach.png';
+import cornerRainbowBlue from '@/assets/stickers/corner-rainbow-blue.png';
+import cornerRosesRed from '@/assets/stickers/corner-roses-red.png';
+import cornerForestGreen from '@/assets/stickers/corner-forest-green.png';
+import cornerSparkleGold from '@/assets/stickers/corner-sparkle-gold.png';
+
 // Full body animals
 import kawaiiCatFull from '@/assets/stickers/kawaii-cat-full.png';
 import kawaiiBearFull from '@/assets/stickers/kawaii-bear-full.png';
