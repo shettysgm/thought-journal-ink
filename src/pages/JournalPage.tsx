@@ -14,7 +14,8 @@ import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframe
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
-import { ALL_STICKERS } from '@/components/KawaiiStickers';
+import { ALL_STICKERS, KAWAII_STICKERS } from '@/components/KawaiiStickers';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);
