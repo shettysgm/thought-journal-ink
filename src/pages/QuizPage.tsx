@@ -198,8 +198,10 @@ export default function QuizPage() {
           </Card>
 
           <div className="text-center mt-8">
-            <Link to="/counselors" className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline">
-              Need support? Find a counselor near you →
+            <Link to="/counselors">
+              <Button className="gap-2 font-bold bg-primary text-primary-foreground hover:bg-primary/90">
+                Need support? Find a counselor near you →
+              </Button>
             </Link>
           </div>
         </div>
