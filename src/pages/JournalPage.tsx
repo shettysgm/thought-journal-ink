@@ -365,12 +365,12 @@ export default function JournalPage() {
                   <div>
                     {/* Photo or sticker floated right */}
                     {entryBlob ? (
-                      <div className="float-right -mr-2 -mt-2 ml-3 mb-2 w-24 h-24 sm:w-36 sm:h-36 rounded-lg overflow-hidden">
+                      <div className="w-full h-36 sm:h-44 -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 rounded-t-lg overflow-hidden">
                         <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
                       </div>
                     ) : stickerDef ? (
-                      <div className="float-right -mr-2 -mt-2 ml-3 mb-2 w-24 h-24 sm:w-36 sm:h-36 flex items-start justify-end">
-                        <stickerDef.component size={80} {...(stickerDef.props as any)} />
+                      <div className="float-right -mr-2 -mt-2 ml-3 mb-1">
+                        <stickerDef.component size={72} {...(stickerDef.props as any)} />
                       </div>
                     ) : null}
 
