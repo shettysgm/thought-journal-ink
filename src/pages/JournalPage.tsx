@@ -42,6 +42,7 @@ export default function JournalPage() {
   const [stickerPickerOpen, setStickerPickerOpen] = useState<string | null>(null);
   const [stickerCategory, setStickerCategory] = useState('moods');
   const [bgPickerOpen, setBgPickerOpen] = useState<string | null>(null);
+  const [bgPickerOpen, setBgPickerOpen] = useState<string | null>(null);
   const entriesPerPage = 10;
 
   const handleExportJournals = async () => {
