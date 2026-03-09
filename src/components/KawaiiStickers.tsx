@@ -115,3 +115,21 @@ export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDe
 
 /** Flat list of all stickers for lookups */
 export const ALL_STICKERS = Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers);
+
+/** Corner decoration sticker definitions */
+export interface CornerStickerDef {
+  id: string;
+  name: string;
+  src: string;
+}
+
+export const CORNER_STICKERS: CornerStickerDef[] = [
+  { id: 'corner-floral-pink', name: 'Floral Pink', src: cornerFloralPink },
+  { id: 'corner-stars-mint', name: 'Stars Mint', src: cornerStarsMint },
+  { id: 'corner-butterfly-purple', name: 'Butterfly', src: cornerButterflyPurple },
+  { id: 'corner-sunflower-peach', name: 'Sunflower', src: cornerSunflowerPeach },
+  { id: 'corner-rainbow-blue', name: 'Rainbow', src: cornerRainbowBlue },
+  { id: 'corner-roses-red', name: 'Roses', src: cornerRosesRed },
+  { id: 'corner-forest-green', name: 'Forest', src: cornerForestGreen },
+  { id: 'corner-sparkle-gold', name: 'Sparkle', src: cornerSparkleGold },
+];
