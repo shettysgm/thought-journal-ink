@@ -402,35 +402,32 @@ export default function JournalPage() {
                         </div>
                       )}
                       {entry.stickers && entry.stickers.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="text-sm text-muted-foreground mr-2">Mood:</span>
+                        <div className="flex flex-wrap gap-2 mb-3 items-center">
+                          <span className="text-sm text-muted-foreground mr-1">Stickers:</span>
                           {entry.stickers.map((stickerId: string, index: number) => {
-                            // Map sticker IDs back to emojis for display
-                            const stickerMap: { [key: string]: string } = {
-                              'heart-pink': '💗',
-                              'heart-red': '❤️', 
-                              'heart-purple': '💜',
-                              'sun': '☀️',
-                              'cloud': '☁️',
-                              'rainbow': '🌈',
-                              'flower-pink': '🌸',
-                              'flower-purple': '🌺',
-                              'butterfly': '🦋',
-                              'star-yellow': '⭐',
-                              'star-pink': '💖',
-                              'crown': '👑',
-                              'diamond': '💎',
-                              'bubble-blue': '💬',
-                              'bubble-green': '💭',
-                              'arrow-purple': '↗️',
-                              'arrow-orange': '➡️',
-                              'thumbs-up': '👍'
-                            };
-                            const displaySticker = stickerMap[stickerId] || stickerId;
-                            
+                            const stickerDef = ALL_STICKERS.find(s => s.id === stickerId);
+                            if (stickerDef) {
+                              return (
+                                <button
+                                  key={`${stickerId}-${index}`}
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const updated = [...(entry.stickers || [])];
+                                    updated.splice(index, 1);
+                                    await updateEntry(entry.id, { stickers: updated });
+                                    toast({ title: "Sticker Removed" });
+                                  }}
+                                  className="relative group"
+                                  title="Click to remove"
+                                >
+                                  <stickerDef.component size={36} {...(stickerDef.props as any)} />
+                                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                                </button>
+                              );
+                            }
                             return (
-                              <Badge key={index} variant="outline" className="text-base">
-                                {displaySticker}
+                              <Badge key={`${stickerId}-${index}`} variant="outline" className="text-base">
+                                {stickerId}
                               </Badge>
                             );
                           })}
