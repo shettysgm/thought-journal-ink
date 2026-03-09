@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
+import { CornerDecorationsDisplay, CornerPicker, type CornerPositions } from '@/components/CornerDecorations';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
