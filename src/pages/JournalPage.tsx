@@ -344,7 +344,7 @@ export default function JournalPage() {
                 return (
               <Card
                 key={entry.id}
-                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer relative overflow-hidden"
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -356,6 +356,8 @@ export default function JournalPage() {
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
+                {/* Corner decorations */}
+                {(entry as any).cornerStickers && <CornerDecorationsDisplay corners={(entry as any).cornerStickers} />}
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">

@@ -786,6 +786,18 @@ export default function UnifiedJournalPage() {
                   );
                 })}
               </div>
+
+              {/* Corner decorations picker in mobile drawer */}
+              <div className="border-t pt-3">
+                <CornerPicker
+                  corners={cornerStickers}
+                  onChange={(c) => {
+                    setCornerStickers(c);
+                    cornerStickersRef.current = c;
+                    if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                  }}
+                />
+              </div>
             </div>
           </DrawerContent>
         </Drawer>
