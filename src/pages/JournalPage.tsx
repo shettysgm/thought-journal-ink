@@ -459,12 +459,13 @@ export default function JournalPage() {
                         >
                           <PopoverTrigger asChild>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-muted-foreground hover:text-primary"
+                              className="gap-1.5 text-muted-foreground hover:text-primary"
                             >
                               <Smile className="w-4 h-4" />
+                              <span className="text-xs">Add Sticker</span>
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
