@@ -348,7 +348,7 @@ export default function JournalPage() {
                 return (
               <Card
                 key={entry.id}
-                className="shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden"
+                className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
                 style={getPatternStyle(entry.cardBackground)}
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
