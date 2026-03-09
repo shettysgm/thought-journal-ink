@@ -178,17 +178,9 @@ export default function SettingsPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex items-center gap-4 mt-2">
-          <Link to="/">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
-          <div>
+        <header className="mt-2">
             <h1 className="text-3xl font-bold text-foreground">Settings</h1>
             <p className="text-muted-foreground">Manage your privacy and preferences</p>
-          </div>
         </header>
 
         {/* Privacy & Security */}
