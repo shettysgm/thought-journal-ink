@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Type, Mic, BookOpen, Brain, Heart } from 'lucide-react';
+import { Type, Mic, BookOpen, Brain, Heart, Search } from 'lucide-react';
 
 const navItems = [
   { 
@@ -16,6 +16,11 @@ const navItems = [
     path: '/journal', 
     icon: BookOpen, 
     label: 'Journal' 
+  },
+  { 
+    path: '/counselors', 
+    icon: Search, 
+    label: 'Find Help' 
   },
   { 
     path: '/quiz', 

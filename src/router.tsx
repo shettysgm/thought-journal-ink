@@ -38,6 +38,7 @@ export default function Router() {
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/counselors" element={<CounselorSearchPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/why-cbt" element={<WhyCBTPage />} />
