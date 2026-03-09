@@ -19,7 +19,7 @@ const navItems = [
   },
   { 
     path: '/quiz', 
-    icon: Brain, 
+    icon: HelpCircle, 
     label: 'Quiz' 
   },
 ];
