@@ -287,16 +287,75 @@ export default function JournalPage() {
             </CardContent>
           </Card>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 w-full"
-            onClick={handleExportJournals}
-            disabled={exporting}
-          >
-            <FileDown className="w-4 h-4" />
-            {exporting ? 'Exporting…' : 'Export Journals'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 flex-1"
+              onClick={() => handleExportJournals()}
+              disabled={exporting}
+            >
+              <FileDown className="w-4 h-4" />
+              {exporting ? 'Exporting…' : 'Export All'}
+            </Button>
+            <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 flex-1">
+                  <CalendarRange className="w-4 h-4" />
+                  Export by Date
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Export Date Range</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">From</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !exportFrom && "text-muted-foreground")}>
+                          {exportFrom ? format(exportFrom, 'MMM d, yyyy') : 'Pick start date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={exportFrom} onSelect={setExportFrom} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">To</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !exportTo && "text-muted-foreground")}>
+                          {exportTo ? format(exportTo, 'MMM d, yyyy') : 'Pick end date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={exportTo} onSelect={setExportTo} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    size="sm"
+                    disabled={!exportFrom || !exportTo || exporting}
+                    onClick={() => {
+                      if (exportFrom && exportTo) {
+                        const from = startOfDay(exportFrom);
+                        const to = new Date(startOfDay(exportTo));
+                        to.setHours(23, 59, 59, 999);
+                        handleExportJournals({ from, to });
+                      }
+                    }}
+                  >
+                    {exporting ? 'Exporting…' : 'Export Range'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
           
           {filteredEntries.length > 0 && (
             <div className="text-sm text-muted-foreground">
