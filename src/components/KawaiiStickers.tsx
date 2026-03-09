@@ -1,5 +1,15 @@
 import React from 'react';
 
+// Corner decoration stickers (washi tape style)
+import cornerFloralPink from '@/assets/stickers/corner-floral-pink.png';
+import cornerStarsMint from '@/assets/stickers/corner-stars-mint.png';
+import cornerButterflyPurple from '@/assets/stickers/corner-butterfly-purple.png';
+import cornerSunflowerPeach from '@/assets/stickers/corner-sunflower-peach.png';
+import cornerRainbowBlue from '@/assets/stickers/corner-rainbow-blue.png';
+import cornerRosesRed from '@/assets/stickers/corner-roses-red.png';
+import cornerForestGreen from '@/assets/stickers/corner-forest-green.png';
+import cornerSparkleGold from '@/assets/stickers/corner-sparkle-gold.png';
+
 // Full body animals
 import kawaiiCatFull from '@/assets/stickers/kawaii-cat-full.png';
 import kawaiiBearFull from '@/assets/stickers/kawaii-bear-full.png';
@@ -105,3 +115,21 @@ export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDe
 
 /** Flat list of all stickers for lookups */
 export const ALL_STICKERS = Object.values(KAWAII_STICKERS).flatMap(cat => cat.stickers);
+
+/** Corner decoration sticker definitions */
+export interface CornerStickerDef {
+  id: string;
+  name: string;
+  src: string;
+}
+
+export const CORNER_STICKERS: CornerStickerDef[] = [
+  { id: 'corner-floral-pink', name: 'Floral Pink', src: cornerFloralPink },
+  { id: 'corner-stars-mint', name: 'Stars Mint', src: cornerStarsMint },
+  { id: 'corner-butterfly-purple', name: 'Butterfly', src: cornerButterflyPurple },
+  { id: 'corner-sunflower-peach', name: 'Sunflower', src: cornerSunflowerPeach },
+  { id: 'corner-rainbow-blue', name: 'Rainbow', src: cornerRainbowBlue },
+  { id: 'corner-roses-red', name: 'Roses', src: cornerRosesRed },
+  { id: 'corner-forest-green', name: 'Forest', src: cornerForestGreen },
+  { id: 'corner-sparkle-gold', name: 'Sparkle', src: cornerSparkleGold },
+];
