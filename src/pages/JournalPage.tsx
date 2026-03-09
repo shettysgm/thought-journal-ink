@@ -1,7 +1,7 @@
 import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { subDays, isAfter, startOfDay as startOfDayFn } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, Search, Trash2, FileDown, Smile } from 'lucide-react';
+import { ArrowLeft, FileText, Mic, Search, Trash2, FileDown, Smile, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { ALL_STICKERS, KAWAII_STICKERS } from '@/components/KawaiiStickers';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import CardBackgroundPicker, { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
@@ -42,17 +43,21 @@ export default function JournalPage() {
   const [stickerPickerOpen, setStickerPickerOpen] = useState<string | null>(null);
   const [stickerCategory, setStickerCategory] = useState('moods');
   const [bgPickerOpen, setBgPickerOpen] = useState<string | null>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportFrom, setExportFrom] = useState<Date | undefined>(undefined);
+  const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
   const entriesPerPage = 10;
 
-  const handleExportJournals = async () => {
+  const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
     setExporting(true);
     try {
-      await exportJournalsToFile();
-      toast({ title: "Journals Exported", description: "Your journal entries are ready to save." });
+      await exportJournalsToFile(dateRange);
+      toast({ title: "Journals Exported", description: dateRange ? `Entries from ${format(dateRange.from, 'MMM d')} to ${format(dateRange.to, 'MMM d')} exported.` : "Your journal entries are ready to save." });
     } catch {
       toast({ title: "Export Failed", description: "Could not export journal entries.", variant: "destructive" });
     } finally {
       setExporting(false);
+      setExportDialogOpen(false);
     }
   };
 
@@ -282,16 +287,75 @@ export default function JournalPage() {
             </CardContent>
           </Card>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 w-full"
-            onClick={handleExportJournals}
-            disabled={exporting}
-          >
-            <FileDown className="w-4 h-4" />
-            {exporting ? 'Exporting…' : 'Export Journals'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 flex-1"
+              onClick={() => handleExportJournals()}
+              disabled={exporting}
+            >
+              <FileDown className="w-4 h-4" />
+              {exporting ? 'Exporting…' : 'Export All'}
+            </Button>
+            <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2 flex-1">
+                  <CalendarRange className="w-4 h-4" />
+                  Export by Date
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Export Date Range</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">From</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !exportFrom && "text-muted-foreground")}>
+                          {exportFrom ? format(exportFrom, 'MMM d, yyyy') : 'Pick start date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={exportFrom} onSelect={setExportFrom} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">To</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("w-full justify-start text-left", !exportTo && "text-muted-foreground")}>
+                          {exportTo ? format(exportTo, 'MMM d, yyyy') : 'Pick end date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={exportTo} onSelect={setExportTo} className={cn("p-3 pointer-events-auto")} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    size="sm"
+                    disabled={!exportFrom || !exportTo || exporting}
+                    onClick={() => {
+                      if (exportFrom && exportTo) {
+                        const from = startOfDay(exportFrom);
+                        const to = new Date(startOfDay(exportTo));
+                        to.setHours(23, 59, 59, 999);
+                        handleExportJournals({ from, to });
+                      }
+                    }}
+                  >
+                    {exporting ? 'Exporting…' : 'Export Range'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
           
           {filteredEntries.length > 0 && (
             <div className="text-sm text-muted-foreground">

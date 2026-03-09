@@ -229,12 +229,17 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
   });
 }
 
-export async function exportJournalsToFile(): Promise<void> {
+export async function exportJournalsToFile(dateRange?: { from: Date; to: Date }): Promise<void> {
   const entries = await getAllJournalEntries();
   const settings = useSettings.getState();
 
   const sorted = [...entries]
     .filter((e: any) => !e.hasDrawing)
+    .filter((e: any) => {
+      if (!dateRange) return true;
+      const d = new Date(e.createdAt);
+      return d >= dateRange.from && d <= dateRange.to;
+    })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (sorted.length === 0) throw new Error('No entries to export');
