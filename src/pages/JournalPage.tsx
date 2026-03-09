@@ -455,6 +455,12 @@ export default function JournalPage() {
                             toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
                           }}
                         />
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          {entry.updatedAt 
+                            ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
+                            : format(new Date(entry.createdAt), 'MMM d, yyyy')
+                          }
+                        </span>
                         <Button
                           variant="ghost"
                           size="sm"
