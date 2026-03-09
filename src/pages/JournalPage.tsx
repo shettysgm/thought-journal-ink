@@ -351,13 +351,13 @@ export default function JournalPage() {
                 className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
                 style={getPatternStyle(entry.cardBackground)}
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
-                  e.stopPropagation();
-                  e.preventDefault();
                   const target = e.target as HTMLElement | null;
-                  console.log('[JournalPage] Card clicked, target:', target?.tagName, target?.className, 'entry:', entry.id);
+                  // Don't navigate if clicking buttons, popovers, reframes, or dialogs
                   if (target?.closest?.('button:not([data-entry-card])')) return;
                   if (target?.closest?.('[data-reframe-trigger="true"]')) return;
                   if (target?.closest?.('[role="alertdialog"]')) return;
+                  if (target?.closest?.('[data-radix-popper-content-wrapper]')) return;
+                  if (bgPickerOpen === entry.id) return;
                   navigate(`/unified?edit=${entry.id}`);
                 }}
               >
