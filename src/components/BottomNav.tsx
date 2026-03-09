@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Type, Mic, BookOpen, Brain, Heart } from 'lucide-react';
+import { Type, BookOpen, Brain, Heart, HelpCircle } from 'lucide-react';
 
 const navItems = [
   { 
@@ -19,7 +19,7 @@ const navItems = [
   },
   { 
     path: '/quiz', 
-    icon: Brain, 
+    icon: HelpCircle, 
     label: 'Quiz' 
   },
 ];
