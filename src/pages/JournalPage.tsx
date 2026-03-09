@@ -173,6 +173,41 @@ export default function JournalPage() {
     }
   };
 
+  const handleDeleteByDateRange = async () => {
+    if (!deleteFrom || !deleteTo) return;
+    const from = startOfDay(deleteFrom);
+    const to = new Date(startOfDay(deleteTo));
+    to.setHours(23, 59, 59, 999);
+
+    const toDelete = entries.filter(e => {
+      if (e.hasDrawing) return false;
+      const d = new Date(e.createdAt);
+      return d >= from && d <= to;
+    });
+
+    if (toDelete.length === 0) {
+      toast({ title: "No Entries Found", description: "No entries exist in the selected date range." });
+      return;
+    }
+
+    if (!confirm(`Delete ${toDelete.length} entries from ${format(from, 'MMM d')} to ${format(to, 'MMM d, yyyy')}? This cannot be undone.`)) return;
+
+    setDeleting(true);
+    try {
+      for (const entry of toDelete) {
+        await deleteEntry(entry.id);
+      }
+      toast({ title: "Entries Deleted", description: `${toDelete.length} entries removed.` });
+      setDeleteDialogOpen(false);
+      setDeleteFrom(undefined);
+      setDeleteTo(undefined);
+    } catch {
+      toast({ title: "Delete Failed", description: "Could not delete some entries.", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const toggleExpanded = (entryId: string) => {
     const newExpanded = new Set(expandedEntries);
     if (newExpanded.has(entryId)) {
