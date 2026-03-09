@@ -1,7 +1,7 @@
 import { useState, useEffect, type MouseEvent, useMemo } from 'react';
 import { subDays, isAfter, startOfDay as startOfDayFn } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Mic, Calendar as CalendarIcon, Search, Trash2, FileDown, Smile } from 'lucide-react';
+import { ArrowLeft, FileText, Mic, Search, Trash2, FileDown, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -364,16 +364,6 @@ export default function JournalPage() {
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">
-                      {/* Header */}
-                      <div className="flex items-center gap-2 mb-3">
-                         <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                           <CalendarIcon className="w-3 h-3" />
-                           {entry.updatedAt 
-                             ? `${format(new Date(entry.createdAt), 'MMM d, yyyy')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
-                             : format(new Date(entry.createdAt), 'MMM d, yyyy • h:mm a')
-                           }
-                         </div>
-                      </div>
 
                       {/* Content */}
                       {entry.text && (
@@ -465,6 +455,12 @@ export default function JournalPage() {
                             toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
                           }}
                         />
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          {entry.updatedAt 
+                            ? `${format(new Date(entry.createdAt), 'MMM d')} • Updated ${format(new Date(entry.updatedAt), 'h:mm a')}`
+                            : format(new Date(entry.createdAt), 'MMM d, yyyy')
+                          }
+                        </span>
                         <Button
                           variant="ghost"
                           size="sm"
