@@ -29,7 +29,7 @@ function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; classNam
 }
 
 export default function JournalPage() {
-  const { entries, loading, loadEntries, deleteEntry } = useEntries();
+  const { entries, loading, loadEntries, deleteEntry, updateEntry } = useEntries();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
