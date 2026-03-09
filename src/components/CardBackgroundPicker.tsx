@@ -140,18 +140,13 @@ export default function CardBackgroundPicker({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-foreground">Card Style</p>
-            {hasCustomization && (
-              <button
-                onClick={() => {
-                  onSelectPattern(entryId, 'none');
-                  onSelectBorder(entryId, 'none');
-                }}
-                className="text-muted-foreground hover:text-foreground"
-                title="Reset all"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+            <button
+              onClick={() => onOpenChange(false)}
+              className="text-muted-foreground hover:text-foreground"
+              title="Close"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Tabs */}
