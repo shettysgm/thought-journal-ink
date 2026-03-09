@@ -105,19 +105,18 @@ async function renderEntryToImage(entry: any, bannerBlobUrl: string | null): Pro
 
   document.body.appendChild(container);
 
-  // Banner image on top (full width)
+  // Banner image on top (full width) — use background-image for proper cover behavior in html2canvas
   if (bannerBlobUrl) {
-    const bannerWrapper = document.createElement('div');
-    bannerWrapper.style.cssText = 'width: 100%; height: 160px; overflow: hidden;';
-    const img = document.createElement('img');
-    img.src = bannerBlobUrl;
-    img.crossOrigin = 'anonymous';
-    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-    bannerWrapper.appendChild(img);
-    container.appendChild(bannerWrapper);
+    const bannerDiv = document.createElement('div');
+    bannerDiv.style.cssText = `width: 100%; height: 160px; background-image: url(${bannerBlobUrl}); background-size: cover; background-position: center;`;
+    container.appendChild(bannerDiv);
+    // Preload image so html2canvas can render it
     await new Promise<void>(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.onload = () => resolve();
       img.onerror = () => resolve();
+      img.src = bannerBlobUrl;
       if (img.complete) resolve();
     });
   }
