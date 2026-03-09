@@ -900,9 +900,7 @@ export default function UnifiedJournalPage() {
                   selectedSticker={bannerSticker}
                   onImageChange={(blob) => {
                     setBannerImageBlob(blob);
-                    // Immediately persist if entry exists
                     if (entryId) {
-                      // Use a microtask so ref is updated first
                       setTimeout(() => saveBannerData(entryId), 0);
                     }
                   }}
@@ -913,6 +911,19 @@ export default function UnifiedJournalPage() {
                     }
                   }}
                 />
+                <div className="border-t px-3 py-3">
+                  <CornerPicker
+                    corners={cornerStickers}
+                    onChange={(c) => {
+                      setCornerStickers(c);
+                      if (entryId) {
+                        // Update ref immediately so saveBannerData picks it up
+                        cornerStickersRef.current = c;
+                        setTimeout(() => saveBannerData(entryId), 0);
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
