@@ -48,15 +48,16 @@ export default function JournalPage() {
   const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
   const entriesPerPage = 10;
 
-  const handleExportJournals = async () => {
+  const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
     setExporting(true);
     try {
-      await exportJournalsToFile();
-      toast({ title: "Journals Exported", description: "Your journal entries are ready to save." });
+      await exportJournalsToFile(dateRange);
+      toast({ title: "Journals Exported", description: dateRange ? `Entries from ${format(dateRange.from, 'MMM d')} to ${format(dateRange.to, 'MMM d')} exported.` : "Your journal entries are ready to save." });
     } catch {
       toast({ title: "Export Failed", description: "Could not export journal entries.", variant: "destructive" });
     } finally {
       setExporting(false);
+      setExportDialogOpen(false);
     }
   };
 
