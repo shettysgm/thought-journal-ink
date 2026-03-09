@@ -449,14 +449,75 @@ export default function JournalPage() {
                       )}
 
                       {/* Actions */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(entry.id)}
-                        className="text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1 mt-2">
+                        <Popover
+                          open={stickerPickerOpen === entry.id}
+                          onOpenChange={(open) => {
+                            setStickerPickerOpen(open ? entry.id : null);
+                            if (open) setStickerCategory('moods');
+                          }}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-muted-foreground hover:text-primary"
+                            >
+                              <Smile className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-72 p-3"
+                            side="top"
+                            align="start"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-foreground">Add Sticker</p>
+                              <div className="flex gap-1 flex-wrap">
+                                {Object.entries(KAWAII_STICKERS).map(([key, cat]) => (
+                                  <Button
+                                    key={key}
+                                    type="button"
+                                    variant={stickerCategory === key ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setStickerCategory(key)}
+                                    className="text-xs h-7 px-2"
+                                  >
+                                    {cat.name}
+                                  </Button>
+                                ))}
+                              </div>
+                              <div className="grid grid-cols-5 gap-2 max-h-40 overflow-y-auto">
+                                {(KAWAII_STICKERS[stickerCategory]?.stickers || []).map((s) => (
+                                  <button
+                                    key={s.id}
+                                    type="button"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      await updateEntry(entry.id, { bannerSticker: s.id } as any);
+                                      setStickerPickerOpen(null);
+                                      toast({ title: "Sticker Added", description: "Your sticker has been saved." });
+                                    }}
+                                    className="h-12 w-12 flex items-center justify-center rounded-md hover:bg-muted transition-colors border border-border/20 hover:border-border/60"
+                                  >
+                                    <s.component size={32} {...(s.props as any)} />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}
+                          className="text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Photo or sticker on the right */}
