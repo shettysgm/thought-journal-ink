@@ -248,10 +248,11 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
-  // Persist banner blob + sticker to IDB for a given entry
+  // Persist banner blob + sticker + corners to IDB for a given entry
   const saveBannerData = useCallback(async (eid: string) => {
     const blob = bannerImageBlobRef.current;
     const sticker = bannerStickerRef.current;
+    const corners = cornerStickersRef.current;
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
@@ -267,6 +268,11 @@ export default function UnifiedJournalPage() {
           updated.bannerBlob = blob;
         } else {
           delete updated.bannerBlob;
+        }
+        if (corners && Object.values(corners).some(Boolean)) {
+          updated.cornerStickers = corners;
+        } else {
+          delete updated.cornerStickers;
         }
         await saveJournalEntry(updated);
       }
