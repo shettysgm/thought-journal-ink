@@ -46,6 +46,10 @@ export default function JournalPage() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportFrom, setExportFrom] = useState<Date | undefined>(undefined);
   const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteFrom, setDeleteFrom] = useState<Date | undefined>(undefined);
+  const [deleteTo, setDeleteTo] = useState<Date | undefined>(undefined);
+  const [deleting, setDeleting] = useState(false);
   const entriesPerPage = 10;
 
   const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
