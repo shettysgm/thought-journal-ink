@@ -442,7 +442,7 @@ export default function JournalPage() {
                 const stickerDef = stickerId
                   ? ALL_STICKERS.find(s => s.id === stickerId)
                   : null;
-                const entryBlob = bannerBlobs[entry.id];
+                const entryBlobs = bannerBlobs[entry.id] || [];
                 return (
               <Card
                 key={entry.id}
