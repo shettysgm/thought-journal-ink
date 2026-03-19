@@ -301,8 +301,8 @@ export default function UnifiedJournalPage() {
           setEntryId(newId);
           savedId = newId;
           setIsNewSession(false);
-          // Save banner blob after entry exists
-          if (bannerImageBlobRef.current) {
+          // Save banner blobs after entry exists
+          if (bannerImageBlobsRef.current.length > 0) {
             await saveBannerData(newId);
           }
         } else {
