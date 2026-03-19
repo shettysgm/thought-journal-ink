@@ -82,16 +82,16 @@ export default function UnifiedJournalPage() {
   const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
 
   // Banner state
-  const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
+  const [bannerImageBlobs, setBannerImageBlobs] = useState<Blob[]>([]);
   const [bannerSticker, setBannerSticker] = useState<string | null>(null);
-  const bannerImageBlobRef = useRef<Blob | null>(null);
+  const bannerImageBlobsRef = useRef<Blob[]>([]);
   const bannerStickerRef = useRef<string | null>(null);
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keep refs in sync
-  useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
+  useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
 
   useEffect(() => {
@@ -143,8 +143,11 @@ export default function UnifiedJournalPage() {
             // Load banner blob from IDB
             const { getJournalEntry } = await import('@/lib/idb');
             const raw = await getJournalEntry(editEntryId);
-            if (raw && (raw as any).bannerBlob) {
-              setBannerImageBlob((raw as any).bannerBlob);
+            if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
+              setBannerImageBlobs((raw as any).bannerBlobs);
+            } else if (raw && (raw as any).bannerBlob) {
+              // Backwards compat: single blob → array
+              setBannerImageBlobs([(raw as any).bannerBlob]);
             }
             if (entry.reframes) {
               const detectionsList: Detection[] = entry.reframes.map(r => ({
@@ -249,26 +252,27 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
-  // Persist banner blob + sticker to IDB for a given entry
+  // Persist banner blobs + sticker to IDB for a given entry
   const saveBannerData = useCallback(async (eid: string) => {
-    const blob = bannerImageBlobRef.current;
+    const blobs = bannerImageBlobsRef.current;
     const sticker = bannerStickerRef.current;
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
       if (existing) {
         const updated = { ...existing } as any;
-        // Clean: explicitly set or delete to avoid undefined serialization issues
         if (sticker) {
           updated.bannerSticker = sticker;
         } else {
           delete updated.bannerSticker;
         }
-        if (blob) {
-          updated.bannerBlob = blob;
+        if (blobs.length > 0) {
+          updated.bannerBlobs = blobs;
         } else {
-          delete updated.bannerBlob;
+          delete updated.bannerBlobs;
         }
+        // Clean up legacy single blob
+        delete updated.bannerBlob;
         await saveJournalEntry(updated);
       }
     } catch (e) {
@@ -297,8 +301,8 @@ export default function UnifiedJournalPage() {
           setEntryId(newId);
           savedId = newId;
           setIsNewSession(false);
-          // Save banner blob after entry exists
-          if (bannerImageBlobRef.current) {
+          // Save banner blobs after entry exists
+          if (bannerImageBlobsRef.current.length > 0) {
             await saveBannerData(newId);
           }
         } else {
@@ -739,20 +743,23 @@ export default function UnifiedJournalPage() {
                 onClick={() => mobileFileInputRef.current?.click()}
               >
                 <ImagePlus className="w-4 h-4" />
-                {bannerImageBlob ? 'Change Photo' : 'Upload Photo'}
+                {bannerImageBlobs.length > 0 ? `Add More Photos (${bannerImageBlobs.length})` : 'Upload Photos'}
               </Button>
               <input
                 ref={mobileFileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file || file.size > 5 * 1024 * 1024) return;
-                  setBannerImageBlob(file);
+                  const files = Array.from(e.target.files || []);
+                  const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
+                  if (!valid.length) return;
+                  setBannerImageBlobs(prev => [...prev, ...valid]);
                   setBannerSticker(null);
                   setMobileStickerDrawerOpen(false);
                   if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                  e.target.value = '';
                 }}
               />
 
@@ -765,7 +772,7 @@ export default function UnifiedJournalPage() {
                       key={sticker.id}
                       onClick={() => {
                         setBannerSticker(bannerSticker === sticker.id ? null : sticker.id);
-                        setBannerImageBlob(null);
+                        setBannerImageBlobs([]);
                         setMobileStickerDrawerOpen(false);
                         if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                       }}
@@ -801,19 +808,19 @@ export default function UnifiedJournalPage() {
               )}
 
               {/* Selected sticker/photo preview inside editor */}
-              {(bannerImageBlob || bannerSticker) && (
-                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20">
-                  {bannerImageBlob && (
-                    <MobileBlobPreview blob={bannerImageBlob} />
-                  )}
-                  {bannerSticker && !bannerImageBlob && (() => {
+              {(bannerImageBlobs.length > 0 || bannerSticker) && (
+                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20 gap-2 overflow-x-auto">
+                  {bannerImageBlobs.map((blob, i) => (
+                    <MobileBlobPreview key={i} blob={blob} />
+                  ))}
+                  {bannerSticker && bannerImageBlobs.length === 0 && (() => {
                     const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
                     if (!def) return null;
                     return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
                   })()}
                   <button
                     onClick={() => {
-                      setBannerImageBlob(null);
+                      setBannerImageBlobs([]);
                       setBannerSticker(null);
                       if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                     }}
@@ -886,10 +893,10 @@ export default function UnifiedJournalPage() {
             <div className="hidden sm:block w-48 lg:w-56 flex-shrink-0">
               <div className="sticky top-20 bg-card rounded-lg shadow-sm border">
                 <JournalSidePanel
-                  imageBlob={bannerImageBlob}
+                  imageBlobs={bannerImageBlobs}
                   selectedSticker={bannerSticker}
-                  onImageChange={(blob) => {
-                    setBannerImageBlob(blob);
+                  onImagesChange={(blobs) => {
+                    setBannerImageBlobs(blobs);
                     // Immediately persist if entry exists
                     if (entryId) {
                       // Use a microtask so ref is updated first

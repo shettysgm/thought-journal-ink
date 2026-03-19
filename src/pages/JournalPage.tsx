@@ -38,7 +38,7 @@ export default function JournalPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
+  const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob[]>>({});
   const [exporting, setExporting] = useState(false);
   const [stickerPickerOpen, setStickerPickerOpen] = useState<string | null>(null);
   const [stickerCategory, setStickerCategory] = useState('moods');
@@ -74,11 +74,14 @@ export default function JournalPage() {
       // Load banner blobs from IDB
       try {
         const { getJournalEntry } = await import('@/lib/idb');
-        const blobs: Record<string, Blob> = {};
+        const blobs: Record<string, Blob[]> = {};
         for (const entry of state.entries) {
           const raw = await getJournalEntry(entry.id) as any;
-          if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
-            blobs[entry.id] = raw.bannerBlob;
+          if (raw?.bannerBlobs && Array.isArray(raw.bannerBlobs)) {
+            blobs[entry.id] = raw.bannerBlobs;
+          } else if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
+            // Backwards compat: single blob → array
+            blobs[entry.id] = [raw.bannerBlob];
           }
         }
         setBannerBlobs(blobs);
@@ -439,7 +442,7 @@ export default function JournalPage() {
                 const stickerDef = stickerId
                   ? ALL_STICKERS.find(s => s.id === stickerId)
                   : null;
-                const entryBlob = bannerBlobs[entry.id];
+                const entryBlobs = bannerBlobs[entry.id] || [];
                 return (
               <Card
                 key={entry.id}
@@ -459,9 +462,22 @@ export default function JournalPage() {
                 <CardContent className="p-4 sm:p-6">
                   <div>
                     {/* Photo or sticker floated right */}
-                    {entryBlob ? (
-                      <div className="w-full h-36 sm:h-44 -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 rounded-t-lg overflow-hidden">
-                        <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
+                    {entryBlobs.length > 0 ? (
+                      <div className={cn(
+                        "w-full -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 rounded-t-lg overflow-hidden",
+                        entryBlobs.length === 1 ? "h-36 sm:h-44" : ""
+                      )}>
+                        {entryBlobs.length === 1 ? (
+                          <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
+                        ) : (
+                          <div className="flex gap-1 overflow-x-auto snap-x snap-mandatory h-36 sm:h-44">
+                            {entryBlobs.map((blob, i) => (
+                              <div key={i} className="flex-shrink-0 snap-center h-full" style={{ width: entryBlobs.length === 2 ? '50%' : '70%' }}>
+                                <BlobImage blob={blob} alt={`Photo ${i + 1}`} className="w-full h-full" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ) : stickerDef ? (
                       <div className="float-right -mr-2 -mt-2 ml-3 mb-1">

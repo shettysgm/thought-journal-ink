@@ -7,9 +7,9 @@ import { ALL_STICKERS } from './KawaiiStickers';
 const BANNER_STICKERS = ALL_STICKERS;
 
 interface JournalSidePanelProps {
-  imageBlob: Blob | null;
+  imageBlobs: Blob[];
   selectedSticker: string | null;
-  onImageChange: (blob: Blob | null) => void;
+  onImagesChange: (blobs: Blob[]) => void;
   onStickerChange: (stickerId: string | null) => void;
   className?: string;
 }
@@ -32,9 +32,9 @@ function BlobPreview({ blob }: { blob: Blob }) {
 }
 
 export default function JournalSidePanel({
-  imageBlob,
+  imageBlobs,
   selectedSticker,
-  onImageChange,
+  onImagesChange,
   onStickerChange,
   className,
 }: JournalSidePanelProps) {
@@ -44,29 +44,30 @@ export default function JournalSidePanel({
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (file.size > 5 * 1024 * 1024) return;
-      onImageChange(file);
+      const files = Array.from(e.target.files || []);
+      const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
+      if (!valid.length) return;
+      onImagesChange([...imageBlobs, ...valid]);
       onStickerChange(null);
+      e.target.value = '';
     },
-    [onImageChange, onStickerChange],
+    [imageBlobs, onImagesChange, onStickerChange],
   );
 
   const handleStickerSelect = useCallback(
     (id: string) => {
       onStickerChange(selectedSticker === id ? null : id);
-      onImageChange(null);
+      onImagesChange([]);
     },
-    [onImageChange, onStickerChange, selectedSticker],
+    [onImagesChange, onStickerChange, selectedSticker],
   );
 
   const clearAll = useCallback(() => {
-    onImageChange(null);
+    onImagesChange([]);
     onStickerChange(null);
-  }, [onImageChange, onStickerChange]);
+  }, [onImagesChange, onStickerChange]);
 
-  const hasContent = !!imageBlob || !!selectedSticker;
+  const hasContent = imageBlobs.length > 0 || !!selectedSticker;
   const activeStickerDef = selectedSticker
     ? BANNER_STICKERS.find(s => s.id === selectedSticker)
     : null;
@@ -131,20 +132,32 @@ export default function JournalSidePanel({
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              Photo
+              Photos
             </button>
           </div>
 
           {/* Selected preview */}
           {hasContent && (
-            <div className="rounded-lg border bg-muted/20 p-3 flex items-center justify-center min-h-[80px]">
-              {imageBlob && <BlobPreview blob={imageBlob} />}
-              {activeStickerDef && !imageBlob && (
-                <activeStickerDef.component
-                  size={64}
-                  {...(activeStickerDef.props as any)}
-                  className="drop-shadow-lg"
-                />
+            <div className="rounded-lg border bg-muted/20 p-3 space-y-2">
+              {imageBlobs.map((blob, i) => (
+                <div key={i} className="relative">
+                  <BlobPreview blob={blob} />
+                  <button
+                    onClick={() => onImagesChange(imageBlobs.filter((_, idx) => idx !== i))}
+                    className="absolute top-1 right-1 rounded-full bg-background/80 backdrop-blur p-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {activeStickerDef && imageBlobs.length === 0 && (
+                <div className="flex items-center justify-center min-h-[80px]">
+                  <activeStickerDef.component
+                    size={64}
+                    {...(activeStickerDef.props as any)}
+                    className="drop-shadow-lg"
+                  />
+                </div>
               )}
             </div>
           )}
@@ -159,9 +172,9 @@ export default function JournalSidePanel({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <ImagePlus className="w-3.5 h-3.5" />
-                {imageBlob ? 'Change Photo' : 'Upload Photo'}
+                {imageBlobs.length > 0 ? `Add More (${imageBlobs.length})` : 'Upload Photos'}
               </Button>
-              <p className="text-[10px] text-muted-foreground text-center">Max 5MB • JPG, PNG, GIF</p>
+              <p className="text-[10px] text-muted-foreground text-center">Max 5MB each • JPG, PNG, GIF</p>
             </div>
           )}
 
@@ -188,11 +201,12 @@ export default function JournalSidePanel({
         </div>
       )}
 
-      {/* Hidden file input */}
+      {/* Hidden file input - supports multiple */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleFileSelect}
       />
