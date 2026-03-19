@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { detectWithAI } from '@/lib/aiClient';
 import { cn } from '@/lib/utils';
 import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
+import { compressImages } from '@/lib/compressImage';
 import { VoiceDiagnostics } from '@/components/VoiceDiagnostics';
 
 type Detection = {
