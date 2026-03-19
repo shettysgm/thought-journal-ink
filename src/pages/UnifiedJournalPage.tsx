@@ -51,7 +51,7 @@ function MobileBlobPreview({ blob }: { blob: Blob }) {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
+  const { createEntry, updateEntry, getEntry, appendToEntry, loadEntries } = useEntries();
   const { aiAnalysisEnabled, autoDetectDistortions } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
