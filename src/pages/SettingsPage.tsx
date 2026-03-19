@@ -197,7 +197,30 @@ export default function SettingsPage() {
             <p className="text-muted-foreground">Manage your privacy and preferences</p>
         </header>
 
-        {/* Privacy & Security */}
+        {/* Storage Usage */}
+        {storageUsage && (
+          <Card className="shadow-soft">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <HardDrive className="w-4 h-4" />
+                Device Storage
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Progress value={(storageUsage.used / storageUsage.quota) * 100} className="h-2" />
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>{(storageUsage.used / 1024 / 1024).toFixed(1)} MB used</span>
+                <span>{(storageUsage.quota / 1024 / 1024).toFixed(0)} MB available</span>
+              </div>
+              {storageUsage.used / storageUsage.quota > 0.7 && (
+                <p className="text-xs text-destructive">
+                  ⚠️ Storage is getting full. Consider exporting and deleting old entries with photos.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-medium">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
