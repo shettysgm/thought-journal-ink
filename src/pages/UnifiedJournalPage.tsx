@@ -252,25 +252,33 @@ export default function UnifiedJournalPage() {
     onError: handleSpeechError,
   });
 
-  // Persist banner blob + sticker to IDB for a given entry
+  // Persist banner blobs + sticker to IDB for a given entry
   const saveBannerData = useCallback(async (eid: string) => {
-    const blob = bannerImageBlobRef.current;
+    const blobs = bannerImageBlobsRef.current;
     const sticker = bannerStickerRef.current;
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
       if (existing) {
         const updated = { ...existing } as any;
-        // Clean: explicitly set or delete to avoid undefined serialization issues
         if (sticker) {
           updated.bannerSticker = sticker;
         } else {
           delete updated.bannerSticker;
         }
-        if (blob) {
-          updated.bannerBlob = blob;
+        if (blobs.length > 0) {
+          updated.bannerBlobs = blobs;
         } else {
-          delete updated.bannerBlob;
+          delete updated.bannerBlobs;
+        }
+        // Clean up legacy single blob
+        delete updated.bannerBlob;
+        await saveJournalEntry(updated);
+      }
+    } catch (e) {
+      console.error('Banner save error:', e);
+    }
+  }, []);
         }
         await saveJournalEntry(updated);
       }
