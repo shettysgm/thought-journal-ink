@@ -462,9 +462,22 @@ export default function JournalPage() {
                 <CardContent className="p-4 sm:p-6">
                   <div>
                     {/* Photo or sticker floated right */}
-                    {entryBlob ? (
-                      <div className="w-full h-36 sm:h-44 -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 rounded-t-lg overflow-hidden">
-                        <BlobImage blob={entryBlob} alt="Journal banner" className="w-full h-full" />
+                    {entryBlobs.length > 0 ? (
+                      <div className={cn(
+                        "w-full -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 rounded-t-lg overflow-hidden",
+                        entryBlobs.length === 1 ? "h-36 sm:h-44" : ""
+                      )}>
+                        {entryBlobs.length === 1 ? (
+                          <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
+                        ) : (
+                          <div className="flex gap-1 overflow-x-auto snap-x snap-mandatory h-36 sm:h-44">
+                            {entryBlobs.map((blob, i) => (
+                              <div key={i} className="flex-shrink-0 snap-center h-full" style={{ width: entryBlobs.length === 2 ? '50%' : '70%' }}>
+                                <BlobImage blob={blob} alt={`Photo ${i + 1}`} className="w-full h-full" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ) : stickerDef ? (
                       <div className="float-right -mr-2 -mt-2 ml-3 mb-1">
