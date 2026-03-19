@@ -51,7 +51,7 @@ function MobileBlobPreview({ blob }: { blob: Blob }) {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry, getEntry, findTodaysEntries, appendToEntry, loadEntries } = useEntries();
+  const { createEntry, updateEntry, getEntry, appendToEntry, loadEntries } = useEntries();
   const { aiAnalysisEnabled, autoDetectDistortions } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -165,7 +165,15 @@ export default function UnifiedJournalPage() {
         }
       } else {
         // New session - check if we should append to today's entry
-        const todaysEntries = findTodaysEntries();
+        // Read entries directly from the store after loadEntries has resolved
+        const currentEntries = useEntries.getState().entries;
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+        const todaysEntries = currentEntries.filter(entry => {
+          const entryDate = new Date(entry.createdAt);
+          return entryDate >= startOfDay && entryDate <= endOfDay;
+        });
         const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
         
         if (todaysUnifiedEntry) {
@@ -186,7 +194,7 @@ export default function UnifiedJournalPage() {
     };
     
     initialize();
-  }, [editEntryId, getEntry, toast, loadEntries, findTodaysEntries]);
+  }, [editEntryId, getEntry, toast, loadEntries]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
     const trimmed = (finalText || '').trim();
