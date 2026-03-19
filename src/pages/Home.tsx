@@ -77,6 +77,12 @@ export default function Home() {
           </p>
         </header>
 
+        {/* Streak + Daily Prompt */}
+        <div className="space-y-3">
+          <StreakTracker />
+          <DailyPrompt />
+        </div>
+
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {navigationCards.map((card) => {
