@@ -279,13 +279,6 @@ export default function UnifiedJournalPage() {
       console.error('Banner save error:', e);
     }
   }, []);
-        }
-        await saveJournalEntry(updated);
-      }
-    } catch (e) {
-      console.error('Banner save error:', e);
-    }
-  }, []);
 
   // Auto-save effect
   useEffect(() => {
