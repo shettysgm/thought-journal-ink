@@ -772,7 +772,7 @@ export default function UnifiedJournalPage() {
                       key={sticker.id}
                       onClick={() => {
                         setBannerSticker(bannerSticker === sticker.id ? null : sticker.id);
-                        setBannerImageBlob(null);
+                        setBannerImageBlobs([]);
                         setMobileStickerDrawerOpen(false);
                         if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                       }}
