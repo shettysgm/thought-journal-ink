@@ -893,10 +893,10 @@ export default function UnifiedJournalPage() {
             <div className="hidden sm:block w-48 lg:w-56 flex-shrink-0">
               <div className="sticky top-20 bg-card rounded-lg shadow-sm border">
                 <JournalSidePanel
-                  imageBlob={bannerImageBlob}
+                  imageBlobs={bannerImageBlobs}
                   selectedSticker={bannerSticker}
-                  onImageChange={(blob) => {
-                    setBannerImageBlob(blob);
+                  onImagesChange={(blobs) => {
+                    setBannerImageBlobs(blobs);
                     // Immediately persist if entry exists
                     if (entryId) {
                       // Use a microtask so ref is updated first
