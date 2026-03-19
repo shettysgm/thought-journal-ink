@@ -44,11 +44,12 @@ export default function JournalSidePanel({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || []);
       const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
       if (!valid.length) return;
-      onImagesChange([...imageBlobs, ...valid]);
+      const compressed = await compressImages(valid);
+      onImagesChange([...imageBlobs, ...compressed]);
       onStickerChange(null);
       e.target.value = '';
     },

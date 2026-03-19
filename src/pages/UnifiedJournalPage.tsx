@@ -752,11 +752,12 @@ export default function UnifiedJournalPage() {
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const files = Array.from(e.target.files || []);
                   const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
                   if (!valid.length) return;
-                  setBannerImageBlobs(prev => [...prev, ...valid]);
+                  const compressed = await compressImages(valid);
+                  setBannerImageBlobs(prev => [...prev, ...compressed]);
                   setBannerSticker(null);
                   setMobileStickerDrawerOpen(false);
                   if (entryId) setTimeout(() => saveBannerData(entryId), 0);
