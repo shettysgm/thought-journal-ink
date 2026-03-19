@@ -743,20 +743,23 @@ export default function UnifiedJournalPage() {
                 onClick={() => mobileFileInputRef.current?.click()}
               >
                 <ImagePlus className="w-4 h-4" />
-                {bannerImageBlob ? 'Change Photo' : 'Upload Photo'}
+                {bannerImageBlobs.length > 0 ? `Add More Photos (${bannerImageBlobs.length})` : 'Upload Photos'}
               </Button>
               <input
                 ref={mobileFileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file || file.size > 5 * 1024 * 1024) return;
-                  setBannerImageBlob(file);
+                  const files = Array.from(e.target.files || []);
+                  const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
+                  if (!valid.length) return;
+                  setBannerImageBlobs(prev => [...prev, ...valid]);
                   setBannerSticker(null);
                   setMobileStickerDrawerOpen(false);
                   if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                  e.target.value = '';
                 }}
               />
 
