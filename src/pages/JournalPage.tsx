@@ -1,5 +1,5 @@
 import { useState, useEffect, type MouseEvent, useMemo } from 'react';
-import { subDays, isAfter, startOfDay as startOfDayFn } from 'date-fns';
+import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Mic, Search, Trash2, FileDown, Smile, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
-import { format, isSameDay, startOfDay } from 'date-fns';
 import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
