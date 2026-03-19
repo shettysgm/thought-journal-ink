@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, HelpCircle, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
+import DailyPrompt from "@/components/DailyPrompt";
+import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
 import journalIqLogo from "@/assets/journal-iq-logo.png";
