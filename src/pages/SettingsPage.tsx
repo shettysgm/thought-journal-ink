@@ -42,6 +42,18 @@ export default function SettingsPage() {
   const [confirmLockPin, setConfirmLockPin] = useState('');
   const [isSettingLock, setIsSettingLock] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [storageUsage, setStorageUsage] = useState<{ used: number; quota: number } | null>(null);
+
+  const loadStorageUsage = useCallback(async () => {
+    if ('storage' in navigator && 'estimate' in navigator.storage) {
+      try {
+        const est = await navigator.storage.estimate();
+        setStorageUsage({ used: est.usage || 0, quota: est.quota || 0 });
+      } catch {
+        // Not available
+      }
+    }
+  }, []);
 
   useEffect(() => {
     loadSettings();
