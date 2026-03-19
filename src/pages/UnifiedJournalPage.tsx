@@ -82,16 +82,16 @@ export default function UnifiedJournalPage() {
   const [lastSpeechError, setLastSpeechError] = useState<string | null>(null);
 
   // Banner state
-  const [bannerImageBlob, setBannerImageBlob] = useState<Blob | null>(null);
+  const [bannerImageBlobs, setBannerImageBlobs] = useState<Blob[]>([]);
   const [bannerSticker, setBannerSticker] = useState<string | null>(null);
-  const bannerImageBlobRef = useRef<Blob | null>(null);
+  const bannerImageBlobsRef = useRef<Blob[]>([]);
   const bannerStickerRef = useRef<string | null>(null);
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Keep refs in sync
-  useEffect(() => { bannerImageBlobRef.current = bannerImageBlob; }, [bannerImageBlob]);
+  useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
 
   useEffect(() => {
