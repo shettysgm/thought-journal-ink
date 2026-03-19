@@ -132,7 +132,7 @@ export default function JournalPage() {
         return isSameDay(new Date(entry.createdAt), selectedDate);
       }
       // Default: only show last 3 days
-      const threeDaysAgo = startOfDayFn(subDays(new Date(), 2));
+      const threeDaysAgo = startOfDay(subDays(new Date(), 2));
       return isAfter(new Date(entry.createdAt), threeDaysAgo);
     })
     .filter(entry => {
