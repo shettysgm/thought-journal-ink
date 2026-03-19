@@ -143,8 +143,11 @@ export default function UnifiedJournalPage() {
             // Load banner blob from IDB
             const { getJournalEntry } = await import('@/lib/idb');
             const raw = await getJournalEntry(editEntryId);
-            if (raw && (raw as any).bannerBlob) {
-              setBannerImageBlob((raw as any).bannerBlob);
+            if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
+              setBannerImageBlobs((raw as any).bannerBlobs);
+            } else if (raw && (raw as any).bannerBlob) {
+              // Backwards compat: single blob → array
+              setBannerImageBlobs([(raw as any).bannerBlob]);
             }
             if (entry.reframes) {
               const detectionsList: Detection[] = entry.reframes.map(r => ({
