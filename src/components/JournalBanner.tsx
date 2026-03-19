@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { compressImages } from '@/lib/compressImage';
 import { ImagePlus, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -43,15 +44,14 @@ export default function JournalBanner({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
-      // Filter to max 5MB each
       const validFiles = files.filter(f => f.size <= 5 * 1024 * 1024);
       if (!validFiles.length) return;
-      onImagesChange([...imageBlobs, ...validFiles]);
+      const compressed = await compressImages(validFiles);
+      onImagesChange([...imageBlobs, ...compressed]);
       onStickerChange(null);
-      // Reset input so same file can be re-selected
       e.target.value = '';
     },
     [imageBlobs, onImagesChange, onStickerChange],

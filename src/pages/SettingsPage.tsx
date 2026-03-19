@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown } from 'lucide-react';
+import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -12,6 +12,7 @@ import { useDistortions } from '@/store/useDistortions';
 import { useToast } from '@/hooks/use-toast';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { useEntries } from '@/store/useEntries';
+import { Progress } from '@/components/ui/progress';
 
 export default function SettingsPage() {
   const { 
@@ -41,10 +42,23 @@ export default function SettingsPage() {
   const [confirmLockPin, setConfirmLockPin] = useState('');
   const [isSettingLock, setIsSettingLock] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [storageUsage, setStorageUsage] = useState<{ used: number; quota: number } | null>(null);
+
+  const loadStorageUsage = useCallback(async () => {
+    if ('storage' in navigator && 'estimate' in navigator.storage) {
+      try {
+        const est = await navigator.storage.estimate();
+        setStorageUsage({ used: est.usage || 0, quota: est.quota || 0 });
+      } catch {
+        // Not available
+      }
+    }
+  }, []);
 
   useEffect(() => {
     loadSettings();
-  }, [loadSettings]);
+    loadStorageUsage();
+  }, [loadSettings, loadStorageUsage]);
 
   const handleEncryptionToggle = async (enabled: boolean) => {
     if (enabled && !currentPassphrase) {
@@ -183,7 +197,30 @@ export default function SettingsPage() {
             <p className="text-muted-foreground">Manage your privacy and preferences</p>
         </header>
 
-        {/* Privacy & Security */}
+        {/* Storage Usage */}
+        {storageUsage && (
+          <Card className="shadow-soft">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <HardDrive className="w-4 h-4" />
+                Device Storage
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Progress value={(storageUsage.used / storageUsage.quota) * 100} className="h-2" />
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>{(storageUsage.used / 1024 / 1024).toFixed(1)} MB used</span>
+                <span>{(storageUsage.quota / 1024 / 1024).toFixed(0)} MB available</span>
+              </div>
+              {storageUsage.used / storageUsage.quota > 0.7 && (
+                <p className="text-xs text-destructive">
+                  ⚠️ Storage is getting full. Consider exporting and deleting old entries with photos.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-medium">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
