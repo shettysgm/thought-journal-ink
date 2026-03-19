@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, HelpCircle, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
+import DailyPrompt from "@/components/DailyPrompt";
+import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
 import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
 import journalIqLogo from "@/assets/journal-iq-logo.png";
@@ -74,6 +76,12 @@ export default function Home() {
             A private, secure space to explore your thoughts, identify patterns, and practice healthier thinking habits.
           </p>
         </header>
+
+        {/* Streak + Daily Prompt */}
+        <div className="space-y-3">
+          <StreakTracker />
+          <DailyPrompt />
+        </div>
 
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
