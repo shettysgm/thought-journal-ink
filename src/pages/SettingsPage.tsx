@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
