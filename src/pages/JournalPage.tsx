@@ -38,7 +38,7 @@ export default function JournalPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob>>({});
+  const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob[]>>({});
   const [exporting, setExporting] = useState(false);
   const [stickerPickerOpen, setStickerPickerOpen] = useState<string | null>(null);
   const [stickerCategory, setStickerCategory] = useState('moods');
