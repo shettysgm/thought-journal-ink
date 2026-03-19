@@ -57,7 +57,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadSettings();
-  }, [loadSettings]);
+    loadStorageUsage();
+  }, [loadSettings, loadStorageUsage]);
 
   const handleEncryptionToggle = async (enabled: boolean) => {
     if (enabled && !currentPassphrase) {
