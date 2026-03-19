@@ -165,7 +165,15 @@ export default function UnifiedJournalPage() {
         }
       } else {
         // New session - check if we should append to today's entry
-        const todaysEntries = findTodaysEntries();
+        // Read entries directly from the store after loadEntries has resolved
+        const currentEntries = useEntries.getState().entries;
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+        const todaysEntries = currentEntries.filter(entry => {
+          const entryDate = new Date(entry.createdAt);
+          return entryDate >= startOfDay && entryDate <= endOfDay;
+        });
         const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
         
         if (todaysUnifiedEntry) {
