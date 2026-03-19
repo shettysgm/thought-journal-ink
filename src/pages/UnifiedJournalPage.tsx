@@ -194,7 +194,7 @@ export default function UnifiedJournalPage() {
     };
     
     initialize();
-  }, [editEntryId, getEntry, toast, loadEntries, findTodaysEntries]);
+  }, [editEntryId, getEntry, toast, loadEntries]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
     const trimmed = (finalText || '').trim();
