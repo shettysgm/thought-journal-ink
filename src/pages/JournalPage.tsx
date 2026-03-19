@@ -74,11 +74,14 @@ export default function JournalPage() {
       // Load banner blobs from IDB
       try {
         const { getJournalEntry } = await import('@/lib/idb');
-        const blobs: Record<string, Blob> = {};
+        const blobs: Record<string, Blob[]> = {};
         for (const entry of state.entries) {
           const raw = await getJournalEntry(entry.id) as any;
-          if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
-            blobs[entry.id] = raw.bannerBlob;
+          if (raw?.bannerBlobs && Array.isArray(raw.bannerBlobs)) {
+            blobs[entry.id] = raw.bannerBlobs;
+          } else if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
+            // Backwards compat: single blob → array
+            blobs[entry.id] = [raw.bannerBlob];
           }
         }
         setBannerBlobs(blobs);
