@@ -808,19 +808,19 @@ export default function UnifiedJournalPage() {
               )}
 
               {/* Selected sticker/photo preview inside editor */}
-              {(bannerImageBlob || bannerSticker) && (
-                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20">
-                  {bannerImageBlob && (
-                    <MobileBlobPreview blob={bannerImageBlob} />
-                  )}
-                  {bannerSticker && !bannerImageBlob && (() => {
+              {(bannerImageBlobs.length > 0 || bannerSticker) && (
+                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20 gap-2 overflow-x-auto">
+                  {bannerImageBlobs.map((blob, i) => (
+                    <MobileBlobPreview key={i} blob={blob} />
+                  ))}
+                  {bannerSticker && bannerImageBlobs.length === 0 && (() => {
                     const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
                     if (!def) return null;
                     return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
                   })()}
                   <button
                     onClick={() => {
-                      setBannerImageBlob(null);
+                      setBannerImageBlobs([]);
                       setBannerSticker(null);
                       if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                     }}
