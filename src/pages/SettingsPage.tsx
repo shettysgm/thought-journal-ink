@@ -12,6 +12,7 @@ import { useDistortions } from '@/store/useDistortions';
 import { useToast } from '@/hooks/use-toast';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { useEntries } from '@/store/useEntries';
+import { Progress } from '@/components/ui/progress';
 
 export default function SettingsPage() {
   const { 
