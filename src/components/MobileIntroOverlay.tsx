@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, TouchEvent } from 'react';
-import { X, Feather, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
+import { X, Feather, Brain, Shield, Sparkles, ChevronRight, CloudUpload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import quillIcon from '@/assets/quill-icon-new.png';
@@ -42,6 +42,13 @@ const slides = [
     description: "Type, speak, or handwrite your thoughts - whatever feels natural to you.",
     color: "text-therapeutic-warmth",
     bgColor: "bg-therapeutic-warmth/20"
+  },
+  {
+    icon: CloudUpload,
+    title: "Back Up Your Journal",
+    description: "Export your entries anytime from Settings. Your data, your control.",
+    color: "text-primary",
+    bgColor: "bg-primary/10"
   }
 ];
 
@@ -170,6 +177,10 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                       alt="Express Yourself Icon" 
                       className="w-full h-full object-contain animate-fade-in-scale" 
                     />
+                  </div>
+                ) : currentSlide === 4 ? (
+                  <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
+                    <slide.icon className={`w-10 h-10 ${slide.color}`} />
                   </div>
                 ) : (
                   <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
