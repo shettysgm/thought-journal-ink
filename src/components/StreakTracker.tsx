@@ -99,7 +99,7 @@ export default function StreakTracker() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-card-foreground">
-            {streak.current} / 21 days
+            {streak.current}–21 Habit Journey
           </p>
           <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
         </div>
