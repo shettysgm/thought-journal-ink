@@ -97,8 +97,8 @@ export default function StreakTracker() {
   return (
     <div className="flex items-center justify-between bg-card rounded-xl border border-border p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-100 to-red-200 shadow-sm">
-          <Flame className={`w-6 h-6 text-orange-500 ${
+        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-100 shadow-sm">
+          <Flame className={`w-6 h-6 text-orange-300 ${
             streak.current > 0 ? 'animate-[pulse_1.5s_ease-in-out_infinite]' : 'opacity-80'
           }`} />
         </div>

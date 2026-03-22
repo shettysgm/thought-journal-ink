@@ -44,8 +44,8 @@ export default function DailyPrompt() {
       onClick={() => navigate('/unified')}
     >
       <CardContent className="p-4 flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-100 to-amber-200 flex items-center justify-center shrink-0 shadow-sm">
-          <Lightbulb className="w-6 h-6 text-amber-500" />
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-50 to-amber-100 flex items-center justify-center shrink-0 shadow-sm">
+          <Lightbulb className="w-6 h-6 text-amber-300" />
         </div>
         <div className="space-y-1">
           <p className="text-xs font-medium text-primary uppercase tracking-wide">Today's Prompt</p>
