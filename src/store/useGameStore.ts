@@ -26,21 +26,21 @@ export interface Achievement {
 }
 
 const ACHIEVEMENT_DEFS: Omit<Achievement, 'unlockedAt'>[] = [
-  { id: 'first_entry', title: 'First Steps', description: 'Write your first journal entry', icon: '✏️', condition: 'entries >= 1' },
-  { id: 'streak_3', title: 'Getting Started', description: 'Reach a 3-day streak', icon: '🔥', condition: 'streak >= 3' },
-  { id: 'streak_7', title: 'Week Warrior', description: 'Reach a 7-day streak', icon: '⚡', condition: 'streak >= 7' },
-  { id: 'streak_14', title: 'Fortnight Force', description: 'Reach a 14-day streak', icon: '💪', condition: 'streak >= 14' },
-  { id: 'streak_21', title: 'Habit Formed', description: 'Complete 21-day habit journey', icon: '🏆', condition: 'streak >= 21' },
-  { id: 'entries_5', title: 'Dedicated', description: 'Write 5 journal entries', icon: '📝', condition: 'entries >= 5' },
-  { id: 'entries_10', title: 'Consistent', description: 'Write 10 journal entries', icon: '📚', condition: 'entries >= 10' },
-  { id: 'entries_25', title: 'Prolific', description: 'Write 25 journal entries', icon: '🎯', condition: 'entries >= 25' },
-  { id: 'entries_50', title: 'Veteran', description: 'Write 50 journal entries', icon: '⭐', condition: 'entries >= 50' },
-  { id: 'quiz_first', title: 'Quiz Taker', description: 'Complete your first CBT quiz', icon: '🧠', condition: 'quizzes >= 1' },
-  { id: 'quiz_5', title: 'Knowledge Seeker', description: 'Complete 5 CBT quizzes', icon: '🎓', condition: 'quizzes >= 5' },
-  { id: 'words_1000', title: 'Wordsmith', description: 'Write 1,000 total words', icon: '✨', condition: 'words >= 1000' },
-  { id: 'words_5000', title: 'Author', description: 'Write 5,000 total words', icon: '📖', condition: 'words >= 5000' },
-  { id: 'level_5', title: 'Rising Star', description: 'Reach Level 5', icon: '🌟', condition: 'level >= 5' },
-  { id: 'level_10', title: 'Legendary', description: 'Reach Level 10', icon: '👑', condition: 'level >= 10' },
+  { id: 'first_entry', title: 'First Steps', description: 'Write your first journal entry', icon: 'pencil', condition: 'entries >= 1' },
+  { id: 'streak_3', title: 'Getting Started', description: 'Reach a 3-day streak', icon: 'flame', condition: 'streak >= 3' },
+  { id: 'streak_7', title: 'Week Warrior', description: 'Reach a 7-day streak', icon: 'zap', condition: 'streak >= 7' },
+  { id: 'streak_14', title: 'Fortnight Force', description: 'Reach a 14-day streak', icon: 'shield', condition: 'streak >= 14' },
+  { id: 'streak_21', title: 'Habit Formed', description: 'Complete 21-day habit journey', icon: 'trophy', condition: 'streak >= 21' },
+  { id: 'entries_5', title: 'Dedicated', description: 'Write 5 journal entries', icon: 'notebook-pen', condition: 'entries >= 5' },
+  { id: 'entries_10', title: 'Consistent', description: 'Write 10 journal entries', icon: 'book-open', condition: 'entries >= 10' },
+  { id: 'entries_25', title: 'Prolific', description: 'Write 25 journal entries', icon: 'target', condition: 'entries >= 25' },
+  { id: 'entries_50', title: 'Veteran', description: 'Write 50 journal entries', icon: 'star', condition: 'entries >= 50' },
+  { id: 'quiz_first', title: 'Quiz Taker', description: 'Complete your first CBT quiz', icon: 'brain', condition: 'quizzes >= 1' },
+  { id: 'quiz_5', title: 'Knowledge Seeker', description: 'Complete 5 CBT quizzes', icon: 'graduation-cap', condition: 'quizzes >= 5' },
+  { id: 'words_1000', title: 'Wordsmith', description: 'Write 1,000 total words', icon: 'sparkles', condition: 'words >= 1000' },
+  { id: 'words_5000', title: 'Author', description: 'Write 5,000 total words', icon: 'book-marked', condition: 'words >= 5000' },
+  { id: 'level_5', title: 'Rising Star', description: 'Reach Level 5', icon: 'sun', condition: 'level >= 5' },
+  { id: 'level_10', title: 'Legendary', description: 'Reach Level 10', icon: 'crown', condition: 'level >= 10' },
 ];
 
 // === DAILY CHALLENGES ===
