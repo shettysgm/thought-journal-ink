@@ -1,50 +1,14 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, HelpCircle, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
+import { HelpCircle, Settings, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import DailyPrompt from "@/components/DailyPrompt";
 import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
-import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
-import journalIqLogo from "@/assets/journal-iq-logo.png";
 import quillIcon from "@/assets/quill-icon-new.png";
-import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
 
-const navigationCards = [
-  {
-    title: "New Entry",
-    description: "Type or speak — seamlessly switch between both",
-    icon: Type,
-    href: "/unified",
-    gradient: "bg-gradient-primary",
-    color: "primary"
-  },
-  {
-    title: "My Journal",
-    description: "View all your saved entries",
-    icon: BookOpen,
-    href: "/journal",
-    gradient: "bg-therapeutic-energy",
-    color: "therapeutic-energy"
-  },
-  {
-    title: "CBT Quiz",
-    description: "Practice identifying distortions",
-    icon: HelpCircle,
-    href: "/quiz",
-    gradient: "bg-gradient-secondary", 
-    color: "secondary"
-  },
-  {
-    title: "Why CBT Works",
-    description: "Learn how journaling rewires your brain for success",
-    icon: Lightbulb,
-    href: "/why-cbt",
-    gradient: "bg-therapeutic-focus",
-    color: "therapeutic-focus"
-  }
-];
+
 
 export default function Home() {
   console.log('Home component rendering');
@@ -53,101 +17,81 @@ export default function Home() {
     <>
       <MobileIntroOverlay openSignal={introSignal} />
       <div 
-        className="min-h-[100svh] bg-white px-4 md:px-6 pt-14 pb-6"
+        className="min-h-[100svh] bg-background px-4 md:px-6 pt-14 pb-6"
         style={{ 
           paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
           paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
         }}
       >
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex justify-end">
             <Button variant="outline" size="sm" onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}>
               Show Intro
             </Button>
           </div>
           
-          {/* Header */}
-        <header className="text-center space-y-4 pt-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={quillIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground">Journal Inc</h1>
-          </div>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            A private, secure space to explore your thoughts, identify patterns, and practice healthier thinking habits.
-          </p>
-        </header>
+          {/* Header - compact */}
+          <header className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-3">
+              <img src={quillIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Journal Inc</h1>
+            </div>
+          </header>
 
-        {/* Streak + Daily Prompt */}
-        <div className="space-y-3">
+          {/* Hero: Streak Tracker - prominent */}
           <StreakTracker />
+
+          {/* Hero: Daily Prompt - prominent */}
           <DailyPrompt />
-        </div>
 
-        {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {navigationCards.map((card) => {
-            const IconComponent = card.icon;
-            return (
-              <Link key={card.href} to={card.href} className="group">
-                <Card className="h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-border bg-card shadow-md">
-                  <CardContent className="p-4 md:p-8 text-center space-y-3 md:space-y-4">
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${card.gradient} flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg md:text-xl font-semibold text-card-foreground mb-2">
-                        {card.title}
-                      </h3>
-                      <p className="text-sm md:text-base text-muted-foreground">
-                        {card.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex justify-center gap-4 pt-4">
-          <Link to="/settings">
-            <Button variant="outline" size="sm" className="gap-2 md:text-base">
-              <Settings className="w-4 h-4" />
-              Settings
+          {/* Quick start CTA */}
+          <Link to="/unified" className="block">
+            <Button className="w-full gap-2 h-12 text-base font-semibold shadow-md">
+              <Type className="w-5 h-5" />
+              Start Today's Entry
             </Button>
           </Link>
-        </div>
 
-        {/* AI Usage Notice */}
-        <div className="text-center text-sm text-muted-foreground bg-card/50 rounded-lg p-4 backdrop-blur-sm space-y-2">
-          <p>
-            🔒 Your journal entries stay private and secure on this device.
-          </p>
-          <p>
-            🤖 <strong>This app uses AI</strong> to analyze your entries and detect cognitive distortions to help you develop healthier thinking patterns.
-          </p>
-        </div>
-
-        {/* Footer Links */}
-        <footer className="text-center text-sm text-muted-foreground pb-8 space-y-2">
-          <div className="flex items-center justify-center gap-4">
-            <a 
-              href="/privacy" 
-              className="hover:text-foreground transition-colors underline"
-            >
-              Privacy Policy
-            </a>
-            <span>•</span>
-            <a 
-              href="/terms" 
-              className="hover:text-foreground transition-colors underline"
-            >
-              Terms of Service
-            </a>
+          {/* Secondary Navigation */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { title: "Journal", icon: BookOpen, href: "/journal" },
+              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz" },
+              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt" },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.href} to={item.href}>
+                  <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                    <CardContent className="p-4 text-center space-y-2">
+                      <Icon className="w-5 h-5 mx-auto text-primary" />
+                      <p className="text-sm font-medium text-card-foreground">{item.title}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
-        </footer>
 
+          {/* Settings */}
+          <div className="flex justify-center pt-2">
+            <Link to="/settings">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Settings
+              </Button>
+            </Link>
+          </div>
+
+          {/* Footer */}
+          <footer className="text-center text-sm text-muted-foreground pb-8 space-y-2">
+            <p>🔒 Private & secure on this device. 🤖 AI-powered distortion detection.</p>
+            <div className="flex items-center justify-center gap-4">
+              <a href="/privacy" className="hover:text-foreground transition-colors underline">Privacy</a>
+              <span>•</span>
+              <a href="/terms" className="hover:text-foreground transition-colors underline">Terms</a>
+            </div>
+          </footer>
         </div>
       </div>
     </>
