@@ -42,6 +42,13 @@ const slides = [
     description: "Type, speak, or handwrite your thoughts - whatever feels natural to you.",
     color: "text-therapeutic-warmth",
     bgColor: "bg-therapeutic-warmth/20"
+  },
+  {
+    icon: CloudUpload,
+    title: "Back Up Your Journal",
+    description: "Export your entries anytime from Settings. Your data, your control.",
+    color: "text-primary",
+    bgColor: "bg-primary/10"
   }
 ];
 
