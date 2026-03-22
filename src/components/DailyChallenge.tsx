@@ -1,11 +1,11 @@
 import { useGameStore } from '@/store/useGameStore';
-import { Check, Pencil, Type, MessageSquareText, Brain } from 'lucide-react';
+import { Check, PenLine, Type, Lightbulb, HelpCircle } from 'lucide-react';
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
-  write: Pencil,
+  write: PenLine,
   words: Type,
-  prompt: MessageSquareText,
-  quiz: Brain,
+  prompt: Lightbulb,
+  quiz: HelpCircle,
 };
 
 export default function DailyChallenges() {
