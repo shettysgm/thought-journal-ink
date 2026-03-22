@@ -39,7 +39,7 @@ const slides = [
   {
     icon: Sparkles,
     title: "Multiple Ways to Express",
-    description: "Type, speak, or handwrite your thoughts - whatever feels natural to you.",
+    description: "Type or speak your thoughts - whatever feels natural to you.",
     color: "text-therapeutic-warmth",
     bgColor: "bg-therapeutic-warmth/20"
   },
