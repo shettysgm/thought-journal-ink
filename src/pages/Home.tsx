@@ -41,6 +41,7 @@ export default function Home() {
 
           {/* Hero: Streak Tracker - prominent */}
           <StreakTracker />
+          <StreakReminder />
 
           {/* Hero: Daily Prompt - prominent */}
           <DailyPrompt />
