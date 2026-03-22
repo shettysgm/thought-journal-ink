@@ -5,7 +5,7 @@ const navItems = [
   { path: '/', icon: LayoutGrid, label: 'Home' },
   { path: '/text', icon: PenLine, label: 'Write' },
   { path: '/journal', icon: BookOpen, label: 'Journal' },
-  { path: '/quiz', icon: Brain, label: 'Quiz' },
+  { path: '/quiz', icon: HelpCircle, label: 'Quiz' },
 ];
 
 export default function BottomNav() {
