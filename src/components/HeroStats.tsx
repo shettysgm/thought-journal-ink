@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Flame, CircleDot } from 'lucide-react';
+import { TrendingUp, Zap, CircleDot } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
 
@@ -76,8 +76,8 @@ export default function HeroStats() {
       {/* Three stats — clean horizontal */}
       <div className="flex items-center justify-around text-center">
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-50 to-red-100 flex items-center justify-center shadow-sm mb-1.5">
-            <Flame className="w-4 h-4 text-destructive" strokeWidth={1.5} />
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center shadow-sm mb-1.5">
+            <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
           </div>
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
