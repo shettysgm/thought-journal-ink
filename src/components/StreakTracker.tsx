@@ -94,42 +94,58 @@ export default function StreakTracker() {
     setStreak(computeStreak(entries));
   }, [entries]);
 
+  const progress = Math.min(streak.current / 21, 1);
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
+
   return (
-    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm">
+      <div className="flex items-center gap-5">
+        {/* Circular progress ring */}
+        <div className="relative w-28 h-28 shrink-0">
+          <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+            {/* Background ring */}
+            <circle
+              cx="60" cy="60" r={radius}
+              fill="none"
+              stroke="hsl(var(--muted))"
+              strokeWidth="8"
+            />
+            {/* Progress ring */}
+            <circle
+              cx="60" cy="60" r={radius}
+              fill="none"
+              stroke="url(#streakGradient)"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              className="transition-all duration-700 ease-out"
+            />
+            <defs>
+              <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#99f6e4" />
+                <stop offset="100%" stopColor="#5eead4" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold text-card-foreground">{streak.current}</span>
+            <span className="text-[10px] text-muted-foreground">of 21</span>
+          </div>
+        </div>
+
+        {/* Text info */}
+        <div className="flex-1 space-y-1">
           <p className="text-sm font-semibold text-card-foreground">
-            {streak.current}–21 Habit Journey
+            Habit Journey
           </p>
           <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
+          {streak.best > 0 && (
+            <p className="text-xs text-muted-foreground mt-2">Best: {streak.best} 🏆</p>
+          )}
         </div>
-        {streak.best > 0 && (
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Best</p>
-            <p className="text-sm font-bold text-card-foreground">{streak.best} 🏆</p>
-          </div>
-        )}
-      </div>
-      {/* 21-dot tracker */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {Array.from({ length: 21 }, (_, i) => (
-          <div
-            key={i}
-            className={`w-5 h-5 rounded-full transition-all duration-300 ${
-              i < streak.current
-                ? 'bg-gradient-to-br from-teal-200 to-teal-300 shadow-sm'
-                : i === streak.current
-                ? 'border-2 border-teal-300 bg-teal-50'
-                : 'bg-muted'
-            }`}
-          />
-        ))}
-      </div>
-      <div className="flex justify-between text-[10px] text-muted-foreground px-1">
-        <span>Day 1</span>
-        <span>Day 7</span>
-        <span>Day 14</span>
-        <span>Day 21</span>
       </div>
     </div>
   );
