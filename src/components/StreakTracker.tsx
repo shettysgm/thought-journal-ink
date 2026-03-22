@@ -100,7 +100,7 @@ export default function StreakTracker() {
   const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm">
+    <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card p-5 shadow-sm">
       <div className="flex items-center gap-5">
         {/* Circular progress ring */}
         <div className="relative w-28 h-28 shrink-0">
@@ -125,8 +125,8 @@ export default function StreakTracker() {
             />
             <defs>
               <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#99f6e4" />
-                <stop offset="100%" stopColor="#5eead4" />
+                <stop offset="0%" stopColor="#fef9c3" />
+                <stop offset="100%" stopColor="#fde68a" />
               </linearGradient>
             </defs>
           </svg>
