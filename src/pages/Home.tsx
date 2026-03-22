@@ -18,7 +18,7 @@ export default function Home() {
     <>
       <MobileIntroOverlay openSignal={introSignal} />
       <div 
-        className="min-h-[100svh] bg-background px-4 md:px-6 pt-14 pb-6"
+        className="min-h-[100svh] bg-white px-4 md:px-6 pt-14 pb-6"
         style={{ 
           paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
           paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
