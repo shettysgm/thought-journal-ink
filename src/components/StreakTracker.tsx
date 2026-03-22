@@ -138,7 +138,7 @@ export default function StreakTracker() {
 
         {/* Text info */}
         <div className="flex-1 space-y-1">
-          <p className="text-xs font-medium text-primary uppercase tracking-wide">
+          <p className="text-sm font-semibold text-card-foreground">
             Habit Journey
           </p>
           <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
