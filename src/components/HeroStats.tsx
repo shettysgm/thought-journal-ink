@@ -84,8 +84,8 @@ export default function HeroStats() {
         </div>
         <div className="w-px h-10 bg-border" />
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full bg-primary/8 flex items-center justify-center mb-1.5">
-            <CircleDot className="w-4 h-4 text-primary/70" strokeWidth={1.5} />
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50/80 to-cyan-100/60 flex items-center justify-center shadow-sm mb-1.5">
+            <CircleDot className="w-4 h-4 text-primary/60" strokeWidth={1.5} />
           </div>
           <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
           <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
