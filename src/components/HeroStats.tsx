@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Flame, Target, Award, ArrowUp } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
+import iconStreak from '@/assets/icon-streak.png';
+import iconGoal from '@/assets/icon-goal.png';
+import iconBest from '@/assets/icon-best.png';
 
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
   if (entries.length === 0) return { current: 0, best: 0 };
@@ -48,7 +51,6 @@ export default function HeroStats() {
     checkAchievements(s.current);
   }, [entries, checkAchievements]);
 
-  // Seed XP from existing entries if store is fresh
   useEffect(() => {
     if (entries.length > 0 && trackedEntries === 0) {
       const { recordEntry } = useGameStore.getState();
@@ -88,28 +90,22 @@ export default function HeroStats() {
       {/* Divider */}
       <div className="h-px bg-border" />
 
-      {/* Three stats — clean horizontal */}
+      {/* Three stats with custom icons */}
       <div className="flex items-center justify-around text-center">
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center mb-1.5">
-            <Flame className="w-4 h-4 text-destructive" strokeWidth={2} />
-          </div>
+          <img src={iconStreak} alt="Streak" className="w-10 h-10 object-contain mb-1" />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center mb-1.5">
-            <Target className="w-4 h-4 text-primary" strokeWidth={2} />
-          </div>
+          <img src={iconGoal} alt="21-Day Goal" className="w-10 h-10 object-contain mb-1" />
           <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
           <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-xl bg-accent-strong/10 flex items-center justify-center mb-1.5">
-            <Award className="w-4 h-4 text-accent-strong" strokeWidth={2} />
-          </div>
+          <img src={iconBest} alt="Best Streak" className="w-10 h-10 object-contain mb-1" />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.best}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Best</p>
         </div>
