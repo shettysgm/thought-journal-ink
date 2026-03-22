@@ -73,7 +73,7 @@ export default function StreakTracker() {
       {/* Current Streak */}
       <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
         <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center mx-auto mb-2">
-          <Flame className="w-5 h-5 text-destructive" />
+          <Zap className="w-5 h-5 text-destructive" />
         </div>
         <p className="stat-number text-2xl text-card-foreground">{streak.current}</p>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">Day Streak</p>
@@ -82,7 +82,7 @@ export default function StreakTracker() {
       {/* Best Streak */}
       <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
         <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center mx-auto mb-2">
-          <span className="text-lg">🏆</span>
+          <Trophy className="w-5 h-5 text-accent-strong" />
         </div>
         <p className="stat-number text-2xl text-card-foreground">{streak.best}</p>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">Best Streak</p>
@@ -91,7 +91,7 @@ export default function StreakTracker() {
       {/* 21-day goal */}
       <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-2">
-          <span className="text-lg">🎯</span>
+          <span className="text-lg">🧭</span>
         </div>
         <p className="stat-number text-2xl text-card-foreground">{Math.round(progress * 100)}%</p>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">21-Day Goal</p>
