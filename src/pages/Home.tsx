@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Type, HelpCircle, Lightbulb, Settings, ChevronRight } from "lucide-react";
+import { BookOpen, HelpCircle, Lightbulb, Settings, Pen } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import DailyPrompt from "@/components/DailyPrompt";
 import StreakReminder from "@/components/StreakReminder";
@@ -9,117 +9,87 @@ import XPBar from "@/components/XPBar";
 import AchievementBadges from "@/components/AchievementBadges";
 import DailyChallenges from "@/components/DailyChallenge";
 import { useState } from "react";
-import { useGameStore } from "@/store/useGameStore";
 
 export default function Home() {
   const [introSignal, setIntroSignal] = useState<number | undefined>(undefined);
-  const { totalEntries, totalWords } = useGameStore();
 
   return (
     <>
       <MobileIntroOverlay openSignal={introSignal} />
       <div
-        className="min-h-[100svh] bg-background px-4 md:px-6 pt-14 pb-24"
+        className="min-h-[100svh] bg-background px-5 pb-24"
         style={{
-          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
+          paddingTop: 'max(3rem, calc(env(safe-area-inset-top, 20px) + 0.75rem))',
           paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))'
         }}
       >
-        <div className="max-w-lg mx-auto space-y-4">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Journal Inc</h1>
-              <p className="text-xs text-muted-foreground">Your mental fitness dashboard</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}
-              >
-                <HelpCircle className="w-4 h-4" />
+        <div className="max-w-lg mx-auto space-y-5">
+          {/* Header — minimal */}
+          <div className="flex items-center justify-between pt-2">
+            <h1 className="text-lg font-semibold text-foreground tracking-tight">Journal Inc</h1>
+            <Link to="/settings">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                <Settings className="w-4 h-4" />
               </Button>
-              <Link to="/settings">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
 
-          {/* XP / Level Bar */}
+          {/* Level + XP — compact */}
           <XPBar />
 
-          {/* Stats row */}
+          {/* Stats strip */}
           <StreakTracker />
 
-          {/* Streak warning */}
+          {/* Streak nudge */}
           <StreakReminder />
 
-          {/* CTA */}
+          {/* Primary CTA */}
           <Link to="/unified" className="block">
-            <Button className="w-full gap-2 h-12 text-base font-semibold shadow-medium rounded-xl">
-              <Type className="w-5 h-5" />
-              Start Today's Entry
-              <ChevronRight className="w-4 h-4 ml-auto" />
-            </Button>
+            <button className="w-full flex items-center justify-center gap-2.5 h-[52px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
+              <Pen className="w-[18px] h-[18px]" />
+              Write today's entry
+            </button>
           </Link>
 
-          {/* Daily Challenges */}
+          {/* Challenges */}
           <DailyChallenges />
 
-          {/* Daily Prompt */}
+          {/* Prompt */}
           <DailyPrompt />
 
           {/* Achievements */}
           <AchievementBadges />
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Total Entries</p>
-              <p className="stat-number text-2xl text-card-foreground mt-1">{totalEntries}</p>
-            </div>
-            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Words Written</p>
-              <p className="stat-number text-2xl text-card-foreground mt-1">{totalWords.toLocaleString()}</p>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="space-y-2">
+          {/* Quick links — borderless, inline */}
+          <div className="flex items-center justify-center gap-6 pt-1">
             {[
-              { title: "Past Entries", desc: "Review your journal", icon: BookOpen, href: "/journal" },
-              { title: "CBT Quiz", desc: "Test your knowledge", icon: HelpCircle, href: "/quiz" },
-              { title: "Why CBT?", desc: "Learn the science", icon: Lightbulb, href: "/why-cbt" },
+              { label: "Journal", icon: BookOpen, href: "/journal" },
+              { label: "Quiz", icon: HelpCircle, href: "/quiz" },
+              { label: "Why CBT", icon: Lightbulb, href: "/why-cbt" },
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <Link key={item.href} to={item.href}>
-                  <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card shadow-soft hover:shadow-medium hover:border-primary/20 transition-all duration-200">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Icon className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-card-foreground">{item.title}</p>
-                      <p className="text-[11px] text-muted-foreground">{item.desc}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center">
+                    <Icon className="w-[18px] h-[18px]" />
                   </div>
+                  <span className="text-[11px] font-medium">{item.label}</span>
                 </Link>
               );
             })}
           </div>
 
-          {/* Footer */}
-          <footer className="text-center text-xs text-muted-foreground pb-4 space-y-1.5 pt-2">
-            <p>🔒 Private & secure · 🤖 AI-powered insights</p>
+          {/* Footer — minimal */}
+          <footer className="text-center text-[11px] text-muted-foreground pt-2 pb-2 space-y-1">
+            <p>Private & secure · AI-powered</p>
             <div className="flex items-center justify-center gap-3">
-              <a href="/privacy" className="hover:text-foreground transition-colors underline">Privacy</a>
+              <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
               <span>·</span>
-              <a href="/terms" className="hover:text-foreground transition-colors underline">Terms</a>
+              <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
             </div>
           </footer>
         </div>
