@@ -67,7 +67,7 @@ export default function Home() {
                   <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
                     <CardContent className="p-4 text-center space-y-2 flex flex-col items-center">
                       <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-sm`}>
-                        <Icon className="w-5 h-5 text-white" />
+                        <Icon className={`w-5 h-5 ${item.iconColor}`} />
                       </div>
                       <p className="text-sm font-medium text-card-foreground">{item.title}</p>
                     </CardContent>
