@@ -30,7 +30,7 @@ export default function Home() {
               Show Intro
             </Button>
           </div>
-          
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground text-center">Journal Inc</h1>
 
           {/* Hero: Streak Tracker - prominent */}
           <StreakTracker />
