@@ -178,6 +178,10 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                       className="w-full h-full object-contain animate-fade-in-scale" 
                     />
                   </div>
+                ) : currentSlide === 4 ? (
+                  <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
+                    <slide.icon className={`w-10 h-10 ${slide.color}`} />
+                  </div>
                 ) : (
                   <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
                     <slide.icon className={`w-10 h-10 ${slide.color}`} />
