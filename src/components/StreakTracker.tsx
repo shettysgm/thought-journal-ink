@@ -100,7 +100,7 @@ export default function StreakTracker() {
   const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm">
+    <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card p-5 shadow-sm">
       <div className="flex items-center gap-5">
         {/* Circular progress ring */}
         <div className="relative w-28 h-28 shrink-0">
