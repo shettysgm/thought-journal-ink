@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Zap, Flame, Target } from 'lucide-react';
+import { TrendingUp, Flame, CircleDot } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
 
@@ -51,8 +51,8 @@ export default function HeroStats() {
     <div className="rounded-2xl bg-card border border-border p-5 shadow-soft space-y-5">
       {/* Level row */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Zap className="w-5 h-5 text-primary" />
+        <div className="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center">
+          <TrendingUp className="w-[18px] h-[18px] text-primary" strokeWidth={1.5} />
         </div>
         <div className="flex-1">
           <div className="flex items-baseline justify-between">
@@ -76,21 +76,21 @@ export default function HeroStats() {
       {/* Three stats — clean horizontal */}
       <div className="flex items-center justify-around text-center">
         <div>
-          <Flame className="w-4 h-4 text-destructive mx-auto mb-1" />
+          <Flame className="w-[18px] h-[18px] text-destructive mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Streak</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div>
-          <Target className="w-4 h-4 text-primary mx-auto mb-1" />
+          <CircleDot className="w-[18px] h-[18px] text-primary mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">21-Day</p>
+          <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div>
-          <span className="text-sm block mx-auto mb-1">🏆</span>
+          <TrendingUp className="w-[18px] h-[18px] text-accent-strong mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.best}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Best</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Best</p>
         </div>
       </div>
     </div>
