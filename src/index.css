@@ -20,11 +20,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    /* Primary — electric blue for action */
-    --primary: 225 84% 55%;
+    /* Primary — soft teal */
+    --primary: 174 55% 46%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 225 84% 92%;
-    --primary-glow: 225 84% 70%;
+    --primary-light: 174 55% 92%;
+    --primary-glow: 174 55% 64%;
 
     /* Secondary — cool gray */
     --secondary: 220 14% 92%;
@@ -55,15 +55,15 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Borders — crisp edges */
-    --border: 220 14% 90%;
-    --input: 220 14% 91%;
-    --ring: 225 84% 55%;
+    --border: 174 20% 90%;
+    --input: 174 20% 91%;
+    --ring: 174 55% 46%;
 
     /* XP / Gamification tokens */
     --xp: 42 92% 56%;
     --xp-foreground: 42 92% 15%;
-    --rank: 225 84% 55%;
-    --streak: 16 85% 56%;
+    --rank: 174 55% 46%;
+    --streak: 16 75% 52%;
     --streak-foreground: 0 0% 100%;
 
     /* Design tokens */
@@ -72,18 +72,18 @@
     --radius-xl: 1.25rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(225 84% 55%), hsl(225 84% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(220 14% 92%), hsl(220 14% 96%));
-    --gradient-therapeutic: linear-gradient(135deg, hsl(200 80% 85%), hsl(140 50% 85%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
-    --gradient-xp: linear-gradient(90deg, hsl(42 92% 56%), hsl(38 92% 50%));
-    --gradient-streak: linear-gradient(135deg, hsl(16 85% 56%), hsl(0 72% 51%));
+    --gradient-primary: linear-gradient(135deg, hsl(174 55% 46%), hsl(174 55% 64%));
+    --gradient-secondary: linear-gradient(135deg, hsl(174 20% 92%), hsl(174 20% 96%));
+    --gradient-therapeutic: linear-gradient(135deg, hsl(174 55% 85%), hsl(150 50% 85%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(174 20% 98%));
+    --gradient-xp: linear-gradient(90deg, hsl(42 82% 56%), hsl(38 82% 50%));
+    --gradient-streak: linear-gradient(135deg, hsl(16 75% 52%), hsl(0 62% 51%));
 
     /* Shadows — tighter, sharper */
     --shadow-soft: 0 1px 3px 0 hsl(220 14% 10% / 0.06);
     --shadow-medium: 0 4px 12px -2px hsl(220 14% 10% / 0.08);
-    --shadow-strong: 0 8px 24px -4px hsl(220 14% 10% / 0.12);
-    --shadow-glow: 0 0 16px hsl(225 84% 55% / 0.2);
+    --shadow-strong: 0 8px 24px -4px hsl(174 20% 10% / 0.12);
+    --shadow-glow: 0 0 16px hsl(174 55% 46% / 0.2);
 
     /* Animation timing */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -109,10 +109,10 @@
     --popover: 222 20% 10%;
     --popover-foreground: 220 14% 93%;
 
-    --primary: 225 84% 62%;
+    --primary: 174 55% 55%;
     --primary-foreground: 222 20% 7%;
-    --primary-light: 225 84% 20%;
-    --primary-glow: 225 84% 75%;
+    --primary-light: 174 55% 20%;
+    --primary-glow: 174 55% 70%;
 
     --secondary: 222 20% 14%;
     --secondary-foreground: 220 14% 80%;
@@ -139,22 +139,22 @@
 
     --border: 222 20% 16%;
     --input: 222 20% 14%;
-    --ring: 225 84% 62%;
+    --ring: 174 55% 55%;
 
-    --xp: 42 92% 58%;
-    --xp-foreground: 42 92% 10%;
-    --rank: 225 84% 62%;
-    --streak: 16 85% 58%;
+    --xp: 42 82% 58%;
+    --xp-foreground: 42 82% 10%;
+    --rank: 174 55% 55%;
+    --streak: 16 75% 58%;
     --streak-foreground: 0 0% 100%;
 
     --sidebar-background: 222 20% 9%;
     --sidebar-foreground: 220 14% 80%;
-    --sidebar-primary: 225 84% 62%;
+    --sidebar-primary: 174 55% 55%;
     --sidebar-primary-foreground: 222 20% 7%;
     --sidebar-accent: 222 20% 14%;
     --sidebar-accent-foreground: 220 14% 80%;
     --sidebar-border: 222 20% 14%;
-    --sidebar-ring: 225 84% 62%;
+    --sidebar-ring: 174 55% 55%;
   }
 }
 
