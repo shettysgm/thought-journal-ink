@@ -1,11 +1,11 @@
 import { useGameStore } from '@/store/useGameStore';
-import { Check, Pencil, Type, MessageSquareText, Brain } from 'lucide-react';
+import { Check, PenLine, Type, Lightbulb, HelpCircle } from 'lucide-react';
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
-  write: Pencil,
+  write: PenLine,
   words: Type,
-  prompt: MessageSquareText,
-  quiz: Brain,
+  prompt: Lightbulb,
+  quiz: HelpCircle,
 };
 
 export default function DailyChallenges() {
@@ -15,7 +15,7 @@ export default function DailyChallenges() {
   return (
     <div className="space-y-2.5">
       {challenges.map((c) => {
-        const TypeIcon = TYPE_ICONS[c.type] || Pencil;
+        const TypeIcon = TYPE_ICONS[c.type] || PenLine;
         return (
           <div key={c.id} className="flex items-center gap-3 px-1">
             <div
