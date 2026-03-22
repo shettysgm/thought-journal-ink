@@ -31,13 +31,6 @@ export default function Home() {
             </Button>
           </div>
           
-          {/* Header - compact */}
-          <header className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-3">
-              <img src={quillIcon} alt="Journal IQ" className="w-8 h-8 md:w-10 md:h-10" />
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Journal Inc</h1>
-            </div>
-          </header>
 
           {/* Hero: Streak Tracker - prominent */}
           <StreakTracker />
