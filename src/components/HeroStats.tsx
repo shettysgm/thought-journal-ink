@@ -2,9 +2,6 @@ import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
-import iconStreak from '@/assets/icon-streak.png';
-import iconGoal from '@/assets/icon-goal.png';
-import iconBest from '@/assets/icon-best.png';
 
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
   if (entries.length === 0) return { current: 0, best: 0 };
