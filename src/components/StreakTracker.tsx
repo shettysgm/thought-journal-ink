@@ -106,7 +106,7 @@ export default function StreakTracker() {
         </div>
         <div>
           <p className="text-sm font-semibold text-card-foreground">
-            {streak.current} day{streak.current !== 1 ? 's' : ''} streak
+            {streak.current} / 21 days
           </p>
           <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
         </div>
