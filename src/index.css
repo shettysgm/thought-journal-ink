@@ -72,12 +72,12 @@
     --radius-xl: 1.25rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(225 84% 55%), hsl(225 84% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(220 14% 92%), hsl(220 14% 96%));
-    --gradient-therapeutic: linear-gradient(135deg, hsl(200 80% 85%), hsl(140 50% 85%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
-    --gradient-xp: linear-gradient(90deg, hsl(42 92% 56%), hsl(38 92% 50%));
-    --gradient-streak: linear-gradient(135deg, hsl(16 85% 56%), hsl(0 72% 51%));
+    --gradient-primary: linear-gradient(135deg, hsl(174 55% 46%), hsl(174 55% 64%));
+    --gradient-secondary: linear-gradient(135deg, hsl(174 20% 92%), hsl(174 20% 96%));
+    --gradient-therapeutic: linear-gradient(135deg, hsl(174 55% 85%), hsl(150 50% 85%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(174 20% 98%));
+    --gradient-xp: linear-gradient(90deg, hsl(42 82% 56%), hsl(38 82% 50%));
+    --gradient-streak: linear-gradient(135deg, hsl(16 75% 52%), hsl(0 62% 51%));
 
     /* Shadows — tighter, sharper */
     --shadow-soft: 0 1px 3px 0 hsl(220 14% 10% / 0.06);
