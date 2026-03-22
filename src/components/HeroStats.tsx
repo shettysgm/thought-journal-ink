@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Zap, CircleDot } from 'lucide-react';
+import { Flame, Target, Award, ArrowUp } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
 
