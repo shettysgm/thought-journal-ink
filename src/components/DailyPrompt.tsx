@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 
 const PROMPTS = [
   "What's one thing you're grateful for today?",
@@ -45,7 +45,7 @@ export default function DailyPrompt() {
     >
       <CardContent className="p-4 flex items-start gap-3">
         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Lightbulb className="w-4 h-4 text-primary" />
         </div>
         <div className="space-y-1">
           <p className="text-xs font-medium text-primary uppercase tracking-wide">Today's Prompt</p>
