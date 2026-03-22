@@ -71,6 +71,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
       feedbackCount: current.feedbackCount,
       lastFeedbackAt: current.lastFeedbackAt,
       reminderTime: current.reminderTime,
+      reminderAutoScheduled: current.reminderAutoScheduled,
       ...updates,
     };
     await saveSettings(newSettings);

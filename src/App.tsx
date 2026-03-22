@@ -8,21 +8,31 @@ import AIConsentDialog from "@/components/AIConsentDialog";
 import LockScreen from "@/components/LockScreen";
 import { useSettings } from "@/store/useSettings";
 import { useEffect } from "react";
+import { scheduleStreakReminder } from "@/lib/notifications";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { loadSettings, updateSettings, appLockEnabled, unlocked, loading } = useSettings();
+  const { loadSettings, updateSettings, appLockEnabled, unlocked, loading, reminderAutoScheduled, reminderTime } = useSettings();
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
 
+  // Auto-schedule a default 9AM daily reminder on first launch
+  useEffect(() => {
+    if (loading) return;
+    if (reminderAutoScheduled) return;
+    // Schedule default 9:00 AM reminder
+    scheduleStreakReminder(9, 0).then(() => {
+      updateSettings({ reminderAutoScheduled: true, reminderTime: '09:00' });
+    });
+  }, [loading, reminderAutoScheduled, updateSettings]);
+
   // Re-lock app when user leaves and returns (background/foreground)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && appLockEnabled) {
-        // Re-lock when app goes to background
         useSettings.setState({ unlocked: false });
       }
     };
@@ -38,7 +48,6 @@ const App = () => {
     updateSettings({ aiAnalysisEnabled: false });
   };
 
-  // Show lock screen if app lock is enabled and not yet unlocked
   if (appLockEnabled && !unlocked && !loading) {
     return <LockScreen />;
   }
