@@ -6,6 +6,7 @@ import quillIcon from '@/assets/quill-icon-new.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
 import expressIcon from '@/assets/express-ways-icon.png';
+import backupIcon from '@/assets/backup-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
