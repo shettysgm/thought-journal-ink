@@ -57,9 +57,9 @@ export default function Home() {
           {/* Secondary Navigation */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-300 to-cyan-400" },
-              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-300 to-fuchsia-400" },
-              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-300 to-orange-400" },
+              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-200 to-cyan-300" },
+              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-200 to-fuchsia-300" },
+              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-200 to-orange-300" },
             ].map((item) => {
               const Icon = item.icon;
               return (
