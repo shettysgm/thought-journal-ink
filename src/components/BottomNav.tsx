@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { PenLine, BookOpen, LayoutGrid, Brain } from 'lucide-react';
+import { PenLine, BookOpen, LayoutGrid, HelpCircle } from 'lucide-react';
 
 const navItems = [
   { path: '/', icon: LayoutGrid, label: 'Home' },
