@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Settings, Pen, Info } from "lucide-react";
+import { Settings, Pen, Info, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import StreakReminder from "@/components/StreakReminder";
@@ -48,9 +48,10 @@ export default function Home() {
 
           {/* CTA */}
           <Link to="/unified" className="block">
-            <button className="w-full flex items-center justify-center gap-2.5 h-[50px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
+            <button className="w-full flex items-center justify-center gap-2 h-[50px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
               <Pen className="w-4 h-4" />
-              Write today's entry
+              <span>Write or record</span>
+              <Mic className="w-4 h-4 opacity-70" />
             </button>
           </Link>
 
