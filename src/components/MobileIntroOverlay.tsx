@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, TouchEvent } from 'react';
-import { X, Feather, Brain, Shield, Sparkles, ChevronRight } from 'lucide-react';
+import { X, Feather, Brain, Shield, Sparkles, ChevronRight, CloudUpload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import quillIcon from '@/assets/quill-icon-new.png';
