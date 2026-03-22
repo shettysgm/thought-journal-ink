@@ -57,9 +57,9 @@ export default function Home() {
           {/* Secondary Navigation */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-200 to-cyan-300" },
-              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-200 to-fuchsia-300" },
-              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-200 to-orange-300" },
+              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-100 to-cyan-200", iconColor: "text-teal-500" },
+              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-100 to-fuchsia-200", iconColor: "text-violet-500" },
+              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-100 to-orange-200", iconColor: "text-amber-500" },
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -67,7 +67,7 @@ export default function Home() {
                   <Card className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
                     <CardContent className="p-4 text-center space-y-2 flex flex-col items-center">
                       <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-sm`}>
-                        <Icon className="w-5 h-5 text-white" />
+                        <Icon className={`w-5 h-5 ${item.iconColor}`} />
                       </div>
                       <p className="text-sm font-medium text-card-foreground">{item.title}</p>
                     </CardContent>
