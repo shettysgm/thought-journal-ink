@@ -51,8 +51,8 @@ export default function HeroStats() {
     <div className="rounded-2xl bg-card border border-border p-5 shadow-soft space-y-5">
       {/* Level row */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Zap className="w-5 h-5 text-primary" />
+        <div className="w-10 h-10 rounded-full bg-primary/8 flex items-center justify-center">
+          <TrendingUp className="w-[18px] h-[18px] text-primary" strokeWidth={1.5} />
         </div>
         <div className="flex-1">
           <div className="flex items-baseline justify-between">
