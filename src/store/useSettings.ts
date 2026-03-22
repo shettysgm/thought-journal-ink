@@ -70,6 +70,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
       failedAttempts: current.failedAttempts,
       feedbackCount: current.feedbackCount,
       lastFeedbackAt: current.lastFeedbackAt,
+      reminderTime: current.reminderTime,
       ...updates,
     };
     await saveSettings(newSettings);
