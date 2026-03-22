@@ -15,7 +15,7 @@ export default function DailyChallenges() {
   return (
     <div className="space-y-2.5">
       {challenges.map((c) => {
-        const TypeIcon = TYPE_ICONS[c.type] || Pencil;
+        const TypeIcon = TYPE_ICONS[c.type] || PenLine;
         return (
           <div key={c.id} className="flex items-center gap-3 px-1">
             <div
