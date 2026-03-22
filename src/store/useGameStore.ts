@@ -60,7 +60,7 @@ const CHALLENGE_POOL: Omit<DailyChallenge, 'progress' | 'completed'>[] = [
   { id: 'write_100_words', title: 'Word Sprint', description: 'Write at least 100 words', xpReward: 40, type: 'words', target: 100 },
   { id: 'write_250_words', title: 'Deep Dive', description: 'Write at least 250 words', xpReward: 60, type: 'words', target: 250 },
   { id: 'use_prompt', title: 'Prompt Explorer', description: 'Use the daily prompt', xpReward: 30, type: 'prompt', target: 1 },
-  { id: 'take_quiz', title: 'Brain Training', description: 'Complete a CBT quiz', xpReward: 35, type: 'quiz', target: 1 },
+  { id: 'take_quiz', title: 'Take a Quiz', description: 'Complete a CBT quiz', xpReward: 35, type: 'quiz', target: 1 },
 ];
 
 function getDailyChallenges(dateStr: string): Omit<DailyChallenge, 'progress' | 'completed'>[] {
