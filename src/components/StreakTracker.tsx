@@ -58,21 +58,28 @@ function getBest(days: Set<string>): number {
   return best;
 }
 
-const ENCOURAGEMENTS = [
-  "Start your streak today! ✨",
-  "Great start! Keep it up!",
-  "You're building a habit! 💪",
-  "3 days strong!",
-  "Consistency is key! 🔑",
-  "Almost a week! 🌟",
-  "You're on fire! 🎉",
-  "One full week! Amazing! 🏆",
+const ENCOURAGEMENTS: [number, string][] = [
+  [0, "Start your 21-day habit journey! ✨"],
+  [1, "Day 1 — every habit starts here!"],
+  [2, "2 days in — you're showing up! 💪"],
+  [3, "3 days strong! Keep the momentum!"],
+  [5, "Almost a week — building a habit! 🔑"],
+  [7, "One full week! 1/3 of the way there! 🌟"],
+  [10, "10 days! You're rewiring your brain! 🧠"],
+  [14, "Two weeks! The habit is taking root! 🌱"],
+  [17, "17 days — the finish line is in sight! 🔥"],
+  [20, "Tomorrow you hit 21! Don't stop now! 🏁"],
+  [21, "🏆 21 days! You've built a habit! 🎉"],
+  [30, "30 days! Journaling is part of who you are 💎"],
 ];
 
 function getEncouragement(streak: number): string {
-  if (streak === 0) return ENCOURAGEMENTS[0];
-  if (streak >= 7) return ENCOURAGEMENTS[7];
-  return ENCOURAGEMENTS[Math.min(streak, ENCOURAGEMENTS.length - 1)];
+  let msg = ENCOURAGEMENTS[0][1];
+  for (const [threshold, text] of ENCOURAGEMENTS) {
+    if (streak >= threshold) msg = text;
+    else break;
+  }
+  return msg;
 }
 
 export default function StreakTracker() {
