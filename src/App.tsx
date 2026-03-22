@@ -19,13 +19,15 @@ const App = () => {
     loadSettings();
   }, [loadSettings]);
 
-  // Auto-schedule a default 9AM daily reminder on first launch
+  // Auto-schedule a default 9AM daily reminder on first launch (native only)
   useEffect(() => {
     if (loading) return;
     if (reminderAutoScheduled) return;
-    // Schedule default 9:00 AM reminder
-    scheduleStreakReminder(9, 0).then(() => {
-      updateSettings({ reminderAutoScheduled: true, reminderTime: '09:00' });
+    scheduleStreakReminder(9, 0).then((success) => {
+      // Only mark as scheduled if it actually worked (native + permission granted)
+      if (success) {
+        updateSettings({ reminderAutoScheduled: true, reminderTime: '09:00' });
+      }
     });
   }, [loading, reminderAutoScheduled, updateSettings]);
 
