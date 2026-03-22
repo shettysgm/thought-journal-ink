@@ -94,27 +94,46 @@ export default function StreakTracker() {
     setStreak(computeStreak(entries));
   }, [entries]);
 
+  const progress = Math.min((streak.current / 21) * 100, 100);
+
   return (
-    <div className="flex items-center justify-between bg-card rounded-xl border border-border p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-100 shadow-sm">
-          <Flame className={`w-6 h-6 text-orange-300 ${
-            streak.current > 0 ? 'animate-[pulse_1.5s_ease-in-out_infinite]' : 'opacity-80'
-          }`} />
+    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-100 shadow-sm">
+            <Flame className={`w-6 h-6 text-orange-300 ${
+              streak.current > 0 ? 'animate-[pulse_1.5s_ease-in-out_infinite]' : 'opacity-80'
+            }`} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-card-foreground">
+              {streak.current} / 21 days
+            </p>
+            <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-card-foreground">
-            {streak.current} / 21 days
-          </p>
-          <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
+        {streak.best > 0 && (
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Best</p>
+            <p className="text-sm font-bold text-card-foreground">{streak.best} 🏆</p>
+          </div>
+        )}
+      </div>
+      {/* 21-day progress bar */}
+      <div className="space-y-1.5">
+        <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-orange-200 via-rose-200 to-pink-300 transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>Day 1</span>
+          <span>Day 7</span>
+          <span>Day 14</span>
+          <span>Day 21 🎯</span>
         </div>
       </div>
-      {streak.best > 0 && (
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Best</p>
-          <p className="text-sm font-bold text-card-foreground">{streak.best} 🏆</p>
-        </div>
-      )}
     </div>
   );
 }
