@@ -6,27 +6,19 @@ export default function XPBar() {
   const info = getLevelInfo();
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Level {info.level}</p>
-            <p className="text-sm font-semibold text-card-foreground">{info.title}</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="stat-number text-lg text-primary">{xp.toLocaleString()}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total XP</p>
-        </div>
+    <div className="flex items-center gap-3 rounded-2xl bg-card border border-border p-3.5 shadow-soft">
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <Zap className="w-[18px] h-[18px] text-primary" />
       </div>
-
-      {/* XP Progress bar */}
-      {info.next && (
-        <div className="space-y-1">
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between mb-1.5">
+          <p className="text-[13px] font-semibold text-card-foreground">
+            Lv.{info.level} <span className="font-normal text-muted-foreground">· {info.title}</span>
+          </p>
+          <p className="stat-number text-[13px] text-primary">{xp} XP</p>
+        </div>
+        {info.next && (
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
@@ -35,12 +27,8 @@ export default function XPBar() {
               }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-muted-foreground">
-            <span>{info.xpInLevel} / {info.xpForNext} XP</span>
-            <span>Level {info.next.level} — {info.next.title}</span>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
