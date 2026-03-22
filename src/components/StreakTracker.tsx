@@ -125,8 +125,8 @@ export default function StreakTracker() {
             />
             <defs>
               <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#99f6e4" />
-                <stop offset="100%" stopColor="#5eead4" />
+                <stop offset="0%" stopColor="#fef9c3" />
+                <stop offset="100%" stopColor="#fde68a" />
               </linearGradient>
             </defs>
           </svg>
