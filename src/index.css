@@ -34,9 +34,9 @@
     --muted: 220 14% 94%;
     --muted-foreground: 220 10% 46%;
 
-    /* Accent — gold for XP/achievements */
-    --accent: 42 92% 56%;
-    --accent-foreground: 42 92% 15%;
+    /* Accent — light aqua for hovers, gold for XP */
+    --accent: 174 40% 95%;
+    --accent-foreground: 174 55% 20%;
     --accent-strong: 42 92% 48%;
 
     /* Therapeutic palette (kept for compatibility) */
