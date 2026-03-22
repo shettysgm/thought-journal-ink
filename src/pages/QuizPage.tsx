@@ -57,6 +57,7 @@ export default function QuizPage() {
           completedAt: new Date().toISOString()
         });
         setQuizCompleted(true);
+        useGameStore.getState().recordQuiz();
       }
     }, 2000);
   };

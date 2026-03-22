@@ -38,11 +38,26 @@ function getBest(days: Set<string>): number {
 
 export default function HeroStats() {
   const { entries, loadEntries } = useEntries();
-  const { getLevelInfo, xp } = useGameStore();
+  const { getLevelInfo, xp, totalEntries: trackedEntries, checkAchievements } = useGameStore();
   const [streak, setStreak] = useState({ current: 0, best: 0 });
 
   useEffect(() => { loadEntries(); }, [loadEntries]);
-  useEffect(() => { setStreak(computeStreak(entries)); }, [entries]);
+  useEffect(() => {
+    const s = computeStreak(entries);
+    setStreak(s);
+    checkAchievements(s.current);
+  }, [entries, checkAchievements]);
+
+  // Seed XP from existing entries if store is fresh
+  useEffect(() => {
+    if (entries.length > 0 && trackedEntries === 0) {
+      const { recordEntry } = useGameStore.getState();
+      for (const entry of entries) {
+        const wordCount = (entry.text || '').split(/\s+/).filter(Boolean).length;
+        recordEntry(wordCount);
+      }
+    }
+  }, [entries, trackedEntries]);
 
   const info = getLevelInfo();
   const goalProgress = Math.min(streak.current / 21, 1);
