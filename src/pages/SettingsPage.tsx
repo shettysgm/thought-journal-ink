@@ -351,7 +351,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-4">
               <Input
                 type="time"
-                value={useSettings.getState().reminderTime || ''}
+                value={reminderTime || ''}
                 onChange={async (e) => {
                   const time = e.target.value;
                   if (time) {
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                 }}
                 className="w-36"
               />
-              {useSettings.getState().reminderTime && (
+              {reminderTime && (
                 <Button
                   variant="outline"
                   size="sm"
