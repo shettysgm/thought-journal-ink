@@ -40,7 +40,7 @@ export default function DailyPrompt() {
 
   return (
     <Card
-      className="cursor-pointer border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-md bg-primary/5"
+      className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card"
       onClick={() => navigate('/unified')}
     >
       <CardContent className="p-4 flex items-start gap-3">
