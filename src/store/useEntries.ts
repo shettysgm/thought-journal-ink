@@ -197,6 +197,13 @@ export const useEntries = create<EntriesState>((set, get) => ({
       }, 100); // Small delay to ensure entry creation completes first
     }
     
+    // Track XP for gamification
+    try {
+      const { useGameStore } = await import('./useGameStore');
+      const wordCount = (entryData.text || '').split(/\s+/).filter(Boolean).length;
+      useGameStore.getState().recordEntry(wordCount);
+    } catch {}
+    
     console.log('Entry creation completed, returning ID:', id);
     return id;
   },

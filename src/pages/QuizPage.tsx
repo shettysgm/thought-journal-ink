@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useDistortions } from '@/store/useDistortions';
+import { useGameStore } from '@/store/useGameStore';
 import { QuizQuestion, QuizResult } from '@/types';
 
 export default function QuizPage() {
@@ -56,6 +57,7 @@ export default function QuizPage() {
           completedAt: new Date().toISOString()
         });
         setQuizCompleted(true);
+        useGameStore.getState().recordQuiz();
       }
     }, 2000);
   };
