@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle, Settings, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import DailyPrompt from "@/components/DailyPrompt";
+import StreakReminder from "@/components/StreakReminder";
 import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
 import quillIcon from "@/assets/quill-icon-new.png";
