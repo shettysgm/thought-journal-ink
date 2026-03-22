@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Zap, CircleDot } from 'lucide-react';
+import { Flame, Target, Award, ArrowUp } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
 
@@ -66,8 +66,8 @@ export default function HeroStats() {
     <div className="rounded-2xl bg-card border border-border p-5 shadow-soft space-y-5">
       {/* Level row */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-50/80 to-cyan-100/60 flex items-center justify-center shadow-sm">
-          <TrendingUp className="w-[18px] h-[18px] text-primary/60" strokeWidth={1.5} />
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <ArrowUp className="w-5 h-5 text-primary" strokeWidth={2} />
         </div>
         <div className="flex-1">
           <div className="flex items-baseline justify-between">
@@ -91,24 +91,24 @@ export default function HeroStats() {
       {/* Three stats — clean horizontal */}
       <div className="flex items-center justify-around text-center">
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-50/80 to-yellow-100/60 flex items-center justify-center shadow-sm mb-1.5">
-            <Zap className="w-4 h-4 text-amber-400/70" strokeWidth={1.5} />
+          <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center mb-1.5">
+            <Flame className="w-4 h-4 text-destructive" strokeWidth={2} />
           </div>
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50/80 to-cyan-100/60 flex items-center justify-center shadow-sm mb-1.5">
-            <CircleDot className="w-4 h-4 text-primary/60" strokeWidth={1.5} />
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center mb-1.5">
+            <Target className="w-4 h-4 text-primary" strokeWidth={2} />
           </div>
           <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
           <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div className="flex flex-col items-center">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-50/80 to-green-100/60 flex items-center justify-center shadow-sm mb-1.5">
-            <TrendingUp className="w-4 h-4 text-emerald-400/70" strokeWidth={1.5} />
+          <div className="w-9 h-9 rounded-xl bg-accent-strong/10 flex items-center justify-center mb-1.5">
+            <Award className="w-4 h-4 text-accent-strong" strokeWidth={2} />
           </div>
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.best}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Best</p>
