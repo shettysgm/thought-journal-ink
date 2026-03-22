@@ -2,9 +2,6 @@ import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 import { useGameStore } from '@/store/useGameStore';
-import iconStreak from '@/assets/icon-streak.png';
-import iconGoal from '@/assets/icon-goal.png';
-import iconBest from '@/assets/icon-best.png';
 
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
   if (entries.length === 0) return { current: 0, best: 0 };
@@ -92,22 +89,19 @@ export default function HeroStats() {
 
       {/* Three stats with custom icons */}
       <div className="flex items-center justify-around text-center">
-        <div className="flex flex-col items-center">
-          <img src={iconStreak} alt="Streak" className="w-10 h-10 object-contain mb-1" />
-          <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
+        <div className="flex flex-col items-center gap-1">
+          <p className="stat-number text-2xl text-card-foreground leading-none">{streak.current}</p>
+          <p className="text-[11px] text-muted-foreground font-medium">Streak</p>
         </div>
-        <div className="w-px h-10 bg-border" />
-        <div className="flex flex-col items-center">
-          <img src={iconGoal} alt="21-Day Goal" className="w-10 h-10 object-contain mb-1" />
-          <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
-          <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
+        <div className="w-px h-8 bg-border" />
+        <div className="flex flex-col items-center gap-1">
+          <p className="stat-number text-2xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
+          <p className="text-[11px] text-muted-foreground font-medium">21-Day</p>
         </div>
-        <div className="w-px h-10 bg-border" />
-        <div className="flex flex-col items-center">
-          <img src={iconBest} alt="Best Streak" className="w-10 h-10 object-contain mb-1" />
-          <p className="stat-number text-xl text-card-foreground leading-none">{streak.best}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">Best</p>
+        <div className="w-px h-8 bg-border" />
+        <div className="flex flex-col items-center gap-1">
+          <p className="stat-number text-2xl text-card-foreground leading-none">{streak.best}</p>
+          <p className="text-[11px] text-muted-foreground font-medium">Best</p>
         </div>
       </div>
     </div>
