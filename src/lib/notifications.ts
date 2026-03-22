@@ -3,14 +3,18 @@ import { Capacitor } from '@capacitor/core';
 
 const NOTIFICATION_ID = 21; // 21-day habit theme
 
-export async function scheduleStreakReminder(hour: number, minute: number) {
-  if (!Capacitor.isNativePlatform()) return;
+/** Returns true only if notification was actually scheduled on native */
+export async function scheduleStreakReminder(hour: number, minute: number): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) return false;
 
   try {
     const { display } = await LocalNotifications.checkPermissions();
     if (display !== 'granted') {
       const result = await LocalNotifications.requestPermissions();
-      if (result.display !== 'granted') return;
+      if (result.display !== 'granted') {
+        console.warn('[Notifications] Permission denied');
+        return false;
+      }
     }
 
     // Cancel existing reminder first
@@ -33,8 +37,11 @@ export async function scheduleStreakReminder(hour: number, minute: number) {
         },
       ],
     });
+    console.log('[Notifications] Scheduled daily reminder at', hour, ':', minute);
+    return true;
   } catch (e) {
-    console.warn('Failed to schedule notification:', e);
+    console.warn('[Notifications] Failed to schedule:', e);
+    return false;
   }
 }
 
