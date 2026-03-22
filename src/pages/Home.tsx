@@ -25,11 +25,16 @@ export default function Home() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <h1 className="text-lg font-semibold text-foreground">Journal Inc</h1>
-            <Link to="/settings">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                <Settings className="w-4 h-4" />
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}>
+                <Info className="w-4 h-4" />
               </Button>
-            </Link>
+              <Link to="/settings">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Single hero card: level + streak + goal */}
