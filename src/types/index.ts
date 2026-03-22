@@ -39,7 +39,7 @@ export type AppSettings = {
   resetRequestedAt?: string;
   failedAttempts?: number;
   feedbackCount?: number;
-  lastFeedbackAt?: string;
+  reminderTime?: string; // HH:mm format, e.g. "20:00"
 };
 
 export type Hit = { 
