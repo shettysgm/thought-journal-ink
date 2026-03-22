@@ -59,7 +59,7 @@ function getBest(days: Set<string>): number {
 }
 
 const ENCOURAGEMENTS: [number, string][] = [
-  [0, "Start your 21-day habit journey! ✨"],
+  [0, "Journal today to start your streak!"],
   [1, "Day 1 — every habit starts here!"],
   [2, "2 days in — you're showing up! 💪"],
   [3, "3 days strong! Keep the momentum!"],
