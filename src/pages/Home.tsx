@@ -1,17 +1,12 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, HelpCircle, Settings, Heart, BookOpen, Type, Lightbulb } from "lucide-react";
+import { HelpCircle, Settings, BookOpen, Type, Lightbulb } from "lucide-react";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import DailyPrompt from "@/components/DailyPrompt";
 import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
-import cbtJournalTextLogo from "@/assets/cbt-journal-text-logo.png";
-import journalIqLogo from "@/assets/journal-iq-logo.png";
 import quillIcon from "@/assets/quill-icon-new.png";
-import cbtJournalLogo from "@/assets/cbt-journal-logo.png";
-
-const navigationCards = [
   {
     title: "New Entry",
     description: "Type or speak — seamlessly switch between both",
