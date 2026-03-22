@@ -37,6 +37,9 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Prompt */}
+          <DailyPrompt />
+
           {/* Single hero card: level + streak + goal */}
           <HeroStats />
 
@@ -53,9 +56,6 @@ export default function Home() {
 
           {/* Challenges — compact */}
           <DailyChallenges />
-
-          {/* Prompt */}
-          <DailyPrompt />
         </div>
       </div>
     </>
