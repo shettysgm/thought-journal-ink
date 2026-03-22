@@ -55,9 +55,9 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Borders — crisp edges */
-    --border: 220 14% 90%;
-    --input: 220 14% 91%;
-    --ring: 225 84% 55%;
+    --border: 174 20% 90%;
+    --input: 174 20% 91%;
+    --ring: 174 55% 46%;
 
     /* XP / Gamification tokens */
     --xp: 42 92% 56%;
