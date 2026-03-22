@@ -129,7 +129,7 @@ export default function StreakTracker() {
         <span>Day 1</span>
         <span>Day 7</span>
         <span>Day 14</span>
-        <span>Day 21 🎯</span>
+        <span>Day 21</span>
       </div>
     </div>
   );
