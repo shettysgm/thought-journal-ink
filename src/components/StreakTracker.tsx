@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Flame } from 'lucide-react';
+import { Zap, Trophy } from 'lucide-react';
 import { useEntries } from '@/store/useEntries';
 
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
