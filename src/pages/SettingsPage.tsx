@@ -335,6 +335,52 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Daily Reminder */}
+        <Card className="shadow-medium">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              Daily Reminder
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Get a push notification to remind you to journal and protect your streak.
+            </p>
+            <div className="flex items-center gap-4">
+              <Input
+                type="time"
+                value={useSettings.getState().reminderTime || ''}
+                onChange={async (e) => {
+                  const time = e.target.value;
+                  if (time) {
+                    await updateSettings({ reminderTime: time });
+                    const [h, m] = time.split(':').map(Number);
+                    const { scheduleStreakReminder } = await import('@/lib/notifications');
+                    await scheduleStreakReminder(h, m);
+                    toast({ title: 'Reminder Set', description: `You'll be reminded daily at ${time}.` });
+                  }
+                }}
+                className="w-36"
+              />
+              {useSettings.getState().reminderTime && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    await updateSettings({ reminderTime: undefined });
+                    const { cancelStreakReminder } = await import('@/lib/notifications');
+                    await cancelStreakReminder();
+                    toast({ title: 'Reminder Removed', description: 'Daily reminder has been turned off.' });
+                  }}
+                >
+                  Remove
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Data Management */}
         <Card className="shadow-medium">
           <CardHeader>
