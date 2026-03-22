@@ -20,11 +20,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    /* Primary — electric blue for action */
-    --primary: 225 84% 55%;
+    /* Primary — soft teal */
+    --primary: 174 55% 46%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 225 84% 92%;
-    --primary-glow: 225 84% 70%;
+    --primary-light: 174 55% 92%;
+    --primary-glow: 174 55% 64%;
 
     /* Secondary — cool gray */
     --secondary: 220 14% 92%;
