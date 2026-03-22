@@ -2,83 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CBT Journal Design System - Therapeutic, calming colors and design tokens
-All colors MUST be HSL for consistency and theming support.
+/* Journal Inc — Clean & Competitive Gamified Design System
+   Sharp typography, bold stats, fitness-tracker aesthetic.
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Base colors - soft, calming palette */
-    --background: 215 100% 98%;
-    --foreground: 210 15% 20%;
+    /* Base — crisp off-white */
+    --background: 220 14% 96%;
+    --foreground: 220 20% 10%;
 
-    /* Card surfaces with subtle elevation */
+    /* Cards — pure white, sharp */
     --card: 0 0% 100%;
-    --card-foreground: 210 15% 20%;
+    --card-foreground: 220 20% 10%;
 
-    /* Interactive overlays */
     --popover: 0 0% 100%;
-    --popover-foreground: 210 15% 20%;
+    --popover-foreground: 220 20% 10%;
 
-    /* Primary - Calming teal/blue for main actions */
-    --primary: 174 65% 52%;
+    /* Primary — electric blue for action */
+    --primary: 225 84% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 174 65% 90%;
-    --primary-glow: 174 65% 70%;
+    --primary-light: 225 84% 92%;
+    --primary-glow: 225 84% 70%;
 
-    /* Secondary - Soft blue-gray for supporting actions */
-    --secondary: 210 25% 92%;
-    --secondary-foreground: 210 15% 25%;
+    /* Secondary — cool gray */
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 15% 30%;
 
-    /* Muted - Light backgrounds and disabled states */
-    --muted: 210 25% 95%;
-    --muted-foreground: 210 10% 50%;
+    /* Muted — subtle grays */
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 10% 46%;
 
-    /* Accent - Gentle green for positive actions */
-    --accent: 150 60% 88%;
-    --accent-foreground: 150 60% 25%;
-    --accent-strong: 150 60% 45%;
+    /* Accent — gold for XP/achievements */
+    --accent: 42 92% 56%;
+    --accent-foreground: 42 92% 15%;
+    --accent-strong: 42 92% 48%;
 
-    /* Therapeutic color palette */
+    /* Therapeutic palette (kept for compatibility) */
     --therapeutic-calm: 200 80% 85%;
     --therapeutic-growth: 140 50% 85%;
     --therapeutic-warmth: 35 70% 85%;
     --therapeutic-focus: 260 30% 85%;
     --therapeutic-energy: 320 40% 85%;
 
-    /* Status colors - gentle and non-alarming */
-    --success: 150 60% 45%;
+    /* Status — bold and clear */
+    --success: 152 60% 42%;
     --success-foreground: 0 0% 100%;
-    --warning: 35 70% 55%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --destructive: 0 60% 55%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs - subtle and soft */
-    --border: 210 25% 88%;
-    --input: 210 25% 90%;
-    --ring: 174 65% 52%;
+    /* Borders — crisp edges */
+    --border: 220 14% 90%;
+    --input: 220 14% 91%;
+    --ring: 225 84% 55%;
+
+    /* XP / Gamification tokens */
+    --xp: 42 92% 56%;
+    --xp-foreground: 42 92% 15%;
+    --rank: 225 84% 55%;
+    --streak: 16 85% 56%;
+    --streak-foreground: 0 0% 100%;
 
     /* Design tokens */
-    --radius: 0.75rem;
-    --radius-lg: 1rem;
-    --radius-xl: 1.5rem;
+    --radius: 0.625rem;
+    --radius-lg: 0.875rem;
+    --radius-xl: 1.25rem;
 
-    /* Gradients for beautiful surfaces */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
-    --gradient-therapeutic: linear-gradient(135deg, hsl(var(--therapeutic-calm)), hsl(var(--therapeutic-growth)));
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)), hsl(210 25% 99%));
-    
-    /* Shadows for depth */
-    --shadow-soft: 0 2px 10px -2px hsl(var(--primary) / 0.1);
-    --shadow-medium: 0 4px 20px -4px hsl(var(--primary) / 0.15);
-    --shadow-strong: 0 8px 30px -6px hsl(var(--primary) / 0.2);
-    --shadow-glow: 0 0 20px hsl(var(--primary-glow) / 0.3);
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(225 84% 55%), hsl(225 84% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 14% 92%), hsl(220 14% 96%));
+    --gradient-therapeutic: linear-gradient(135deg, hsl(200 80% 85%), hsl(140 50% 85%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --gradient-xp: linear-gradient(90deg, hsl(42 92% 56%), hsl(38 92% 50%));
+    --gradient-streak: linear-gradient(135deg, hsl(16 85% 56%), hsl(0 72% 51%));
+
+    /* Shadows — tighter, sharper */
+    --shadow-soft: 0 1px 3px 0 hsl(220 14% 10% / 0.06);
+    --shadow-medium: 0 4px 12px -2px hsl(220 14% 10% / 0.08);
+    --shadow-strong: 0 8px 24px -4px hsl(220 14% 10% / 0.12);
+    --shadow-glow: 0 0 16px hsl(225 84% 55% / 0.2);
 
     /* Animation timing */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -91,55 +100,61 @@ All colors MUST be HSL for consistency and theming support.
   }
 
   .dark {
-    --background: 215 20% 8%;
-    --foreground: 210 40% 95%;
+    --background: 222 20% 7%;
+    --foreground: 220 14% 93%;
 
-    --card: 215 20% 10%;
-    --card-foreground: 210 40% 95%;
+    --card: 222 20% 10%;
+    --card-foreground: 220 14% 93%;
 
-    --popover: 215 20% 10%;
-    --popover-foreground: 210 40% 95%;
+    --popover: 222 20% 10%;
+    --popover-foreground: 220 14% 93%;
 
-    --primary: 174 65% 60%;
-    --primary-foreground: 215 20% 8%;
-    --primary-light: 174 65% 90%;
-    --primary-glow: 174 65% 75%;
+    --primary: 225 84% 62%;
+    --primary-foreground: 222 20% 7%;
+    --primary-light: 225 84% 20%;
+    --primary-glow: 225 84% 75%;
 
-    --secondary: 215 25% 15%;
-    --secondary-foreground: 210 40% 85%;
+    --secondary: 222 20% 14%;
+    --secondary-foreground: 220 14% 80%;
 
-    --muted: 215 25% 12%;
-    --muted-foreground: 210 15% 60%;
+    --muted: 222 20% 12%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 150 60% 25%;
-    --accent-foreground: 150 60% 85%;
-    --accent-strong: 150 60% 45%;
+    --accent: 42 92% 58%;
+    --accent-foreground: 42 92% 90%;
+    --accent-strong: 42 92% 48%;
 
-    --therapeutic-calm: 200 40% 25%;
-    --therapeutic-growth: 140 30% 25%;
-    --therapeutic-warmth: 35 40% 25%;
-    --therapeutic-focus: 260 20% 25%;
-    --therapeutic-energy: 320 25% 25%;
+    --therapeutic-calm: 200 40% 22%;
+    --therapeutic-growth: 140 30% 22%;
+    --therapeutic-warmth: 35 40% 22%;
+    --therapeutic-focus: 260 20% 22%;
+    --therapeutic-energy: 320 25% 22%;
 
-    --success: 150 60% 55%;
-    --success-foreground: 215 20% 8%;
-    --warning: 35 70% 65%;
-    --warning-foreground: 215 20% 8%;
-    --destructive: 0 60% 65%;
-    --destructive-foreground: 215 20% 8%;
+    --success: 152 60% 50%;
+    --success-foreground: 222 20% 7%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 20% 7%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 222 20% 7%;
 
-    --border: 215 25% 18%;
-    --input: 215 25% 15%;
-    --ring: 174 65% 60%;
+    --border: 222 20% 16%;
+    --input: 222 20% 14%;
+    --ring: 225 84% 62%;
 
-    --sidebar-background: 215 25% 10%;
-    --sidebar-foreground: 210 40% 85%;
-    --sidebar-primary: 174 65% 60%;
-    --sidebar-primary-foreground: 215 20% 8%;
-    --sidebar-accent: 215 25% 15%;
-    --sidebar-accent-foreground: 210 40% 85%;
-    --sidebar-border: 215 25% 15%;
-    --sidebar-ring: 174 65% 60%;
+    --xp: 42 92% 58%;
+    --xp-foreground: 42 92% 10%;
+    --rank: 225 84% 62%;
+    --streak: 16 85% 58%;
+    --streak-foreground: 0 0% 100%;
+
+    --sidebar-background: 222 20% 9%;
+    --sidebar-foreground: 220 14% 80%;
+    --sidebar-primary: 225 84% 62%;
+    --sidebar-primary-foreground: 222 20% 7%;
+    --sidebar-accent: 222 20% 14%;
+    --sidebar-accent-foreground: 220 14% 80%;
+    --sidebar-border: 222 20% 14%;
+    --sidebar-ring: 225 84% 62%;
   }
 }
 
@@ -151,7 +166,7 @@ All colors MUST be HSL for consistency and theming support.
   html,
   body {
     @apply text-foreground;
-    background-color: #f8fafc;
+    background-color: hsl(var(--background));
     min-height: 100svh;
     height: auto;
     overflow-y: auto;
@@ -162,5 +177,13 @@ All colors MUST be HSL for consistency and theming support.
   #root {
     min-height: 100svh;
     overflow: visible;
+  }
+}
+
+/* Stat number styling */
+@layer utilities {
+  .stat-number {
+    @apply font-bold tracking-tight tabular-nums;
+    font-variant-numeric: tabular-nums;
   }
 }

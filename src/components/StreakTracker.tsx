@@ -5,7 +5,6 @@ import { useEntries } from '@/store/useEntries';
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
   if (entries.length === 0) return { current: 0, best: 0 };
 
-  // Get unique days (local timezone)
   const days = new Set(
     entries.map((e) => {
       const d = new Date(e.createdAt);
@@ -16,11 +15,9 @@ function computeStreak(entries: { createdAt: string }[]): { current: number; bes
   const today = new Date();
   const toKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-  // Walk backwards from today
   let current = 0;
   const check = new Date(today);
 
-  // Allow today to be missing (streak still counts if yesterday exists)
   if (!days.has(toKey(check))) {
     check.setDate(check.getDate() - 1);
     if (!days.has(toKey(check))) return { current: 0, best: getBest(days) };
@@ -36,7 +33,6 @@ function computeStreak(entries: { createdAt: string }[]): { current: number; bes
 
 function getBest(days: Set<string>): number {
   if (days.size === 0) return 0;
-  // Convert to sorted dates
   const sorted = Array.from(days)
     .map((k) => {
       const [y, m, d] = k.split('-').map(Number);
@@ -58,30 +54,6 @@ function getBest(days: Set<string>): number {
   return best;
 }
 
-const ENCOURAGEMENTS: [number, string][] = [
-  [0, "Journal today to start your streak!"],
-  [1, "Day 1 — every habit starts here!"],
-  [2, "2 days in — you're showing up! 💪"],
-  [3, "3 days strong! Keep the momentum!"],
-  [5, "Almost a week — building a habit! 🔑"],
-  [7, "One full week! 1/3 of the way there! 🌟"],
-  [10, "10 days! You're rewiring your brain! 🧠"],
-  [14, "Two weeks! The habit is taking root! 🌱"],
-  [17, "17 days — the finish line is in sight! 🔥"],
-  [20, "Tomorrow you hit 21! Don't stop now! 🏁"],
-  [21, "🏆 21 days! You've built a habit! 🎉"],
-  [30, "30 days! Journaling is part of who you are 💎"],
-];
-
-function getEncouragement(streak: number): string {
-  let msg = ENCOURAGEMENTS[0][1];
-  for (const [threshold, text] of ENCOURAGEMENTS) {
-    if (streak >= threshold) msg = text;
-    else break;
-  }
-  return msg;
-}
-
 export default function StreakTracker() {
   const { entries, loadEntries } = useEntries();
   const [streak, setStreak] = useState({ current: 0, best: 0 });
@@ -95,57 +67,34 @@ export default function StreakTracker() {
   }, [entries]);
 
   const progress = Math.min(streak.current / 21, 1);
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card p-5 shadow-sm">
-      <div className="flex items-center gap-5">
-        {/* Circular progress ring */}
-        <div className="relative w-28 h-28 shrink-0">
-          <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-            {/* Background ring */}
-            <circle
-              cx="60" cy="60" r={radius}
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="8"
-            />
-            {/* Progress ring */}
-            <circle
-              cx="60" cy="60" r={radius}
-              fill="none"
-              stroke="url(#streakGradient)"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              className="transition-all duration-700 ease-out"
-            />
-            <defs>
-              <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#fef9c3" />
-                <stop offset="100%" stopColor="#fde68a" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-card-foreground">{streak.current}</span>
-            <span className="text-[10px] text-muted-foreground">of 21</span>
-          </div>
+    <div className="grid grid-cols-3 gap-3">
+      {/* Current Streak */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
+        <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center mx-auto mb-2">
+          <Flame className="w-5 h-5 text-destructive" />
         </div>
+        <p className="stat-number text-2xl text-card-foreground">{streak.current}</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">Day Streak</p>
+      </div>
 
-        {/* Text info */}
-        <div className="flex-1 space-y-1">
-          <p className="text-sm font-semibold text-card-foreground">
-            Habit Journey
-          </p>
-          <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
-          {streak.best > 0 && streak.current > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">🏆 Best streak: {streak.best} day{streak.best !== 1 ? 's' : ''}</p>
-          )}
+      {/* Best Streak */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
+        <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center mx-auto mb-2">
+          <span className="text-lg">🏆</span>
         </div>
+        <p className="stat-number text-2xl text-card-foreground">{streak.best}</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">Best Streak</p>
+      </div>
+
+      {/* 21-day goal */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-soft text-center">
+        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-2">
+          <span className="text-lg">🎯</span>
+        </div>
+        <p className="stat-number text-2xl text-card-foreground">{Math.round(progress * 100)}%</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mt-0.5">21-Day Goal</p>
       </div>
     </div>
   );
