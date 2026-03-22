@@ -50,9 +50,9 @@ export default function Home() {
           {/* Secondary Navigation */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-50 to-cyan-100", iconColor: "text-teal-300" },
-              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-50 to-fuchsia-100", iconColor: "text-violet-300" },
-              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-50 to-orange-100", iconColor: "text-amber-300" },
+              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-50 to-teal-100", iconColor: "text-teal-400" },
+              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-teal-50 to-teal-100", iconColor: "text-teal-400" },
+              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-teal-50 to-teal-100", iconColor: "text-teal-400" },
             ].map((item) => {
               const Icon = item.icon;
               return (
