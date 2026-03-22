@@ -143,7 +143,7 @@ export default function StreakTracker() {
           </p>
           <p className="text-xs text-muted-foreground">{getEncouragement(streak.current)}</p>
           {streak.best > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">Best: {streak.best} 🏆</p>
+            <p className="text-xs text-muted-foreground mt-2">🏆 Best streak: {streak.best} day{streak.best !== 1 ? 's' : ''}</p>
           )}
         </div>
       </div>
