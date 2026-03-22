@@ -32,7 +32,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   appLockEnabled: false,
   failedAttempts: 0,
   unlocked: false,
-  loading: false,
+  loading: true,
   error: null,
 
   loadSettings: async () => {
