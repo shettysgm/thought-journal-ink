@@ -7,39 +7,8 @@ import DailyPrompt from "@/components/DailyPrompt";
 import StreakTracker from "@/components/StreakTracker";
 import { useState } from "react";
 import quillIcon from "@/assets/quill-icon-new.png";
-  {
-    title: "New Entry",
-    description: "Type or speak — seamlessly switch between both",
-    icon: Type,
-    href: "/unified",
-    gradient: "bg-gradient-primary",
-    color: "primary"
-  },
-  {
-    title: "My Journal",
-    description: "View all your saved entries",
-    icon: BookOpen,
-    href: "/journal",
-    gradient: "bg-therapeutic-energy",
-    color: "therapeutic-energy"
-  },
-  {
-    title: "CBT Quiz",
-    description: "Practice identifying distortions",
-    icon: HelpCircle,
-    href: "/quiz",
-    gradient: "bg-gradient-secondary", 
-    color: "secondary"
-  },
-  {
-    title: "Why CBT Works",
-    description: "Learn how journaling rewires your brain for success",
-    icon: Lightbulb,
-    href: "/why-cbt",
-    gradient: "bg-therapeutic-focus",
-    color: "therapeutic-focus"
-  }
-];
+
+
 
 export default function Home() {
   console.log('Home component rendering');
