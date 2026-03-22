@@ -57,9 +57,9 @@ export default function Home() {
           {/* Secondary Navigation */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-200 to-cyan-300" },
-              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-200 to-fuchsia-300" },
-              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-200 to-orange-300" },
+              { title: "Journal", icon: BookOpen, href: "/journal", gradient: "from-teal-100 to-cyan-200", iconColor: "text-teal-500" },
+              { title: "CBT Quiz", icon: HelpCircle, href: "/quiz", gradient: "from-violet-100 to-fuchsia-200", iconColor: "text-violet-500" },
+              { title: "Why CBT", icon: Lightbulb, href: "/why-cbt", gradient: "from-yellow-100 to-orange-200", iconColor: "text-amber-500" },
             ].map((item) => {
               const Icon = item.icon;
               return (
