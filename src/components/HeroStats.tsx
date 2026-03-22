@@ -76,21 +76,21 @@ export default function HeroStats() {
       {/* Three stats — clean horizontal */}
       <div className="flex items-center justify-around text-center">
         <div>
-          <Flame className="w-4 h-4 text-destructive mx-auto mb-1" />
+          <Flame className="w-[18px] h-[18px] text-destructive mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.current}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Streak</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Streak</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div>
-          <Target className="w-4 h-4 text-primary mx-auto mb-1" />
+          <CircleDot className="w-[18px] h-[18px] text-primary mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{Math.round(goalProgress * 100)}%</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">21-Day</p>
+          <p className="text-[10px] text-muted-foreground mt-1">21-Day</p>
         </div>
         <div className="w-px h-10 bg-border" />
         <div>
-          <span className="text-sm block mx-auto mb-1">🏆</span>
+          <TrendingUp className="w-[18px] h-[18px] text-accent-strong mx-auto mb-1.5" strokeWidth={1.5} />
           <p className="stat-number text-xl text-card-foreground leading-none">{streak.best}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Best</p>
+          <p className="text-[10px] text-muted-foreground mt-1">Best</p>
         </div>
       </div>
     </div>
