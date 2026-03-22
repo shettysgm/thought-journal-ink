@@ -6,6 +6,7 @@ import quillIcon from '@/assets/quill-icon-new.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
 import expressIcon from '@/assets/express-ways-icon.png';
+import backupIcon from '@/assets/backup-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -179,8 +180,12 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                     />
                   </div>
                 ) : currentSlide === 4 ? (
-                  <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
-                    <slide.icon className={`w-10 h-10 ${slide.color}`} />
+                  <div className="w-48 h-40 md:w-56 md:h-48 flex items-center justify-center">
+                    <img 
+                      src={backupIcon}
+                      alt="Back Up Your Journal" 
+                      className="w-full h-full object-contain animate-fade-in-scale" 
+                    />
                   </div>
                 ) : (
                   <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
