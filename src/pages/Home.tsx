@@ -6,6 +6,7 @@ import StreakReminder from "@/components/StreakReminder";
 import DailyPrompt from "@/components/DailyPrompt";
 import HeroStats from "@/components/HeroStats";
 import DailyChallenges from "@/components/DailyChallenge";
+import NotificationBanner from "@/components/NotificationBanner";
 import { useState } from "react";
 
 export default function Home() {
@@ -42,6 +43,9 @@ export default function Home() {
 
           {/* Single hero card: level + streak + goal */}
           <HeroStats />
+
+          {/* Notification opt-in */}
+          <NotificationBanner />
 
           {/* Streak warning (conditional) */}
           <StreakReminder />
