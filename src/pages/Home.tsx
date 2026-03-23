@@ -44,6 +44,9 @@ export default function Home() {
           {/* Single hero card: level + streak + goal */}
           <HeroStats />
 
+          {/* Notification opt-in */}
+          <NotificationBanner />
+
           {/* Streak warning (conditional) */}
           <StreakReminder />
 
