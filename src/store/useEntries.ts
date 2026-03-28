@@ -32,7 +32,33 @@ export const useEntries = create<EntriesState>((set, get) => ({
   loadEntries: async () => {
     set({ loading: true, error: null });
     try {
-      const entries = await getAllJournalEntries();
+      let entries = await getAllJournalEntries();
+      
+      // If IndexedDB is empty, try restoring from auto-backup (e.g. after reinstall)
+      if (entries.length === 0) {
+        try {
+          const { readBackupFile } = await import('@/lib/autoBackup');
+          const backup = await readBackupFile();
+          if (backup && backup.entries.length > 0) {
+            console.log(`[AutoBackup] Restoring ${backup.entries.length} entries from backup...`);
+            const { saveJournalEntry: saveEntry } = await import('@/lib/idb');
+            for (const entry of backup.entries) {
+              await saveEntry(entry);
+            }
+            // Also restore distortions
+            if (backup.distortions?.length) {
+              const { saveDistortionMeta } = await import('@/lib/idb');
+              for (const d of backup.distortions) {
+                await saveDistortionMeta(d);
+              }
+            }
+            entries = await getAllJournalEntries();
+            console.log(`[AutoBackup] Restored ${entries.length} entries successfully`);
+          }
+        } catch (restoreErr) {
+          console.warn('[AutoBackup] Restore failed:', restoreErr);
+        }
+      }
       
       // Decrypt entries if encryption is enabled
       const settings = useSettings.getState();
