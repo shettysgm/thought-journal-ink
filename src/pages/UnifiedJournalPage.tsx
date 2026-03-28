@@ -328,6 +328,16 @@ export default function UnifiedJournalPage() {
           } else {
             // Regular update
             await updateEntry(entryId, { text: text.trim() });
+            // Track word count for challenges on first save of this session
+            if (!hasTrackedSessionRef.current) {
+              hasTrackedSessionRef.current = true;
+              try {
+                const { useGameStore } = await import('@/store/useGameStore');
+                const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+                useGameStore.getState().updateChallengeProgress('write', 1);
+                useGameStore.getState().updateChallengeProgress('words', wordCount);
+              } catch {}
+            }
           }
         }
         setLastSavedText(text);
