@@ -106,6 +106,15 @@ export const useEntries = create<EntriesState>((set, get) => ({
       )
     }));
     
+    // Track XP for appended text (gamification)
+    if (newData.text) {
+      try {
+        const { useGameStore } = await import('./useGameStore');
+        const wordCount = newData.text.split(/\s+/).filter(Boolean).length;
+        useGameStore.getState().recordEntry(wordCount);
+      } catch {}
+    }
+    
     return existingId;
   },
 
