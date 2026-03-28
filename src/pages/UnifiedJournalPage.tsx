@@ -281,12 +281,17 @@ export default function UnifiedJournalPage() {
     }
   }, []);
 
+  // Track whether we're currently saving to prevent duplicate AI calls
+  const isSavingRef = useRef(false);
+
   // Auto-save effect
   useEffect(() => {
     if (!text.trim() || text === lastSavedText) return;
 
     setSaveStatus('unsaved');
     const saveTimeout = setTimeout(async () => {
+      if (isSavingRef.current) return;
+      isSavingRef.current = true;
       setSaveStatus('saving');
       try {
         let savedId = entryId;
@@ -334,6 +339,8 @@ export default function UnifiedJournalPage() {
           description: "Could not auto-save your entry.",
           variant: "destructive"
         });
+      } finally {
+        isSavingRef.current = false;
       }
     }, 1500);
 
@@ -341,6 +348,7 @@ export default function UnifiedJournalPage() {
   }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry, saveBannerData]);
 
   // Debounced AI detection - respects user's AI settings
+  // Skip if a save is in progress to avoid duplicate AI calls
   useEffect(() => {
     console.log('[AI Detection] Effect triggered:', {
       aiAnalysisEnabled,
@@ -361,11 +369,25 @@ export default function UnifiedJournalPage() {
       return;
     }
 
+    // Don't run real-time detection if entry hasn't been created yet
+    // (createEntry will run its own detection)
+    if (!entryId) {
+      console.log('[AI Detection] Skipped: no entry ID yet (will run on save)');
+      return;
+    }
+
+    let cancelled = false;
     const timeoutId = setTimeout(async () => {
+      // Skip if currently saving to avoid duplicate AI calls
+      if (isSavingRef.current) {
+        console.log('[AI Detection] Skipped: save in progress');
+        return;
+      }
       console.log('[AI Detection] Starting detection...');
       setIsDetecting(true);
       try {
         const response = await detectWithAI(text.trim());
+        if (cancelled) return;
         console.log('[AI Detection] Response:', {
           distortions: response.distortions?.length || 0,
           reframes: response.reframes?.length || 0,
@@ -398,11 +420,14 @@ export default function UnifiedJournalPage() {
         console.error('[AI Detection] Error:', error);
         setLiveDetections([]);
       } finally {
-        setIsDetecting(false);
+        if (!cancelled) setIsDetecting(false);
       }
-    }, 2000);
+    }, 3000); // Increased debounce to reduce API calls
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [text, entryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions]);
 
   const toggleRecording = async () => {
