@@ -108,13 +108,14 @@ interface GameState {
   getLevelInfo: () => ReturnType<typeof getLevelInfo>;
   getAchievements: () => Achievement[];
   getDailyChallenges: () => DailyChallenge[];
+  ensureTodayChallenges: () => void;
 
   // Actions
   addXP: (amount: number) => void;
   recordEntry: (wordCount: number) => void;
   recordQuiz: () => void;
   recordPromptUsed: () => void;
-  checkAchievements: (streak: number) => string[]; // returns newly unlocked
+  checkAchievements: (streak: number) => string[];
   updateChallengeProgress: (type: DailyChallenge['type'], amount: number) => void;
 }
 
