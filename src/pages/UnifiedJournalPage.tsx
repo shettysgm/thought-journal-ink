@@ -131,8 +131,9 @@ export default function UnifiedJournalPage() {
   useEffect(() => {
     const initialize = async () => {
       setIsInitializing(true);
-      // Load all entries first
-      await loadEntries();
+      try {
+        // Load all entries first
+        await loadEntries();
       
       if (editEntryId) {
         // Loading specific entry for editing
@@ -206,10 +207,10 @@ export default function UnifiedJournalPage() {
           setIsNewSession(true);
         }
       }
-      setIsInitializing(false);
+      } finally {
+        setIsInitializing(false);
+      }
     };
-    
-    initialize();
   }, [editEntryId, getEntry, toast, loadEntries]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
