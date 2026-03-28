@@ -64,6 +64,7 @@ export default function UnifiedJournalPage() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
+  const hasTrackedSessionRef = useRef(false); // Track if we've recorded XP for this session
   
   // Voice state
   const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
@@ -327,6 +328,16 @@ export default function UnifiedJournalPage() {
           } else {
             // Regular update
             await updateEntry(entryId, { text: text.trim() });
+            // Track word count for challenges on first save of this session
+            if (!hasTrackedSessionRef.current) {
+              hasTrackedSessionRef.current = true;
+              try {
+                const { useGameStore } = await import('@/store/useGameStore');
+                const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+                useGameStore.getState().updateChallengeProgress('write', 1);
+                useGameStore.getState().updateChallengeProgress('words', wordCount);
+              } catch {}
+            }
           }
         }
         setLastSavedText(text);
