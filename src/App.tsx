@@ -19,17 +19,24 @@ const App = () => {
     loadSettings();
   }, [loadSettings]);
 
-  // Auto-schedule a default 9AM daily reminder on first launch (native only)
+  // Schedule daily reminder on every app launch (native only)
+  // Re-registers the notification in case iOS cleared it (reboot, update, etc.)
   useEffect(() => {
     if (loading) return;
-    if (reminderAutoScheduled) return;
-    scheduleStreakReminder(9, 0).then((success) => {
-      // Only mark as scheduled if it actually worked (native + permission granted)
-      if (success) {
-        updateSettings({ reminderAutoScheduled: true, reminderTime: '09:00' });
-      }
-    });
-  }, [loading, reminderAutoScheduled, updateSettings]);
+
+    if (reminderTime) {
+      // Re-schedule existing reminder every launch
+      const [h, m] = reminderTime.split(':').map(Number);
+      scheduleStreakReminder(h, m);
+    } else if (!reminderAutoScheduled) {
+      // First launch: try default 9AM
+      scheduleStreakReminder(9, 0).then((success) => {
+        if (success) {
+          updateSettings({ reminderAutoScheduled: true, reminderTime: '09:00' });
+        }
+      });
+    }
+  }, [loading, reminderAutoScheduled, reminderTime, updateSettings]);
 
   // Re-lock app when user leaves and returns (background/foreground)
   useEffect(() => {
