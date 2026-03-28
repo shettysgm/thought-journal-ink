@@ -298,7 +298,7 @@ export default function UnifiedJournalPage() {
 
   // Auto-save effect
   useEffect(() => {
-    if (!text.trim() || text === lastSavedText) return;
+    if (isInitializing || !text.trim() || text === lastSavedText) return;
 
     setSaveStatus('unsaved');
     const saveTimeout = setTimeout(async () => {
