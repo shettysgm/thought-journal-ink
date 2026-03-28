@@ -22,7 +22,7 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   
   // Add timeout to prevent hanging
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
   
   // Use the full URL with endpoint path
   const url = getDetectDistortionsUrl();
