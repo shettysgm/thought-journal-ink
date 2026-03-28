@@ -148,22 +148,25 @@ export const useGameStore = create<GameState>()(
       getDailyChallenges: () => {
         const today = todayStr();
         const state = get();
-        // Reset if new day
-        if (state.dailyChallengeDate !== today) {
+        const progress = state.dailyChallengeDate === today ? state.dailyChallengeProgress : {};
+        const completed = state.dailyChallengeDate === today ? state.dailyChallengeCompleted : {};
+        const challenges = getDailyChallenges(today);
+        return challenges.map((c) => ({
+          ...c,
+          progress: progress[c.id] || 0,
+          completed: completed[c.id] || false,
+        }));
+      },
+
+      ensureTodayChallenges: () => {
+        const today = todayStr();
+        if (get().dailyChallengeDate !== today) {
           set({
             dailyChallengeDate: today,
             dailyChallengeProgress: {},
             dailyChallengeCompleted: {},
           });
         }
-        const challenges = getDailyChallenges(today);
-        const progress = get().dailyChallengeProgress;
-        const completed = get().dailyChallengeCompleted;
-        return challenges.map((c) => ({
-          ...c,
-          progress: progress[c.id] || 0,
-          completed: completed[c.id] || false,
-        }));
       },
 
       addXP: (amount) => set((s) => ({ xp: s.xp + amount })),
