@@ -236,30 +236,29 @@ export const useGameStore = create<GameState>()(
 
       updateChallengeProgress: (type, amount) => {
         const today = todayStr();
-        const state = get();
-        if (state.dailyChallengeDate !== today) {
-          set({
-            dailyChallengeDate: today,
-            dailyChallengeProgress: {},
-            dailyChallengeCompleted: {},
-          });
-        }
+        get().ensureTodayChallenges();
 
         const challenges = getDailyChallenges(today);
         const progress = { ...get().dailyChallengeProgress };
         const completed = { ...get().dailyChallengeCompleted };
+        let xpToAdd = 0;
 
         for (const c of challenges) {
           if (c.type === type && !completed[c.id]) {
             progress[c.id] = (progress[c.id] || 0) + amount;
+            console.log(`[Challenge] ${c.id}: ${progress[c.id]}/${c.target}`);
             if (progress[c.id] >= c.target) {
               completed[c.id] = true;
-              // Award XP for challenge completion
-              set((s) => ({ xp: s.xp + c.xpReward }));
+              xpToAdd += c.xpReward;
+              console.log(`[Challenge] ${c.id} COMPLETED! +${c.xpReward}XP`);
             }
           }
         }
-        set({ dailyChallengeProgress: progress, dailyChallengeCompleted: completed });
+        set((s) => ({
+          dailyChallengeProgress: progress,
+          dailyChallengeCompleted: completed,
+          xp: s.xp + xpToAdd,
+        }));
       },
     }),
     { name: 'journal-game-store' }
