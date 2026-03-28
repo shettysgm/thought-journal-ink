@@ -65,6 +65,7 @@ export default function UnifiedJournalPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
   const hasTrackedSessionRef = useRef(false); // Track if we've recorded XP for this session
+  const [isInitializing, setIsInitializing] = useState(true); // Prevent stale entry autosave while route params load
   
   // Voice state
   const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
@@ -129,8 +130,10 @@ export default function UnifiedJournalPage() {
   // Load existing entry if editing
   useEffect(() => {
     const initialize = async () => {
-      // Load all entries first
-      await loadEntries();
+      setIsInitializing(true);
+      try {
+        // Load all entries first
+        await loadEntries();
       
       if (editEntryId) {
         // Loading specific entry for editing
@@ -159,6 +162,11 @@ export default function UnifiedJournalPage() {
               }));
               setLiveDetections(detectionsList);
             }
+          } else {
+            // If edit id is invalid, clear state to avoid mutating stale entry
+            setEntryId(null);
+            setText('');
+            setLastSavedText('');
           }
         } catch (error) {
           console.error('Error loading entry:', error);
@@ -193,12 +201,16 @@ export default function UnifiedJournalPage() {
           setIsNewSession(false);
         } else {
           console.log('No entry found for today, will create new one');
+          setEntryId(null);
+          setText('');
+          setLastSavedText('');
           setIsNewSession(true);
         }
       }
+      } finally {
+        setIsInitializing(false);
+      }
     };
-    
-    initialize();
   }, [editEntryId, getEntry, toast, loadEntries]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
@@ -287,7 +299,7 @@ export default function UnifiedJournalPage() {
 
   // Auto-save effect
   useEffect(() => {
-    if (!text.trim() || text === lastSavedText) return;
+    if (isInitializing || !text.trim() || text === lastSavedText) return;
 
     setSaveStatus('unsaved');
     const saveTimeout = setTimeout(async () => {
