@@ -46,6 +46,21 @@ add_plist_string "CFBundleExecutable" '$(EXECUTABLE_NAME)'
 /usr/libexec/PlistBuddy -c "Add :UIRequiredDeviceCapabilities:0 string armv7" "$PLIST"
 echo "   ✅  UIRequiredDeviceCapabilities"
 
+# Enable file sharing so Documents directory is visible in Files app & backed up to iCloud
+add_plist_bool() {
+  local key="$1"
+  local value="$2"
+  if /usr/libexec/PlistBuddy -c "Print :${key}" "$PLIST" &>/dev/null; then
+    /usr/libexec/PlistBuddy -c "Set :${key} ${value}" "$PLIST"
+  else
+    /usr/libexec/PlistBuddy -c "Add :${key} bool ${value}" "$PLIST"
+  fi
+  echo "   ✅  ${key} = ${value}"
+}
+
+add_plist_bool "UIFileSharingEnabled" "true"
+add_plist_bool "LSSupportsOpeningDocumentsInPlace" "true"
+
 # ── 3. Re-apply App Icons ───────────────────────────────────
 if [ ! -f "$ICON_SRC" ]; then
   echo "⚠️   $ICON_SRC not found — skipping icon generation."
