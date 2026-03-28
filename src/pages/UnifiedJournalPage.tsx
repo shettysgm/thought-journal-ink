@@ -64,6 +64,7 @@ export default function UnifiedJournalPage() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
+  const hasTrackedSessionRef = useRef(false); // Track if we've recorded XP for this session
   
   // Voice state
   const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
