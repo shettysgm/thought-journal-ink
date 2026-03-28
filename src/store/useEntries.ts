@@ -9,6 +9,7 @@ import {
 import { encryptText, decryptText } from '@/lib/crypto';
 import { useSettings } from './useSettings';
 import { format } from 'date-fns';
+import { scheduleAutoBackup } from '@/lib/autoBackup';
 
 interface EntriesState {
   entries: JournalEntry[];
