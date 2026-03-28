@@ -37,12 +37,18 @@ function getDailyPrompt(): string {
 
 export default function DailyPrompt() {
   const navigate = useNavigate();
+  const recordPromptUsed = useGameStore((s) => s.recordPromptUsed);
   const prompt = getDailyPrompt();
+
+  const handleClick = () => {
+    recordPromptUsed();
+    navigate('/unified');
+  };
 
   return (
     <Card
       className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card"
-      onClick={() => navigate('/unified')}
+      onClick={handleClick}
     >
       <CardContent className="p-4 flex items-start gap-3">
         <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
