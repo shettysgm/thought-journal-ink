@@ -130,6 +130,7 @@ export default function UnifiedJournalPage() {
   // Load existing entry if editing
   useEffect(() => {
     const initialize = async () => {
+      setIsInitializing(true);
       // Load all entries first
       await loadEntries();
       
@@ -160,6 +161,11 @@ export default function UnifiedJournalPage() {
               }));
               setLiveDetections(detectionsList);
             }
+          } else {
+            // If edit id is invalid, clear state to avoid mutating stale entry
+            setEntryId(null);
+            setText('');
+            setLastSavedText('');
           }
         } catch (error) {
           console.error('Error loading entry:', error);
@@ -194,9 +200,13 @@ export default function UnifiedJournalPage() {
           setIsNewSession(false);
         } else {
           console.log('No entry found for today, will create new one');
+          setEntryId(null);
+          setText('');
+          setLastSavedText('');
           setIsNewSession(true);
         }
       }
+      setIsInitializing(false);
     };
     
     initialize();
