@@ -96,6 +96,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
     };
     
     await saveJournalEntry(updatedEntry);
+    scheduleAutoBackup();
     
     // Update local state
     set(state => ({
@@ -141,6 +142,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
     
     console.log('Saving entry to IndexedDB...');
     await saveJournalEntry(entry);
+    scheduleAutoBackup();
     console.log('Entry saved to IndexedDB:', entry);
     
     // Add to local state first (with decrypted text for display)
@@ -244,6 +246,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
     };
 
     await saveJournalEntry(updatedEntry);
+    scheduleAutoBackup();
 
     set((state) => ({
       entries: state.entries.map((entry) =>
@@ -260,6 +263,7 @@ export const useEntries = create<EntriesState>((set, get) => ({
 
   deleteEntry: async (id) => {
     await deleteJournalEntry(id);
+    scheduleAutoBackup();
     set(state => ({
       entries: state.entries.filter(entry => entry.id !== id)
     }));
