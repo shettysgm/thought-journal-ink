@@ -211,6 +211,8 @@ export default function UnifiedJournalPage() {
         setIsInitializing(false);
       }
     };
+    
+    initialize();
   }, [editEntryId, getEntry, toast, loadEntries]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
