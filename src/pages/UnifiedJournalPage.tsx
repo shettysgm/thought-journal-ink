@@ -65,6 +65,7 @@ export default function UnifiedJournalPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isNewSession, setIsNewSession] = useState(true); // Track if this is a new session
   const hasTrackedSessionRef = useRef(false); // Track if we've recorded XP for this session
+  const [isInitializing, setIsInitializing] = useState(true); // Prevent stale entry autosave while route params load
   
   // Voice state
   const [audioSegments, setAudioSegments] = useState<AudioSegment[]>([]);
