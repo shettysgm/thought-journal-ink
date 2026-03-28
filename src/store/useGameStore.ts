@@ -108,13 +108,14 @@ interface GameState {
   getLevelInfo: () => ReturnType<typeof getLevelInfo>;
   getAchievements: () => Achievement[];
   getDailyChallenges: () => DailyChallenge[];
+  ensureTodayChallenges: () => void;
 
   // Actions
   addXP: (amount: number) => void;
   recordEntry: (wordCount: number) => void;
   recordQuiz: () => void;
   recordPromptUsed: () => void;
-  checkAchievements: (streak: number) => string[]; // returns newly unlocked
+  checkAchievements: (streak: number) => string[];
   updateChallengeProgress: (type: DailyChallenge['type'], amount: number) => void;
 }
 
@@ -148,22 +149,25 @@ export const useGameStore = create<GameState>()(
       getDailyChallenges: () => {
         const today = todayStr();
         const state = get();
-        // Reset if new day
-        if (state.dailyChallengeDate !== today) {
+        const progress = state.dailyChallengeDate === today ? state.dailyChallengeProgress : {};
+        const completed = state.dailyChallengeDate === today ? state.dailyChallengeCompleted : {};
+        const challenges = getDailyChallenges(today);
+        return challenges.map((c) => ({
+          ...c,
+          progress: progress[c.id] || 0,
+          completed: completed[c.id] || false,
+        }));
+      },
+
+      ensureTodayChallenges: () => {
+        const today = todayStr();
+        if (get().dailyChallengeDate !== today) {
           set({
             dailyChallengeDate: today,
             dailyChallengeProgress: {},
             dailyChallengeCompleted: {},
           });
         }
-        const challenges = getDailyChallenges(today);
-        const progress = get().dailyChallengeProgress;
-        const completed = get().dailyChallengeCompleted;
-        return challenges.map((c) => ({
-          ...c,
-          progress: progress[c.id] || 0,
-          completed: completed[c.id] || false,
-        }));
       },
 
       addXP: (amount) => set((s) => ({ xp: s.xp + amount })),
@@ -233,30 +237,29 @@ export const useGameStore = create<GameState>()(
 
       updateChallengeProgress: (type, amount) => {
         const today = todayStr();
-        const state = get();
-        if (state.dailyChallengeDate !== today) {
-          set({
-            dailyChallengeDate: today,
-            dailyChallengeProgress: {},
-            dailyChallengeCompleted: {},
-          });
-        }
+        get().ensureTodayChallenges();
 
         const challenges = getDailyChallenges(today);
         const progress = { ...get().dailyChallengeProgress };
         const completed = { ...get().dailyChallengeCompleted };
+        let xpToAdd = 0;
 
         for (const c of challenges) {
           if (c.type === type && !completed[c.id]) {
             progress[c.id] = (progress[c.id] || 0) + amount;
+            console.log(`[Challenge] ${c.id}: ${progress[c.id]}/${c.target}`);
             if (progress[c.id] >= c.target) {
               completed[c.id] = true;
-              // Award XP for challenge completion
-              set((s) => ({ xp: s.xp + c.xpReward }));
+              xpToAdd += c.xpReward;
+              console.log(`[Challenge] ${c.id} COMPLETED! +${c.xpReward}XP`);
             }
           }
         }
-        set({ dailyChallengeProgress: progress, dailyChallengeCompleted: completed });
+        set((s) => ({
+          dailyChallengeProgress: progress,
+          dailyChallengeCompleted: completed,
+          xp: s.xp + xpToAdd,
+        }));
       },
     }),
     { name: 'journal-game-store' }
