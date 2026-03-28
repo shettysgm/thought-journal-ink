@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Lightbulb } from 'lucide-react';
+import { useGameStore } from '@/store/useGameStore';
 
 const PROMPTS = [
   "What's one thing you're grateful for today?",
