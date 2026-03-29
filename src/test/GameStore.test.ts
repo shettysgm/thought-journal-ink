@@ -62,7 +62,7 @@ describe('useGameStore - Daily Challenges', () => {
   it('getLevelInfo returns valid level data', () => {
     useGameStore.getState().addXP(250);
     const info = useGameStore.getState().getLevelInfo();
-    expect(info.current).toBeGreaterThanOrEqual(1);
+    expect(info.level).toBeGreaterThanOrEqual(1);
     expect(info.progress).toBeGreaterThanOrEqual(0);
     expect(info.progress).toBeLessThanOrEqual(1);
   });
