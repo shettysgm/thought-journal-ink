@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Zap, Trophy, Target } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useEntries } from '@/store/useEntries';
 
 function computeStreak(entries: { createdAt: string }[]): { current: number; best: number } {
