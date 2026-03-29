@@ -46,6 +46,21 @@ export default function StreakTracker() {
   useEffect(() => { loadEntries(); }, [loadEntries]);
   useEffect(() => { setStreak(computeStreak(entries)); }, [entries]);
 
+  // Fire confetti when streak hits 2+ for the first time this session
+  const hasCelebrated = useRef(false);
+  useEffect(() => {
+    if (streak.current >= 2 && !hasCelebrated.current) {
+      hasCelebrated.current = true;
+      const end = Date.now() + 800;
+      const frame = () => {
+        confetti({ particleCount: 30, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } });
+        confetti({ particleCount: 30, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [streak.current]);
+
   const progress = Math.min(streak.current / 21, 1);
 
   const stats = [
