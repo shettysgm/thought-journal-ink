@@ -20,9 +20,9 @@ describe('useGameStore - Daily Challenges', () => {
       totalEntries: 0,
       totalQuizzes: 0,
       dailyChallengeDate: '',
-      dailyChallengeProgress: {},
-      dailyChallengeCompleted: {},
-      unlockedAchievements: [],
+      dailyChallengeProgress: {} as Record<string, number>,
+      dailyChallengeCompleted: {} as Record<string, boolean>,
+      unlockedAchievements: [] as any,
     });
   });
 
