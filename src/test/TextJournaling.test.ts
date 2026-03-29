@@ -4,11 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockSaveJournalEntry = vi.fn().mockResolvedValue(undefined);
 const mockGetJournalEntry = vi.fn().mockResolvedValue(null);
 const mockGetAllJournalEntries = vi.fn().mockResolvedValue([]);
+const mockDeleteJournalEntry = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@/lib/idb', () => ({
   saveJournalEntry: (...args: any[]) => mockSaveJournalEntry(...args),
   getJournalEntry: (...args: any[]) => mockGetJournalEntry(...args),
   getAllJournalEntries: () => mockGetAllJournalEntries(),
+  deleteJournalEntry: (...args: any[]) => mockDeleteJournalEntry(...args),
   getSettings: vi.fn().mockResolvedValue({
     encryptionEnabled: false,
     autoDetectDistortions: false,
