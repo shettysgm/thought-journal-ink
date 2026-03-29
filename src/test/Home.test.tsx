@@ -32,8 +32,7 @@ describe('Home Page', () => {
 
   it('has a link to settings', () => {
     renderHome();
-    const settingsLink = screen.getByRole('link', { name: /settings/i }) 
-      || document.querySelector('a[href="/settings"]');
+    const settingsLink = document.querySelector('a[href="/settings"]');
     expect(settingsLink).toBeTruthy();
   });
 

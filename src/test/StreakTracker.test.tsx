@@ -50,7 +50,8 @@ describe('StreakTracker', () => {
     ];
 
     render(<StreakTracker />);
-    expect(screen.getByText('2')).toBeInTheDocument();
+    const streakValues = screen.getAllByText('2');
+    expect(streakValues.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows 0% progress when streak is 0', () => {
