@@ -373,52 +373,39 @@ export default function UnifiedJournalPage() {
   }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry, saveBannerData]);
 
   // Debounced AI detection - respects user's AI settings
-  // Skip if a save is in progress to avoid duplicate AI calls
+  // Skips while saving and avoids running on brand-new entries (createEntry does its own detection)
+  const hasRunInitialDetection = useRef(false);
   useEffect(() => {
-    console.log('[AI Detection] Effect triggered:', {
-      aiAnalysisEnabled,
-      autoDetectDistortions,
-      textLength: text.trim().length,
-    });
-
     // Skip AI analysis if disabled in settings
     if (!aiAnalysisEnabled || !autoDetectDistortions) {
-      console.log('[AI Detection] Skipped: AI disabled in settings');
       setLiveDetections([]);
       return;
     }
 
     if (!text.trim() || text.trim().length < 20) {
-      console.log('[AI Detection] Skipped: text too short');
       setLiveDetections([]);
       return;
     }
 
-    // Don't run real-time detection if entry hasn't been created yet
-    // (createEntry will run its own detection)
-    if (!entryId) {
-      console.log('[AI Detection] Skipped: no entry ID yet (will run on save)');
+    // Don't run until entry exists
+    if (!entryId) return;
+
+    // Skip the very first detection after entry creation — createEntry already runs its own
+    if (!hasRunInitialDetection.current) {
+      hasRunInitialDetection.current = true;
       return;
     }
 
     let cancelled = false;
     const timeoutId = setTimeout(async () => {
-      // Skip if currently saving to avoid duplicate AI calls
-      if (isSavingRef.current) {
-        console.log('[AI Detection] Skipped: save in progress');
-        return;
-      }
-      console.log('[AI Detection] Starting detection...');
+      // Skip if currently saving
+      if (isSavingRef.current) return;
+
       setIsDetecting(true);
       try {
         const response = await detectWithAI(text.trim());
         if (cancelled) return;
-        console.log('[AI Detection] Response:', {
-          distortions: response.distortions?.length || 0,
-          reframes: response.reframes?.length || 0,
-        });
-        
-        // Map distortions with confidence scores
+
         if (response.distortions && response.distortions.length > 0) {
           const detectionsList: Detection[] = response.distortions.map((d, idx) => ({
             span: d.span,
@@ -426,28 +413,27 @@ export default function UnifiedJournalPage() {
             reframe: response.reframes[idx]?.suggestion || "",
             confidence: d.confidence
           }));
-          console.log('[AI Detection] Setting detections:', detectionsList.length);
           setLiveDetections(detectionsList);
-          
-          if (entryId) {
-            const reframes = detectionsList.map(d => ({
-              span: d.span,
-              suggestion: d.reframe,
-              socratic: d.type
-            }));
-            await updateEntry(entryId, { reframes });
-          }
+
+          // Persist reframes — but DON'T await to avoid blocking UI
+          const reframes = detectionsList.map(d => ({
+            span: d.span,
+            suggestion: d.reframe,
+            socratic: d.type
+          }));
+          updateEntry(entryId, { reframes }).catch(e => console.warn('[AI Detection] reframe save failed:', e));
         } else {
-          console.log('[AI Detection] No distortions found');
           setLiveDetections([]);
         }
       } catch (error) {
-        console.error('[AI Detection] Error:', error);
-        setLiveDetections([]);
+        if (!cancelled) {
+          console.warn('[AI Detection] Error (non-blocking):', error);
+          // Don't clear existing detections on error — keep stale ones visible
+        }
       } finally {
         if (!cancelled) setIsDetecting(false);
       }
-    }, 3000); // Increased debounce to reduce API calls
+    }, 5000); // 5s debounce to reduce API pressure
 
     return () => {
       cancelled = true;
