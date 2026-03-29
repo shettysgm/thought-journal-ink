@@ -138,14 +138,8 @@ describe('Text Journaling - Entry CRUD', () => {
     const entry = { id: 'del-1', createdAt: new Date().toISOString(), text: 'To delete' };
     useEntries.setState({ entries: [entry] });
 
-    // Mock the delete function in idb
-    const mockDelete = vi.fn().mockResolvedValue(undefined);
-    vi.doMock('@/lib/idb', async () => {
-      const actual = await vi.importActual('@/lib/idb');
-      return { ...actual, deleteJournalEntry: mockDelete };
-    });
-
     await useEntries.getState().deleteEntry('del-1');
+    expect(mockDeleteJournalEntry).toHaveBeenCalledWith('del-1');
     expect(useEntries.getState().entries.length).toBe(0);
   });
 
