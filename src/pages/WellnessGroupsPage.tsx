@@ -64,9 +64,11 @@ const HELPLINES = [
 export default function WellnessGroupsPage() {
   const [zipcode, setZipcode] = useState('');
 
-  const handleOpenResource = (resource: typeof GROUP_DIRECTORIES[0]) => {
+  const handleSearch = (platform: typeof SEARCH_PLATFORMS[0], query: string) => {
     const zip = zipcode.trim();
-    const url = zip && /^\d{5}$/.test(zip) ? resource.buildUrl(zip) : resource.fallbackUrl;
+    const url = zip && /^\d{5}$/.test(zip)
+      ? platform.buildUrl(zip, query)
+      : platform.fallbackUrl(query);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -81,8 +83,8 @@ export default function WellnessGroupsPage() {
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
         <header>
-          <h1 className="text-lg font-semibold text-foreground">Wellness Groups</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Find peer-led support groups near you</p>
+          <h1 className="text-lg font-semibold text-foreground">Find Your People</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Peer-led wellness groups & communities</p>
         </header>
 
         {/* Zip code input */}
@@ -98,31 +100,40 @@ export default function WellnessGroupsPage() {
           />
         </div>
 
-        {/* Group directories */}
-        <div className="space-y-2.5">
-          <h2 className="text-sm font-semibold text-foreground">📍 Local Groups</h2>
-          {GROUP_DIRECTORIES.map((resource) => {
-            const Icon = resource.icon;
+        {/* How to find groups */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">🔍 How to Find Groups</h2>
+          {SEARCH_PLATFORMS.map((platform) => {
+            const Icon = platform.icon;
             return (
-              <Card
-                key={resource.name}
-                className="shadow-soft hover:shadow-medium transition-all cursor-pointer active:scale-[0.98]"
-                onClick={() => handleOpenResource(resource)}
-              >
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-semibold text-card-foreground">{resource.name}</h3>
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent-foreground">
-                        {resource.tag}
-                      </span>
+              <Card key={platform.name} className="shadow-soft overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{platform.rank}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-card-foreground">{platform.name}</h3>
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0">{platform.tag}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{platform.description}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{resource.description}</p>
+                    <Icon className="w-5 h-5 text-primary shrink-0" />
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <p className="text-[10px] text-muted-foreground italic">{platform.why}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {platform.searches.map((query) => (
+                      <Button
+                        key={query}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px] gap-1 rounded-full"
+                        onClick={() => handleSearch(platform, query)}
+                      >
+                        <Search className="w-3 h-3" />
+                        {query}
+                      </Button>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -133,7 +144,7 @@ export default function WellnessGroupsPage() {
         <div className="space-y-2.5">
           <h2 className="text-sm font-semibold text-foreground">💻 Online Communities</h2>
           <div className="grid gap-2">
-            {ONLINE_GROUPS.map((group) => (
+            {ONLINE_COMMUNITIES.map((group) => (
               <Card
                 key={group.name}
                 className="shadow-soft cursor-pointer active:scale-[0.98] transition-all"
@@ -144,7 +155,10 @@ export default function WellnessGroupsPage() {
                     <Globe className="w-4 h-4 text-accent-foreground" strokeWidth={2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-semibold text-card-foreground">{group.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-semibold text-card-foreground">{group.name}</h3>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{group.tag}</span>
+                    </div>
                     <p className="text-[11px] text-muted-foreground">{group.description}</p>
                   </div>
                   <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
