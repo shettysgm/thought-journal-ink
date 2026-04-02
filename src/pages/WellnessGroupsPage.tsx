@@ -1,56 +1,58 @@
 import { useState } from 'react';
-import { MapPin, ExternalLink, Users, Heart, HandHeart, Globe, Phone } from 'lucide-react';
+import { MapPin, ExternalLink, Users, Heart, Globe, Phone, Search, Star, Calendar, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-const GROUP_DIRECTORIES = [
+const SEARCH_PLATFORMS = [
   {
-    name: 'NAMI Support Groups',
-    description: 'Free peer-led groups for people living with mental health conditions and their families.',
-    buildUrl: (zip: string) => `https://www.nami.org/Support-Education/Support-Groups?zip=${zip}`,
-    fallbackUrl: 'https://www.nami.org/Support-Education/Support-Groups',
-    icon: Heart,
-    tag: 'Free',
-  },
-  {
-    name: 'DBSA Support Groups',
-    description: 'Peer-led wellness groups for depression and bipolar support — in-person and online.',
-    buildUrl: (zip: string) => `https://www.dbsalliance.org/support/chapters-and-support-groups/find-a-support-group/?zip=${zip}`,
-    fallbackUrl: 'https://www.dbsalliance.org/support/chapters-and-support-groups/find-a-support-group/',
+    name: 'Meetup',
+    description: 'Find real, ongoing peer groups — meditation, mindfulness, mental wellness, and more.',
+    searches: ['meditation', 'mindfulness', 'overthinking', 'mental wellness'],
+    buildUrl: (zip: string, query: string) =>
+      `https://www.meetup.com/find/?keywords=${encodeURIComponent(query)}&location=${zip}&source=EVENTS`,
+    fallbackUrl: (query: string) =>
+      `https://www.meetup.com/find/?keywords=${encodeURIComponent(query)}&source=EVENTS`,
     icon: Users,
-    tag: 'Free',
+    rank: '🥇',
+    why: 'Real people · Ongoing groups · Social + low pressure',
+    tag: 'Best for peer groups',
   },
   {
-    name: 'Mental Health America',
-    description: 'Find local MHA affiliates with support groups, screening tools, and community resources.',
-    buildUrl: (zip: string) => `https://arc.mhanational.org/find-affiliate?field_zip_code_value=${zip}`,
-    fallbackUrl: 'https://arc.mhanational.org/find-affiliate',
-    icon: HandHeart,
-    tag: 'Free',
+    name: 'Eventbrite',
+    description: 'Discover one-time events — workshops, sound baths, retreats, and wellness sessions.',
+    searches: ['mental wellness workshop', 'meditation event', 'sound bath', 'mindfulness retreat'],
+    buildUrl: (zip: string, query: string) =>
+      `https://www.eventbrite.com/d/united-states--${zip}/${encodeURIComponent(query)}/`,
+    fallbackUrl: (query: string) =>
+      `https://www.eventbrite.com/d/online/${encodeURIComponent(query)}/`,
+    icon: Calendar,
+    rank: '🥈',
+    why: 'Great for one-time events · Workshops · Retreats',
+    tag: 'Events & workshops',
   },
   {
     name: 'Psychology Today Groups',
-    description: 'Browse therapy groups by topic — anxiety, grief, self-esteem, relationships, and more.',
-    buildUrl: (zip: string) => `https://www.psychologytoday.com/us/groups/${zip}`,
-    fallbackUrl: 'https://www.psychologytoday.com/us/groups',
-    icon: Globe,
-    tag: 'Varies',
-  },
-  {
-    name: 'SAMHSA Group Finder',
-    description: 'Government directory of substance use and mental health treatment programs with group therapy.',
-    buildUrl: (zip: string) => `https://findtreatment.gov/locator?sAddr=${zip}&submit=Go`,
-    fallbackUrl: 'https://findtreatment.gov/locator',
-    icon: Users,
-    tag: 'Free',
+    description: 'Find structured therapy groups — CBT, DBT, guided by licensed professionals.',
+    searches: ['CBT group therapy', 'DBT skills group', 'anxiety support group'],
+    buildUrl: (zip: string) =>
+      `https://www.psychologytoday.com/us/groups/${zip}`,
+    fallbackUrl: () =>
+      'https://www.psychologytoday.com/us/groups',
+    icon: Brain,
+    rank: '🥉',
+    why: 'Structured · Therapist-led · CBT & DBT focus',
+    tag: 'Therapy groups',
   },
 ];
 
-const ONLINE_GROUPS = [
-  { name: '7 Cups', url: 'https://www.7cups.com/connect/groupSupport', description: 'Free online group chats with trained listeners' },
-  { name: 'TalkLife', url: 'https://www.talklife.com/', description: 'Peer support community for mental health' },
-  { name: 'Wisdo', url: 'https://wisdo.com/', description: 'Community-based support groups by topic' },
+const ONLINE_COMMUNITIES = [
+  { name: '7 Cups', url: 'https://www.7cups.com/connect/groupSupport', description: 'Free online group chats with trained listeners', tag: 'Free' },
+  { name: 'TalkLife', url: 'https://www.talklife.com/', description: 'Peer support community for mental health', tag: 'Free' },
+  { name: 'Wisdo', url: 'https://wisdo.com/', description: 'Community-based support groups by topic', tag: 'Free' },
+  { name: 'NAMI Support Groups', url: 'https://www.nami.org/Support-Education/Support-Groups', description: 'Free peer-led groups for mental health conditions', tag: 'Free' },
+  { name: 'DBSA Online Groups', url: 'https://www.dbsalliance.org/support/chapters-and-support-groups/online-support-groups/', description: 'Peer wellness groups for depression & bipolar', tag: 'Free' },
 ];
 
 const HELPLINES = [
