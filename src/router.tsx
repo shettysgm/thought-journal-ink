@@ -38,6 +38,7 @@ export default function Router() {
             <Route path="/unified" element={<UnifiedJournalPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/garden" element={<GardenPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/counselors" element={<CounselorSearchPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
