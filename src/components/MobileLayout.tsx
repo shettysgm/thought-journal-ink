@@ -10,7 +10,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   const location = useLocation();
   
   // Pages that should show the bottom nav
-  const showBottomNav = ['/', '/text', '/voice', '/unified', '/journal', '/quiz', '/garden', '/why-cbt', '/counselors', '/settings'].includes(location.pathname);
+  const showBottomNav = ['/', '/text', '/voice', '/unified', '/journal', '/quiz', '/groups', '/why-cbt', '/counselors', '/settings'].includes(location.pathname);
   
   return (
     <div className="min-h-[100svh] flex flex-col">

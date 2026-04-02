@@ -13,7 +13,7 @@ const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const WhyCBTPage = lazy(() => import("./pages/WhyCBTPage"));
 const CounselorSearchPage = lazy(() => import("./pages/CounselorSearchPage"));
-const GardenPage = lazy(() => import("./pages/GardenPage"));
+const WellnessGroupsPage = lazy(() => import("./pages/WellnessGroupsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -38,7 +38,8 @@ export default function Router() {
             <Route path="/unified" element={<UnifiedJournalPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/quiz" element={<QuizPage />} />
-            <Route path="/garden" element={<GardenPage />} />
+            <Route path="/groups" element={<WellnessGroupsPage />} />
+            <Route path="/garden" element={<Navigate to="/groups" replace />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/counselors" element={<CounselorSearchPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />

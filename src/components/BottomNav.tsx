@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { PenLine, BookOpen, LayoutGrid, HelpCircle, Sprout } from 'lucide-react';
+import { PenLine, BookOpen, LayoutGrid, HelpCircle, Users } from 'lucide-react';
 
 const navItems = [
   { path: '/', icon: LayoutGrid, label: 'Home' },
   { path: '/text', icon: PenLine, label: 'Write' },
-  { path: '/garden', icon: Sprout, label: 'Garden' },
+  { path: '/groups', icon: Users, label: 'Groups' },
   { path: '/journal', icon: BookOpen, label: 'Journal' },
   { path: '/quiz', icon: HelpCircle, label: 'Quiz' },
 ];
