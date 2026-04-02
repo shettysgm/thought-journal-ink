@@ -1,56 +1,58 @@
 import { useState } from 'react';
-import { MapPin, ExternalLink, Users, Heart, HandHeart, Globe, Phone } from 'lucide-react';
+import { MapPin, ExternalLink, Users, Heart, Globe, Phone, Search, Star, Calendar, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-const GROUP_DIRECTORIES = [
+const SEARCH_PLATFORMS = [
   {
-    name: 'NAMI Support Groups',
-    description: 'Free peer-led groups for people living with mental health conditions and their families.',
-    buildUrl: (zip: string) => `https://www.nami.org/Support-Education/Support-Groups?zip=${zip}`,
-    fallbackUrl: 'https://www.nami.org/Support-Education/Support-Groups',
-    icon: Heart,
-    tag: 'Free',
-  },
-  {
-    name: 'DBSA Support Groups',
-    description: 'Peer-led wellness groups for depression and bipolar support — in-person and online.',
-    buildUrl: (zip: string) => `https://www.dbsalliance.org/support/chapters-and-support-groups/find-a-support-group/?zip=${zip}`,
-    fallbackUrl: 'https://www.dbsalliance.org/support/chapters-and-support-groups/find-a-support-group/',
+    name: 'Meetup',
+    description: 'Find real, ongoing peer groups — meditation, mindfulness, mental wellness, and more.',
+    searches: ['meditation', 'mindfulness', 'overthinking', 'mental wellness'],
+    buildUrl: (zip: string, query: string) =>
+      `https://www.meetup.com/find/?keywords=${encodeURIComponent(query)}&location=${zip}&source=EVENTS`,
+    fallbackUrl: (query: string) =>
+      `https://www.meetup.com/find/?keywords=${encodeURIComponent(query)}&source=EVENTS`,
     icon: Users,
-    tag: 'Free',
+    rank: '🥇',
+    why: 'Real people · Ongoing groups · Social + low pressure',
+    tag: 'Best for peer groups',
   },
   {
-    name: 'Mental Health America',
-    description: 'Find local MHA affiliates with support groups, screening tools, and community resources.',
-    buildUrl: (zip: string) => `https://arc.mhanational.org/find-affiliate?field_zip_code_value=${zip}`,
-    fallbackUrl: 'https://arc.mhanational.org/find-affiliate',
-    icon: HandHeart,
-    tag: 'Free',
+    name: 'Eventbrite',
+    description: 'Discover one-time events — workshops, sound baths, retreats, and wellness sessions.',
+    searches: ['mental wellness workshop', 'meditation event', 'sound bath', 'mindfulness retreat'],
+    buildUrl: (zip: string, query: string) =>
+      `https://www.eventbrite.com/d/united-states--${zip}/${encodeURIComponent(query)}/`,
+    fallbackUrl: (query: string) =>
+      `https://www.eventbrite.com/d/online/${encodeURIComponent(query)}/`,
+    icon: Calendar,
+    rank: '🥈',
+    why: 'Great for one-time events · Workshops · Retreats',
+    tag: 'Events & workshops',
   },
   {
     name: 'Psychology Today Groups',
-    description: 'Browse therapy groups by topic — anxiety, grief, self-esteem, relationships, and more.',
-    buildUrl: (zip: string) => `https://www.psychologytoday.com/us/groups/${zip}`,
-    fallbackUrl: 'https://www.psychologytoday.com/us/groups',
-    icon: Globe,
-    tag: 'Varies',
-  },
-  {
-    name: 'SAMHSA Group Finder',
-    description: 'Government directory of substance use and mental health treatment programs with group therapy.',
-    buildUrl: (zip: string) => `https://findtreatment.gov/locator?sAddr=${zip}&submit=Go`,
-    fallbackUrl: 'https://findtreatment.gov/locator',
-    icon: Users,
-    tag: 'Free',
+    description: 'Find structured therapy groups — CBT, DBT, guided by licensed professionals.',
+    searches: ['CBT group therapy', 'DBT skills group', 'anxiety support group'],
+    buildUrl: (zip: string) =>
+      `https://www.psychologytoday.com/us/groups/${zip}`,
+    fallbackUrl: () =>
+      'https://www.psychologytoday.com/us/groups',
+    icon: Brain,
+    rank: '🥉',
+    why: 'Structured · Therapist-led · CBT & DBT focus',
+    tag: 'Therapy groups',
   },
 ];
 
-const ONLINE_GROUPS = [
-  { name: '7 Cups', url: 'https://www.7cups.com/connect/groupSupport', description: 'Free online group chats with trained listeners' },
-  { name: 'TalkLife', url: 'https://www.talklife.com/', description: 'Peer support community for mental health' },
-  { name: 'Wisdo', url: 'https://wisdo.com/', description: 'Community-based support groups by topic' },
+const ONLINE_COMMUNITIES = [
+  { name: '7 Cups', url: 'https://www.7cups.com/connect/groupSupport', description: 'Free online group chats with trained listeners', tag: 'Free' },
+  { name: 'TalkLife', url: 'https://www.talklife.com/', description: 'Peer support community for mental health', tag: 'Free' },
+  { name: 'Wisdo', url: 'https://wisdo.com/', description: 'Community-based support groups by topic', tag: 'Free' },
+  { name: 'NAMI Support Groups', url: 'https://www.nami.org/Support-Education/Support-Groups', description: 'Free peer-led groups for mental health conditions', tag: 'Free' },
+  { name: 'DBSA Online Groups', url: 'https://www.dbsalliance.org/support/chapters-and-support-groups/online-support-groups/', description: 'Peer wellness groups for depression & bipolar', tag: 'Free' },
 ];
 
 const HELPLINES = [
@@ -62,9 +64,11 @@ const HELPLINES = [
 export default function WellnessGroupsPage() {
   const [zipcode, setZipcode] = useState('');
 
-  const handleOpenResource = (resource: typeof GROUP_DIRECTORIES[0]) => {
+  const handleSearch = (platform: typeof SEARCH_PLATFORMS[0], query: string) => {
     const zip = zipcode.trim();
-    const url = zip && /^\d{5}$/.test(zip) ? resource.buildUrl(zip) : resource.fallbackUrl;
+    const url = zip && /^\d{5}$/.test(zip)
+      ? platform.buildUrl(zip, query)
+      : platform.fallbackUrl(query);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -79,8 +83,8 @@ export default function WellnessGroupsPage() {
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
         <header>
-          <h1 className="text-lg font-semibold text-foreground">Wellness Groups</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Find peer-led support groups near you</p>
+          <h1 className="text-lg font-semibold text-foreground">Find Your People</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Peer-led wellness groups & communities</p>
         </header>
 
         {/* Zip code input */}
@@ -96,31 +100,40 @@ export default function WellnessGroupsPage() {
           />
         </div>
 
-        {/* Group directories */}
-        <div className="space-y-2.5">
-          <h2 className="text-sm font-semibold text-foreground">📍 Local Groups</h2>
-          {GROUP_DIRECTORIES.map((resource) => {
-            const Icon = resource.icon;
+        {/* How to find groups */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">🔍 How to Find Groups</h2>
+          {SEARCH_PLATFORMS.map((platform) => {
+            const Icon = platform.icon;
             return (
-              <Card
-                key={resource.name}
-                className="shadow-soft hover:shadow-medium transition-all cursor-pointer active:scale-[0.98]"
-                onClick={() => handleOpenResource(resource)}
-              >
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-semibold text-card-foreground">{resource.name}</h3>
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent-foreground">
-                        {resource.tag}
-                      </span>
+              <Card key={platform.name} className="shadow-soft overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{platform.rank}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-card-foreground">{platform.name}</h3>
+                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0">{platform.tag}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{platform.description}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{resource.description}</p>
+                    <Icon className="w-5 h-5 text-primary shrink-0" />
                   </div>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <p className="text-[10px] text-muted-foreground italic">{platform.why}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {platform.searches.map((query) => (
+                      <Button
+                        key={query}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[11px] gap-1 rounded-full"
+                        onClick={() => handleSearch(platform, query)}
+                      >
+                        <Search className="w-3 h-3" />
+                        {query}
+                      </Button>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -131,7 +144,7 @@ export default function WellnessGroupsPage() {
         <div className="space-y-2.5">
           <h2 className="text-sm font-semibold text-foreground">💻 Online Communities</h2>
           <div className="grid gap-2">
-            {ONLINE_GROUPS.map((group) => (
+            {ONLINE_COMMUNITIES.map((group) => (
               <Card
                 key={group.name}
                 className="shadow-soft cursor-pointer active:scale-[0.98] transition-all"
@@ -142,7 +155,10 @@ export default function WellnessGroupsPage() {
                     <Globe className="w-4 h-4 text-accent-foreground" strokeWidth={2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-semibold text-card-foreground">{group.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-semibold text-card-foreground">{group.name}</h3>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{group.tag}</span>
+                    </div>
                     <p className="text-[11px] text-muted-foreground">{group.description}</p>
                   </div>
                   <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
