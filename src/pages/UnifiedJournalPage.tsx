@@ -935,7 +935,7 @@ export default function UnifiedJournalPage() {
                 <div className="relative overflow-hidden rounded-t-2xl">
                   {/* Doodle background */}
                   <img
-                    src={journalHeaderBg}
+                    src={template.headerBg}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover opacity-60"
                   />
