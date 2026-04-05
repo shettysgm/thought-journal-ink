@@ -125,7 +125,15 @@ const TEMPLATE_CONFIG: Record<string, {
   },
 };
 
-function MobileBlobPreview({ blob }: { blob: Blob }) {
+function MobileBlobPreview({
+  blob,
+  className,
+  children,
+}: {
+  blob: Blob;
+  className?: string;
+  children?: React.ReactNode;
+}) {
   const [url, setUrl] = React.useState('');
   React.useEffect(() => {
     const u = URL.createObjectURL(blob);
@@ -133,7 +141,55 @@ function MobileBlobPreview({ blob }: { blob: Blob }) {
     return () => URL.revokeObjectURL(u);
   }, [blob]);
   if (!url) return null;
-  return <img src={url} alt="Journal photo" className="max-h-32 rounded-lg object-contain" />;
+  return (
+    <div className={cn('relative overflow-hidden rounded-xl bg-muted/20', className)}>
+      <img src={url} alt="Journal photo" className="absolute inset-0 h-full w-full object-cover" />
+      {children}
+    </div>
+  );
+}
+
+function MobilePhotoCollage({ blobs }: { blobs: Blob[] }) {
+  if (blobs.length === 0) return null;
+
+  if (blobs.length === 1) {
+    return <MobileBlobPreview blob={blobs[0]} className="h-32 w-full" />;
+  }
+
+  if (blobs.length === 2) {
+    return (
+      <div className="grid h-32 grid-cols-2 gap-1">
+        {blobs.map((blob, i) => (
+          <MobileBlobPreview key={i} blob={blob} className="min-h-0" />
+        ))}
+      </div>
+    );
+  }
+
+  if (blobs.length === 3) {
+    return (
+      <div className="grid h-36 grid-cols-2 grid-rows-2 gap-1">
+        <MobileBlobPreview blob={blobs[0]} className="row-span-2 min-h-0" />
+        <MobileBlobPreview blob={blobs[1]} className="min-h-0" />
+        <MobileBlobPreview blob={blobs[2]} className="min-h-0" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid h-36 grid-cols-3 grid-rows-2 gap-1">
+      <MobileBlobPreview blob={blobs[0]} className="col-span-2 row-span-2 min-h-0" />
+      {blobs.slice(1, 4).map((blob, i) => (
+        <MobileBlobPreview key={i} blob={blob} className="min-h-0">
+          {i === 2 && blobs.length > 4 && (
+            <div className="absolute inset-0 flex items-center justify-center bg-foreground/55">
+              <span className="text-sm font-semibold text-background">+{blobs.length - 4}</span>
+            </div>
+          )}
+        </MobileBlobPreview>
+      ))}
+    </div>
+  );
 }
 
 export default function UnifiedJournalPage() {
@@ -1081,14 +1137,17 @@ export default function UnifiedJournalPage() {
                     <Camera className="w-3.5 h-3.5 text-muted-foreground" />
                     <span className="text-xs font-medium text-muted-foreground">Attached</span>
                   </div>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                    {bannerImageBlobs.map((blob, i) => (
-                      <MobileBlobPreview key={i} blob={blob} />
-                    ))}
-                    {bannerSticker && bannerImageBlobs.length === 0 && (() => {
+                  <div className="space-y-2">
+                    {bannerImageBlobs.length > 0 ? (
+                      <MobilePhotoCollage blobs={bannerImageBlobs} />
+                    ) : bannerSticker && (() => {
                       const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
                       if (!def) return null;
-                      return <def.component size={64} {...(def.props as any)} className="drop-shadow-lg" />;
+                      return (
+                        <div className="flex min-h-24 items-center justify-center rounded-xl bg-muted/20 p-3">
+                          <def.component size={64} {...(def.props as any)} className="drop-shadow-lg" />
+                        </div>
+                      );
                     })()}
                   </div>
                   <button
