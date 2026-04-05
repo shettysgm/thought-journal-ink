@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera, Smile } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import HeaderCustomizer, { GRID_PATTERNS } from '@/components/HeaderCustomizer';
@@ -166,6 +166,7 @@ export default function UnifiedJournalPage() {
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
+  const [inlineStickerPickerOpen, setInlineStickerPickerOpen] = useState(false);
 
   // Header customization state
   const [customHeaderColor, setCustomHeaderColor] = useState<string>(DEFAULT_HEADER_COLOR);
@@ -1161,8 +1162,8 @@ export default function UnifiedJournalPage() {
                 </div>
               )}
 
-              {/* Input area */}
-              <div className="relative">
+              {/* Input area with inline sticker button */}
+              <div className="relative group">
               <Textarea
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : (template?.placeholder || "Type or tap Record to speak")}
@@ -1173,6 +1174,59 @@ export default function UnifiedJournalPage() {
                 )}
                 style={{ lineHeight: '1.75' }}
               />
+
+              {/* Inline sticker insert button */}
+              <div className="absolute bottom-4 right-4 z-20">
+                <button
+                  type="button"
+                  onClick={() => setInlineStickerPickerOpen(prev => !prev)}
+                  className="rounded-full bg-accent/15 p-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors touch-manipulation"
+                  aria-label="Insert sticker"
+                >
+                  <Smile className="w-5 h-5" />
+                </button>
+
+                {/* Inline sticker picker popover */}
+                {inlineStickerPickerOpen && (
+                  <div className="absolute bottom-12 right-0 w-64 max-h-52 overflow-y-auto rounded-xl border bg-popover shadow-lg p-3 z-50">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2 font-medium">Insert sticker</p>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {ALL_STICKERS.map(sticker => {
+                        const Comp = sticker.component;
+                        return (
+                          <button
+                            key={sticker.id}
+                            type="button"
+                            onClick={() => {
+                              const ta = textareaRef.current;
+                              const token = `[${sticker.id}]`;
+                              if (ta) {
+                                const start = ta.selectionStart ?? text.length;
+                                const end = ta.selectionEnd ?? text.length;
+                                const before = text.slice(0, start);
+                                const after = text.slice(end);
+                                setText(before + token + after);
+                                // Restore cursor after the inserted token
+                                requestAnimationFrame(() => {
+                                  ta.focus();
+                                  const pos = start + token.length;
+                                  ta.setSelectionRange(pos, pos);
+                                });
+                              } else {
+                                setText(prev => prev + token);
+                              }
+                              setInlineStickerPickerOpen(false);
+                            }}
+                            className="flex items-center justify-center p-1.5 rounded-lg hover:bg-accent/50 transition-colors aspect-square"
+                          >
+                            <Comp size={28} {...(sticker.props as any)} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Interim transcript shown separately to avoid caret issues on iOS */}
