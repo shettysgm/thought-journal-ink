@@ -220,6 +220,10 @@ export default function UnifiedJournalPage() {
               setText(entry.text || '');
               setLastSavedText(entry.text || '');
               setEntryId(editEntryId);
+              // Restore template header if entry was created from a template
+              if (entry.templateId && TEMPLATE_CONFIG[entry.templateId]) {
+                setResolvedTemplateId(entry.templateId);
+              }
               setBannerSticker((entry as any).bannerSticker || null);
               // Load banner blob from IDB
               const { getJournalEntry } = await import('@/lib/idb');
