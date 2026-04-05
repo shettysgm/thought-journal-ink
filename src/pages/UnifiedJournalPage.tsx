@@ -934,31 +934,34 @@ export default function UnifiedJournalPage() {
               {template && (
                 <div
                   className="relative overflow-hidden rounded-t-2xl"
-                  style={{
-                    backgroundColor: 'hsl(0 0% 100%)',
-                    backgroundImage:
-                      'linear-gradient(to right, hsl(220 14% 86% / 0.55) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 14% 86% / 0.55) 1px, transparent 1px)',
-                    backgroundSize: '18px 18px',
-                  }}
+                  style={{ backgroundColor: 'hsl(0 0% 100%)' }}
                 >
-                  <div className="flex justify-center pt-4 pb-2">
-                    <img 
-                      src={template.headerBg}
-                      alt={template.title}
-                      className="h-28 object-contain"
-                      width={1024}
-                      height={512}
-                    />
-                  </div>
+                  {/* Kawaii illustrations - decorative corners */}
+                  <img
+                    src={template.headerBg}
+                    alt=""
+                    className="absolute -top-2 -left-4 w-24 h-24 object-contain opacity-80 pointer-events-none"
+                  />
+                  <img
+                    src={template.headerBg}
+                    alt=""
+                    className="absolute -top-2 -right-4 w-20 h-20 object-contain opacity-60 pointer-events-none scale-x-[-1]"
+                  />
+                  <img
+                    src={template.headerBg}
+                    alt=""
+                    className="absolute -bottom-3 right-8 w-16 h-16 object-contain opacity-40 pointer-events-none rotate-12"
+                  />
                   
-                  <div className="text-center px-5 pb-2">
+                  {/* Center content */}
+                  <div className="relative z-10 text-center px-14 pt-8 pb-3">
                     <h2 className="text-base font-bold text-foreground tracking-tight">
                       {template.emoji} {template.title}
                     </h2>
                     <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
                   </div>
                   
-                  <div className="flex flex-wrap justify-center gap-1.5 px-5 pb-4">
+                  <div className="relative z-10 flex flex-wrap justify-center gap-1.5 px-5 pb-4">
                     {template.prompts.map((prompt, i) => (
                       <span
                         key={i}
