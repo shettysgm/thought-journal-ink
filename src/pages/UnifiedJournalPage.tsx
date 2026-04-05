@@ -124,6 +124,17 @@ const TEMPLATE_CONFIG: Record<string, {
     placeholder: 'What\'s keeping you up tonight?',
     prompts: ['What\'s on your mind?', 'What would help you let go?', 'Tomorrow I want to...'],
   },
+  'daily-prompt': {
+    title: "Today's Prompt",
+    subtitle: 'A thought to explore',
+    emoji: '',
+    image: templateFreeWrite,
+    stickers: [],
+    gradient: 'from-amber-200 to-yellow-400',
+    bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
+    placeholder: 'Start writing your thoughts...',
+    prompts: [],
+  },
 };
 
 function MobileBlobPreview({

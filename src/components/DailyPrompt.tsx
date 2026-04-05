@@ -42,7 +42,7 @@ export default function DailyPrompt() {
 
   const handleClick = () => {
     recordPromptUsed();
-    navigate('/unified');
+    navigate(`/unified?template=daily-prompt&promptText=${encodeURIComponent(prompt)}`);
   };
 
   return (
