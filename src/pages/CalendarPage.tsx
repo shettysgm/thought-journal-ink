@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
-import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
