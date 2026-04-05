@@ -930,52 +930,48 @@ export default function UnifiedJournalPage() {
               isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             )}>
             
-              {/* Playful Doodle Template Header */}
+              {/* Kawaii Template Header */}
               {template && (
-                <div className="relative overflow-hidden rounded-t-2xl">
-                  {/* Doodle background */}
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover opacity-60"
-                  />
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-br opacity-30",
-                    template.gradient
-                  )} />
-                  
-                  <div className="relative px-5 py-5 flex items-center gap-4">
-                    {/* Kawaii illustration */}
-                    <div className="flex-shrink-0 bg-background/70 backdrop-blur-sm rounded-2xl p-2 border border-border/40 shadow-sm">
-                      <img 
-                        src={template.image} 
-                        alt={template.title}
-                        className="w-14 h-14 object-contain"
-                        width={512}
-                        height={512}
-                      />
-                    </div>
-                    
-                    {/* Title & prompts */}
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-lg font-black text-foreground flex items-center gap-1.5 tracking-tight" style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', cursive" }}>
-                        {template.emoji} {template.title}
-                      </h2>
-                      <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
-                    </div>
+                <div
+                  className="relative overflow-hidden rounded-t-2xl bg-background"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, hsl(var(--border) / 0.15) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.15) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
+                  }}
+                >
+                  {/* Kawaii illustration - centered */}
+                  <div className="flex justify-center pt-4 pb-2">
+                    <img 
+                      src={template.headerBg}
+                      alt={template.title}
+                      className="h-28 object-contain"
+                      width={1024}
+                      height={512}
+                    />
                   </div>
                   
-                  {/* Prompt chips below */}
-                  <div className="relative flex flex-wrap gap-1.5 px-5 pb-4">
+                  {/* Title */}
+                  <div className="text-center px-5 pb-2">
+                    <h2 className="text-base font-bold text-foreground tracking-tight">
+                      {template.emoji} {template.title}
+                    </h2>
+                    <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
+                  </div>
+                  
+                  {/* Prompt chips */}
+                  <div className="flex flex-wrap justify-center gap-1.5 px-5 pb-4">
                     {template.prompts.map((prompt, i) => (
                       <span
                         key={i}
-                        className="text-[10px] px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-sm border border-border/40 font-medium text-foreground/70 shadow-sm"
+                        className="text-[10px] px-2.5 py-1 rounded-full bg-background border border-border/50 font-medium text-foreground/70"
                       >
                         {prompt}
                       </span>
                     ))}
                   </div>
+                  
+                  {/* Bottom gradient bar */}
+                  <div className={cn("h-1 w-full bg-gradient-to-r", template.gradient)} />
                 </div>
               )}
 
