@@ -116,17 +116,18 @@ export default function UnifiedJournalPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
-  const templateId = searchParams.get('template');
+  const templateIdParam = searchParams.get('template');
   const promptText = searchParams.get('promptText');
-  const template = templateId ? (() => {
-    const base = TEMPLATE_CONFIG[templateId];
+  const [resolvedTemplateId, setResolvedTemplateId] = useState<string | null>(templateIdParam);
+  const template = resolvedTemplateId ? (() => {
+    const base = TEMPLATE_CONFIG[resolvedTemplateId];
     if (!base) return null;
-    // For daily-prompt, inject the prompt text into the prompts array
-    if (templateId === 'daily-prompt' && promptText) {
+    if (resolvedTemplateId === 'daily-prompt' && promptText) {
       return { ...base, prompts: [promptText] };
     }
     return base;
   })() : null;
+  const templateId = resolvedTemplateId;
   
   const [text, setText] = useState('');
   const [entryId, setEntryId] = useState<string | null>(editEntryId);
