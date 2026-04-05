@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, type MouseEvent } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft } from 'lucide-react';
+import { TEMPLATE_CONFIG } from '@/config/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -311,11 +312,12 @@ export default function CalendarPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {paginatedEntries.map(entry => {
+             {paginatedEntries.map(entry => {
               const rawSticker = (entry as any).bannerSticker;
               const stickerId = typeof rawSticker === 'string' ? rawSticker : null;
               const stickerDef = stickerId ? ALL_STICKERS.find(s => s.id === stickerId) : null;
               const entryBlobs = bannerBlobs[entry.id] || [];
+              const entryTemplate = entry.templateId ? TEMPLATE_CONFIG[entry.templateId] : null;
               return (
                 <Card
                   key={entry.id}
@@ -331,9 +333,21 @@ export default function CalendarPage() {
                     navigate(`/unified?edit=${entry.id}`);
                   }}
                 >
+                  {/* Template header */}
+                  {entryTemplate && (
+                    <div className={cn("relative overflow-hidden", entryBlobs.length > 0 ? "" : "rounded-t-xl")}>
+                      <div className={cn("bg-gradient-to-br h-16 flex items-center gap-3 px-4", entryTemplate.gradient)}>
+                        <img src={entryTemplate.image} alt="" className="w-10 h-10 object-contain" />
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{entryTemplate.title}</p>
+                          <p className="text-[10px] text-muted-foreground">{entryTemplate.subtitle}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <CardContent className="p-4">
                     {entryBlobs.length > 0 ? (
-                      <div className={cn("w-full -mx-4 -mt-4 mb-3 rounded-t-lg overflow-hidden", entryBlobs.length === 1 ? "h-36" : "")}>
+                      <div className={cn("w-full -mx-4 mb-3 rounded-t-lg overflow-hidden", !entryTemplate ? "-mt-4" : "", entryBlobs.length === 1 ? "h-36" : "")}>
                         {entryBlobs.length === 1 ? (
                           <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
                         ) : (
