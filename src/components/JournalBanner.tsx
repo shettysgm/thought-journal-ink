@@ -41,7 +41,6 @@ export default function JournalBanner({
 }: JournalBannerProps) {
   const [showStickerPicker, setShowStickerPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,14 +68,12 @@ export default function JournalBanner({
   const clearBanner = useCallback(() => {
     onImagesChange([]);
     onStickerChange(null);
-    setCurrentIndex(0);
   }, [onImagesChange, onStickerChange]);
 
   const removeImage = useCallback(
     (index: number) => {
       const updated = imageBlobs.filter((_, i) => i !== index);
       onImagesChange(updated);
-      setCurrentIndex(prev => Math.min(prev, Math.max(0, updated.length - 1)));
     },
     [imageBlobs, onImagesChange],
   );
@@ -165,15 +162,6 @@ export default function JournalBanner({
                 aria-label="Add more photos"
               >
                 <ImagePlus className="w-4 h-4" />
-              </button>
-            )}
-            {imageBlobs.length > 1 && (
-              <button
-                onClick={() => removeImage(currentIndex)}
-                className="rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Remove this photo"
-              >
-                <X className="w-4 h-4" />
               </button>
             )}
             <button
