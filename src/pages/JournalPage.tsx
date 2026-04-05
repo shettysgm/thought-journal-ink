@@ -103,7 +103,7 @@ export default function JournalPage() {
         {/* Template Grid */}
         <div className="grid grid-cols-2 gap-3">
           {TEMPLATES.map((template) => (
-            <Link key={template.id} to={template.path} className="block">
+            <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
               <div
                 className={`
                   relative rounded-2xl border overflow-hidden

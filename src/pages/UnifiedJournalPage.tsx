@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
+import templateFreeWrite from '@/assets/template-free-write.png';
+import templateVoice from '@/assets/template-voice.png';
+import templateGratitude from '@/assets/template-gratitude.png';
+import templateMood from '@/assets/template-mood.png';
+import templateCbt from '@/assets/template-cbt.png';
+import templateWinddown from '@/assets/template-winddown.png';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -39,6 +45,78 @@ type AudioSegment = {
   duration?: number;
 };
 
+const TEMPLATE_CONFIG: Record<string, {
+  title: string;
+  subtitle: string;
+  emoji: string;
+  image: string;
+  gradient: string;
+  bgAccent: string;
+  placeholder: string;
+  prompts: string[];
+}> = {
+  'daily-reflection': {
+    title: 'Daily Reflection',
+    subtitle: 'How was your day, really?',
+    emoji: '✨',
+    image: templateFreeWrite,
+    gradient: 'from-violet-300 to-indigo-400',
+    bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
+    placeholder: 'What stood out to you today?',
+    prompts: ['What made you smile today?', 'What challenged you?', 'What are you grateful for?'],
+  },
+  'anxiety-dump': {
+    title: 'Anxiety Dump',
+    subtitle: 'Let it all out 💭',
+    emoji: '🧠',
+    image: templateVoice,
+    gradient: 'from-rose-300 to-pink-400',
+    bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
+    placeholder: 'What\'s racing through your mind right now?',
+    prompts: ['What\'s worrying you most?', 'What\'s the worst that could happen?', 'What would you tell a friend in this situation?'],
+  },
+  'gratitude': {
+    title: 'Gratitude',
+    subtitle: '3 good things today 🌸',
+    emoji: '💗',
+    image: templateGratitude,
+    gradient: 'from-pink-300 to-rose-400',
+    bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
+    placeholder: 'I\'m grateful for...',
+    prompts: ['1. Something that made me happy...', '2. Someone I appreciate...', '3. A small moment of joy...'],
+  },
+  'mood-checkin': {
+    title: 'Mood Check-in',
+    subtitle: 'How are you really? 🌈',
+    emoji: '😊',
+    image: templateMood,
+    gradient: 'from-amber-300 to-orange-400',
+    bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
+    placeholder: 'How are you feeling right now?',
+    prompts: ['Rate your mood (1-10)', 'What\'s influencing your mood?', 'What could make it better?'],
+  },
+  'thought-reframe': {
+    title: 'Thought Reframe',
+    subtitle: 'Challenge your thoughts 💡',
+    emoji: '🔄',
+    image: templateCbt,
+    gradient: 'from-sky-300 to-blue-400',
+    bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
+    placeholder: 'What situation is on your mind?',
+    prompts: ['What happened?', 'What did you think?', 'How did it make you feel?', 'A kinder perspective...'],
+  },
+  'late-night': {
+    title: 'Late Night Thoughts',
+    subtitle: 'For the quiet hours 🌙',
+    emoji: '🌙',
+    image: templateWinddown,
+    gradient: 'from-indigo-300 to-purple-500',
+    bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
+    placeholder: 'What\'s keeping you up tonight?',
+    prompts: ['What\'s on your mind?', 'What would help you let go?', 'Tomorrow I want to...'],
+  },
+};
+
 function MobileBlobPreview({ blob }: { blob: Blob }) {
   const [url, setUrl] = React.useState('');
   React.useEffect(() => {
@@ -57,6 +135,8 @@ export default function UnifiedJournalPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
+  const templateId = searchParams.get('template');
+  const template = templateId ? TEMPLATE_CONFIG[templateId] : null;
   
   const [text, setText] = useState('');
   const [entryId, setEntryId] = useState<string | null>(editEntryId);
@@ -833,40 +913,70 @@ export default function UnifiedJournalPage() {
           <div className="flex gap-4">
             {/* Main editor */}
             <div className={cn(
-              "relative flex-1 bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
+              "relative flex-1 bg-card rounded-2xl shadow-sm border overflow-visible transition-all duration-500",
               isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             )}>
             
-              {/* Recording waveform overlay */}
-              {isRecording && (
-                <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+              {/* Kawaii Template Header */}
+              {template && (
+                <div className={cn(
+                  "relative overflow-hidden rounded-t-2xl",
+                  template.bgAccent
+                )}>
+                  {/* Gradient bar */}
+                  <div className={cn("h-1.5 w-full bg-gradient-to-r", template.gradient)} />
+                  
+                  <div className="px-5 py-4 flex items-start gap-4">
+                    {/* Template illustration */}
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={template.image} 
+                        alt={template.title}
+                        className="w-16 h-16 object-contain drop-shadow-md"
+                        width={512}
+                        height={512}
+                      />
+                    </div>
+                    
+                    {/* Template info */}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5">
+                        {template.emoji} {template.title}
+                      </h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">{template.subtitle}</p>
+                      
+                      {/* Prompts as kawaii chips */}
+                      <div className="flex flex-wrap gap-1.5 mt-2.5">
+                        {template.prompts.map((prompt, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              "text-[10px] px-2.5 py-1 rounded-full border font-medium",
+                              template.bgAccent,
+                              "text-foreground/70 border-current/10"
+                            )}
+                          >
+                            {prompt}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative kawaii dots */}
+                  <div className="absolute top-3 right-3 flex gap-1 opacity-30">
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/25" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/15" />
+                  </div>
                 </div>
               )}
 
-              {/* Selected sticker/photo preview inside editor */}
-              {(bannerImageBlobs.length > 0 || bannerSticker) && (
-                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20 gap-2 overflow-x-auto">
-                  {bannerImageBlobs.map((blob, i) => (
-                    <MobileBlobPreview key={i} blob={blob} />
-                  ))}
-                  {bannerSticker && bannerImageBlobs.length === 0 && (() => {
-                    const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
-                    if (!def) return null;
-                    return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
-                  })()}
-                  <button
-                    onClick={() => {
-                      setBannerImageBlobs([]);
-                      setBannerSticker(null);
-                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
-                    }}
-                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground"
-                  >
-                    <span className="sr-only">Remove</span>
-                    ✕
-                  </button>
+              {/* Recording waveform overlay */}
+              {isRecording && (
+                <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                 </div>
               )}
 
@@ -874,11 +984,11 @@ export default function UnifiedJournalPage() {
               <div className="relative">
               <Textarea
                 ref={textareaRef}
-                placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
+                placeholder={isRecording ? "Listening... (you can also type)" : (template?.placeholder || "Type or tap Record to speak")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 pb-32 transition-all duration-300"
+                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300"
                 )}
                 style={{ lineHeight: '1.75' }}
               />
@@ -925,6 +1035,36 @@ export default function UnifiedJournalPage() {
                 ))}
               </div>
             )}
+
+              {/* Photos & Stickers at bottom */}
+              {(bannerImageBlobs.length > 0 || bannerSticker) && (
+                <div className="relative border-t bg-muted/10 rounded-b-2xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Camera className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Attached</span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {bannerImageBlobs.map((blob, i) => (
+                      <MobileBlobPreview key={i} blob={blob} />
+                    ))}
+                    {bannerSticker && bannerImageBlobs.length === 0 && (() => {
+                      const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
+                      if (!def) return null;
+                      return <def.component size={64} {...(def.props as any)} className="drop-shadow-lg" />;
+                    })()}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setBannerImageBlobs([]);
+                      setBannerSticker(null);
+                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                    }}
+                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right side panel - hidden on mobile, shown on sm+ */}
