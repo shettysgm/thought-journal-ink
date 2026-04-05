@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
+import templateFreeWrite from '@/assets/template-free-write.png';
+import templateVoice from '@/assets/template-voice.png';
+import templateGratitude from '@/assets/template-gratitude.png';
+import templateMood from '@/assets/template-mood.png';
+import templateCbt from '@/assets/template-cbt.png';
+import templateWinddown from '@/assets/template-winddown.png';
 import {
   AlertDialog,
   AlertDialogCancel,
