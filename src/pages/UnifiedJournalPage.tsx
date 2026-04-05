@@ -986,14 +986,14 @@ export default function UnifiedJournalPage() {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
                         const positions = [
-                          'absolute -top-1 -left-3 w-20 h-20',
-                          'absolute -top-1 -right-3 w-16 h-16',
-                          'absolute bottom-8 right-2 w-10 h-10 rotate-12',
+                          'absolute -top-3 -left-4 w-28 h-28',
+                          'absolute -top-3 -right-4 w-24 h-24',
+                          'absolute bottom-10 left-3 w-14 h-14 rotate-12',
                         ];
                         const Comp = sticker.component;
                         return (
                           <div key={id} className={cn('pointer-events-none', positions[i])}>
-                            <Comp size={i === 0 ? 80 : i === 1 ? 64 : 40} {...(sticker.props as any)} />
+                            <Comp size={i === 0 ? 112 : i === 1 ? 96 : 56} {...(sticker.props as any)} />
                           </div>
                         );
                       })
