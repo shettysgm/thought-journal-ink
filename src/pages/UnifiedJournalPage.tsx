@@ -14,19 +14,13 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-// Kawaii stickers for header decorations
-import kawaiiCat from '@/assets/stickers/kawaii-cat-full.png';
-import kawaiiBunny from '@/assets/stickers/kawaii-bunny-full.png';
-import kawaiiPuppy from '@/assets/stickers/kawaii-puppy-full.png';
-import kawaiiBear from '@/assets/stickers/kawaii-bear-full.png';
-import kawaiiOwl from '@/assets/stickers/kawaii-owl-full.png';
-import kawaiiPanda from '@/assets/stickers/kawaii-panda-full.png';
-import kawaiiPenguin from '@/assets/stickers/kawaii-penguin-full.png';
-import kawaiiFox from '@/assets/stickers/kawaii-fox-full.png';
-import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
-import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
-import kawaiiStar from '@/assets/stickers/kawaii-star.png';
-import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
+// Neutral icons for header decorations
+import iconSurfboard from '@/assets/stickers/icon-surfboard.png';
+import iconGuitar from '@/assets/stickers/icon-guitar.png';
+import iconGamepad from '@/assets/stickers/icon-gamepad.png';
+import iconBasketball from '@/assets/stickers/icon-basketball.png';
+import iconHeadphones from '@/assets/stickers/icon-headphones.png';
+import iconBike from '@/assets/stickers/icon-bike.png';
 import {
   AlertDialog,
   AlertDialogCancel,
