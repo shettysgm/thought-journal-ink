@@ -218,6 +218,10 @@ export default function UnifiedJournalPage() {
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Header customization state
+  const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
+  const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
+
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
