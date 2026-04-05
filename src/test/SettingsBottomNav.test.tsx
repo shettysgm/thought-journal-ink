@@ -13,7 +13,7 @@ describe('Settings page has bottom navigation', () => {
       </MemoryRouter>
     );
     expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Write')).toBeInTheDocument();
+    expect(screen.getByText('Breathe')).toBeInTheDocument();
     expect(screen.getByText('Journal')).toBeInTheDocument();
     expect(screen.getByText('Quiz')).toBeInTheDocument();
   });
