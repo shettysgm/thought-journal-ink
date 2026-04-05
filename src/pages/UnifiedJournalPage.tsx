@@ -756,6 +756,9 @@ export default function UnifiedJournalPage() {
         setSaveStatus('saved');
         console.log('Save completed successfully');
         
+        // Prompt for App Store review after saving (native only, rate-limited)
+        import('@/lib/appReview').then(m => m.maybeRequestReview()).catch(() => {});
+        
       } catch (e) {
         console.error('Save on back failed:', e);
         toast({
