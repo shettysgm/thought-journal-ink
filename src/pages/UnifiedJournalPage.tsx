@@ -1004,7 +1004,7 @@ export default function UnifiedJournalPage() {
                   {/* Center content */}
                   <div className="relative z-10 text-center px-16 pt-8 pb-3">
                     <h2 className="text-base font-bold text-foreground tracking-tight">
-                      {template.emoji} {template.title}
+                      {template.title}
                     </h2>
                     <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
                   </div>
