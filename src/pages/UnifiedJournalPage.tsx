@@ -215,6 +215,7 @@ export default function UnifiedJournalPage() {
   // Header customization state
   const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
   const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
+  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>('none');
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
