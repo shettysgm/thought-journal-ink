@@ -1035,6 +1035,36 @@ export default function UnifiedJournalPage() {
                 ))}
               </div>
             )}
+
+              {/* Photos & Stickers at bottom */}
+              {(bannerImageBlobs.length > 0 || bannerSticker) && (
+                <div className="relative border-t bg-muted/10 rounded-b-2xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Camera className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Attached</span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {bannerImageBlobs.map((blob, i) => (
+                      <MobileBlobPreview key={i} blob={blob} />
+                    ))}
+                    {bannerSticker && bannerImageBlobs.length === 0 && (() => {
+                      const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
+                      if (!def) return null;
+                      return <def.component size={64} {...(def.props as any)} className="drop-shadow-lg" />;
+                    })()}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setBannerImageBlobs([]);
+                      setBannerSticker(null);
+                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                    }}
+                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right side panel - hidden on mobile, shown on sm+ */}
