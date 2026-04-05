@@ -383,10 +383,16 @@ export default function UnifiedJournalPage() {
   });
 
   // Persist banner blobs + sticker to IDB for a given entry
-  const saveBannerData = useCallback(async (eid: string) => {
-    const blobs = bannerImageBlobsRef.current;
-    const sticker = bannerStickerRef.current;
-    console.log('[Banner] saveBannerData called for', eid, 'blobs:', blobs.length, 'sticker:', sticker);
+  const saveBannerData = useCallback(async (
+    eid: string,
+    bannerState?: { blobs?: Blob[]; sticker?: string | null }
+  ) => {
+    const blobs = bannerState?.blobs ?? bannerImageBlobsRef.current;
+    const sticker = bannerState?.sticker ?? bannerStickerRef.current;
+
+    bannerImageBlobsRef.current = blobs;
+    bannerStickerRef.current = sticker;
+
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
@@ -402,17 +408,24 @@ export default function UnifiedJournalPage() {
         } else {
           delete updated.bannerBlobs;
         }
-        // Clean up legacy single blob
         delete updated.bannerBlob;
         await saveJournalEntry(updated);
-        console.log('[Banner] Saved successfully, bannerBlobs count:', blobs.length);
-      } else {
-        console.warn('[Banner] No existing entry found for', eid);
       }
     } catch (e) {
       console.error('Banner save error:', e);
     }
   }, []);
+
+  const persistBannerState = useCallback((nextBlobs: Blob[], nextSticker: string | null) => {
+    setBannerImageBlobs(nextBlobs);
+    bannerImageBlobsRef.current = nextBlobs;
+    setBannerSticker(nextSticker);
+    bannerStickerRef.current = nextSticker;
+
+    if (entryId) {
+      void saveBannerData(entryId, { blobs: nextBlobs, sticker: nextSticker });
+    }
+  }, [entryId, saveBannerData]);
 
   // Track whether we're currently saving to prevent duplicate AI calls
   const isSavingRef = useRef(false);
@@ -610,7 +623,8 @@ export default function UnifiedJournalPage() {
     } catch {}
 
     const currentText = (text || '').trim();
-    const needsSave = currentText && currentText !== lastSavedText.trim();
+    const hasBannerContent = bannerImageBlobsRef.current.length > 0 || !!bannerStickerRef.current;
+    const needsSave = (currentText && currentText !== lastSavedText.trim()) || (!entryId && hasBannerContent);
     
     if (needsSave) {
       setSaveStatus('saving');
@@ -629,7 +643,7 @@ export default function UnifiedJournalPage() {
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
-        } else if (isNewSession && entryId) {
+        } else if (isNewSession && entryId && currentText) {
           // Append to existing entry
           await appendToEntry(entryId, {
             text: currentText,
@@ -637,7 +651,7 @@ export default function UnifiedJournalPage() {
           });
           savedId = entryId;
           console.log('Appended to entry:', entryId);
-        } else {
+        } else if (currentText) {
           // Update existing entry
           await updateEntry(entryId, { text: currentText });
           savedId = entryId;
