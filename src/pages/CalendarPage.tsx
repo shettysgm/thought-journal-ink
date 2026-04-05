@@ -380,12 +380,9 @@ export default function CalendarPage() {
 
                     {entry.text && (
                       <div className="bg-muted/30 rounded-lg p-3 mb-3">
-                        <div className="text-foreground text-sm">
-                          <HighlightedTextWithReframes
-                            text={entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) : entry.text}
-                            reframes={entry.reframes}
-                          />
-                        </div>
+                        <p className="text-foreground text-sm leading-relaxed">
+                          {entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) + '…' : entry.text}
+                        </p>
                         {entry.text.length > 300 && (
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); toggleExpanded(entry.id); }} className="mt-1 p-0 h-auto text-primary text-xs">
                             {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
