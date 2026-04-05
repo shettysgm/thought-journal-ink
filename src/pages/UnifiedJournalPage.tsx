@@ -572,10 +572,15 @@ export default function UnifiedJournalPage() {
     // Don't run until entry exists
     if (!entryId) return;
 
-    // Skip the very first detection after entry creation — createEntry already runs its own
+    const currentEntry = entries.find(entry => entry.id === entryId);
+    const hasSavedReframes = Boolean(currentEntry?.reframes?.length);
+
+    // Skip the first detection only for brand-new entries.
+    // For existing edited entries without saved reframes, run once on load.
     if (!hasRunInitialDetection.current) {
       hasRunInitialDetection.current = true;
-      return;
+      const isEditingExistingEntry = Boolean(editEntryId);
+      if (!isEditingExistingEntry || hasSavedReframes) return;
     }
 
     let cancelled = false;
@@ -621,7 +626,7 @@ export default function UnifiedJournalPage() {
       cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [text, entryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions, saveCycle]);
+  }, [text, entryId, entries, editEntryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions, saveCycle]);
 
   const toggleRecording = async () => {
     if (!isSupported) return;
