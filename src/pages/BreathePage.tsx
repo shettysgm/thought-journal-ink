@@ -82,16 +82,16 @@ export default function BreathePage() {
       </div>
 
       {/* Breathing circle */}
-      <div className="relative flex items-center justify-center mb-10" style={{ width: 220, height: 220 }}>
+      <div className="relative flex items-center justify-center mb-10" style={{ width: 280, height: 280 }}>
         {/* Outer glow ring */}
         <motion.div
           className="absolute rounded-full"
           style={{
-            width: 200,
-            height: 200,
-            background: `radial-gradient(circle, ${currentPhase.color}15 0%, transparent 70%)`,
+            width: 260,
+            height: 260,
+            background: `radial-gradient(circle, ${currentPhase.color}20 0%, transparent 70%)`,
           }}
-          animate={{ scale: getScale() * 1.15, opacity: isActive ? 0.6 : 0.2 }}
+          animate={{ scale: getScale() * 1.1, opacity: isActive ? 0.5 : 0.15 }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
         />
 
@@ -99,11 +99,10 @@ export default function BreathePage() {
         <motion.div
           className="absolute rounded-full flex items-center justify-center"
           style={{
-            width: 160,
-            height: 160,
-            background: `radial-gradient(circle at 30% 30%, ${currentPhase.color}30, ${currentPhase.color}10)`,
-            border: `2px solid ${currentPhase.color}40`,
-            backdropFilter: 'blur(8px)',
+            width: 240,
+            height: 240,
+            background: `radial-gradient(circle at 40% 40%, ${currentPhase.color}35, ${currentPhase.color}12)`,
+            border: `2px solid ${currentPhase.color}30`,
           }}
           animate={{ scale: getScale() }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
@@ -119,30 +118,16 @@ export default function BreathePage() {
               >
                 {isActive ? (
                   <>
-                    <p className="text-3xl font-bold text-foreground tabular-nums">{countdown}</p>
-                    <p className="text-xs font-medium text-muted-foreground mt-1">{currentPhase.name}</p>
+                    <p className="text-4xl font-bold text-foreground tabular-nums">{countdown}</p>
+                    <p className="text-sm font-medium text-muted-foreground mt-1">{currentPhase.name}</p>
                   </>
                 ) : (
-                  <p className="text-sm font-medium text-muted-foreground">Tap to start</p>
+                  <p className="text-sm font-medium text-muted-foreground">Tap Begin</p>
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
         </motion.div>
-
-        {/* Phase indicator dots */}
-        <div className="absolute -bottom-6 flex gap-2">
-          {PHASES.map((phase, i) => (
-            <div
-              key={phase.name}
-              className="w-2 h-2 rounded-full transition-all duration-300"
-              style={{
-                backgroundColor: i === phaseIndex && isActive ? phase.color : 'hsl(var(--border))',
-                transform: i === phaseIndex && isActive ? 'scale(1.3)' : 'scale(1)',
-              }}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Encouragement text */}
