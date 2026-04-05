@@ -36,6 +36,16 @@ import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
 import kawaiiCoffee from '@/assets/stickers/kawaii-coffee.png';
 import kawaiiBook from '@/assets/stickers/kawaii-book.png';
 
+// Masculine / hobby stickers
+import kawaiiLion from '@/assets/stickers/kawaii-lion.png';
+import kawaiiWolf from '@/assets/stickers/kawaii-wolf.png';
+import kawaiiDino from '@/assets/stickers/kawaii-dino.png';
+import kawaiiEagle from '@/assets/stickers/kawaii-eagle.png';
+import kawaiiGamepad from '@/assets/stickers/kawaii-gamepad.png';
+import kawaiiBasketball from '@/assets/stickers/kawaii-basketball.png';
+import kawaiiGuitar from '@/assets/stickers/kawaii-guitar.png';
+import kawaiiSkateboard from '@/assets/stickers/kawaii-skateboard.png';
+
 export interface StickerDef {
   id: string;
   component: React.FC<{ size?: number; className?: string }>;
@@ -99,6 +109,19 @@ export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDe
       { id: 'kawaii-moon', component: KawaiiImg, props: { src: kawaiiMoon } },
       { id: 'kawaii-coffee', component: KawaiiImg, props: { src: kawaiiCoffee } },
       { id: 'kawaii-book', component: KawaiiImg, props: { src: kawaiiBook } },
+    ]
+  },
+  masculine: {
+    name: 'Cool & Sporty',
+    stickers: [
+      { id: 'kawaii-lion', component: KawaiiImg, props: { src: kawaiiLion } },
+      { id: 'kawaii-wolf', component: KawaiiImg, props: { src: kawaiiWolf } },
+      { id: 'kawaii-dino', component: KawaiiImg, props: { src: kawaiiDino } },
+      { id: 'kawaii-eagle', component: KawaiiImg, props: { src: kawaiiEagle } },
+      { id: 'kawaii-gamepad', component: KawaiiImg, props: { src: kawaiiGamepad } },
+      { id: 'kawaii-basketball', component: KawaiiImg, props: { src: kawaiiBasketball } },
+      { id: 'kawaii-guitar', component: KawaiiImg, props: { src: kawaiiGuitar } },
+      { id: 'kawaii-skateboard', component: KawaiiImg, props: { src: kawaiiSkateboard } },
     ]
   },
 };
