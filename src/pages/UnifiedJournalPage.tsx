@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
 import { compressImages } from '@/lib/compressImage';
 import { VoiceDiagnostics } from '@/components/VoiceDiagnostics';
+import TextWithStickers from '@/components/TextWithStickers';
 
 type Detection = {
   span: string;
@@ -167,6 +168,7 @@ export default function UnifiedJournalPage() {
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
   const [inlineStickerPickerOpen, setInlineStickerPickerOpen] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   // Header customization state
   const [customHeaderColor, setCustomHeaderColor] = useState<string>(DEFAULT_HEADER_COLOR);
@@ -1168,12 +1170,32 @@ export default function UnifiedJournalPage() {
                 ref={textareaRef}
                 placeholder={isRecording ? "Listening... (you can also type)" : (template?.placeholder || "Type or tap Record to speak")}
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value);
+                }}
+                onScroll={(e) => {
+                  if (overlayRef.current) {
+                    overlayRef.current.scrollTop = (e.target as HTMLTextAreaElement).scrollTop;
+                  }
+                }}
                 className={cn(
-                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300"
+                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300",
+                  /\[[^\]]+\]/.test(text) && "text-transparent caret-foreground"
                 )}
                 style={{ lineHeight: '1.75' }}
               />
+
+              {/* Rich overlay — renders stickers visually while textarea stays editable underneath */}
+              {/\[[^\]]+\]/.test(text) && (
+                <div
+                  ref={overlayRef}
+                  className="absolute inset-0 p-6 pb-32 pointer-events-none z-[5] text-base text-foreground whitespace-pre-wrap break-words overflow-hidden select-none"
+                  style={{ lineHeight: '1.75' }}
+                  aria-hidden="true"
+                >
+                  <TextWithStickers text={text} />
+                </div>
+              )}
 
               {/* Inline sticker insert button */}
               <div className="absolute bottom-4 right-4 z-20">

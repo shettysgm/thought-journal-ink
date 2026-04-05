@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .caret-foreground {
+    caret-color: hsl(var(--foreground));
+  }
+}
+
 /* Journal Inc — Clean & Competitive Gamified Design System
    Sharp typography, bold stats, fitness-tracker aesthetic.
    All colors MUST be HSL.
