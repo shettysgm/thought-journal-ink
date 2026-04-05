@@ -386,6 +386,7 @@ export default function UnifiedJournalPage() {
   const saveBannerData = useCallback(async (eid: string) => {
     const blobs = bannerImageBlobsRef.current;
     const sticker = bannerStickerRef.current;
+    console.log('[Banner] saveBannerData called for', eid, 'blobs:', blobs.length, 'sticker:', sticker);
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
@@ -404,6 +405,9 @@ export default function UnifiedJournalPage() {
         // Clean up legacy single blob
         delete updated.bannerBlob;
         await saveJournalEntry(updated);
+        console.log('[Banner] Saved successfully, bannerBlobs count:', blobs.length);
+      } else {
+        console.warn('[Banner] No existing entry found for', eid);
       }
     } catch (e) {
       console.error('Banner save error:', e);
