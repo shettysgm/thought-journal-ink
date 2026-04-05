@@ -859,6 +859,25 @@ export default function UnifiedJournalPage() {
           </Button>
         </div>
 
+        {/* Standalone mobile file input (always in DOM) */}
+        <input
+          ref={mobileFileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={async (e) => {
+            const files = Array.from(e.target.files || []);
+            const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
+            if (!valid.length) return;
+            const compressed = await compressImages(valid);
+            setBannerImageBlobs(prev => [...prev, ...compressed]);
+            setBannerSticker(null);
+            if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+            e.target.value = '';
+          }}
+        />
+
         {/* Mobile sticker/photo drawer */}
         <Drawer open={mobileStickerDrawerOpen} onOpenChange={setMobileStickerDrawerOpen}>
           <DrawerContent className="max-h-[70vh]">
