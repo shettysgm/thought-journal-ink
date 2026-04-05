@@ -20,7 +20,7 @@ const ENCOURAGEMENTS = [
 export default function BreathePage() {
   const [isActive, setIsActive] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
-  const [countdown, setCountdown] = useState(PHASES[0].duration);
+  const [countdown, setCountdown] = useState<number>(PHASES[0].duration);
   const [cycles, setCycles] = useState(0);
 
   const currentPhase = PHASES[phaseIndex];
