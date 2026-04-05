@@ -97,12 +97,12 @@ export default function BreathePage() {
 
         {/* Main circle */}
         <motion.div
-          className="absolute rounded-full flex items-center justify-center"
+          className="absolute rounded-full flex items-center justify-center shadow-lg"
           style={{
             width: 240,
             height: 240,
-            background: `radial-gradient(circle at 40% 40%, ${currentPhase.color}35, ${currentPhase.color}12)`,
-            border: `2px solid ${currentPhase.color}30`,
+            backgroundColor: 'hsl(var(--primary) / 0.15)',
+            border: '2px solid hsl(var(--primary) / 0.3)',
           }}
           animate={{ scale: getScale() }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
