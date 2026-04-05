@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { useUnifiedSpeechDictation } from '@/hooks/useUnifiedSpeechDictation';
 import { compressImages } from '@/lib/compressImage';
 import { VoiceDiagnostics } from '@/components/VoiceDiagnostics';
+import TextWithStickers from '@/components/TextWithStickers';
 
 type Detection = {
   span: string;
@@ -1170,10 +1171,22 @@ export default function UnifiedJournalPage() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className={cn(
-                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300"
+                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300",
+                  /\[[^\]]+\]/.test(text) && "text-transparent caret-foreground"
                 )}
                 style={{ lineHeight: '1.75' }}
               />
+
+              {/* Rich overlay — renders stickers visually while textarea stays editable underneath */}
+              {/\[[^\]]+\]/.test(text) && (
+                <div
+                  className="absolute inset-0 p-6 pb-32 pointer-events-none z-[5] text-base text-foreground whitespace-pre-wrap break-words overflow-hidden"
+                  style={{ lineHeight: '1.75' }}
+                  aria-hidden="true"
+                >
+                  <TextWithStickers text={text} />
+                </div>
+              )}
 
               {/* Inline sticker insert button */}
               <div className="absolute bottom-4 right-4 z-20">
