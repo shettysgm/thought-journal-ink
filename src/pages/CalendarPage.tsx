@@ -50,12 +50,7 @@ export default function CalendarPage() {
   const [deleteTo, setDeleteTo] = useState<Date | undefined>(undefined);
   const [deleting, setDeleting] = useState(false);
   const entriesPerPage = 10;
-  const [oldFormatDismissed, setOldFormatDismissed] = useState(() => localStorage.getItem('old_format_notice_dismissed') === 'true');
-
-  const hasOldFormatEntries = useMemo(() => 
-    entries.some(e => !e.hasDrawing && !(e as any).templateId),
-    [entries]
-  );
+  const [welcomeDismissed, setWelcomeDismissed] = useState(() => localStorage.getItem('calendar_welcome_dismissed') === 'true');
 
   const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
     setExporting(true);
