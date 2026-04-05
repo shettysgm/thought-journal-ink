@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { compressImages } from '@/lib/compressImage';
-import { ImagePlus, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImagePlus, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ALL_STICKERS } from './KawaiiStickers';
@@ -40,7 +40,6 @@ export default function JournalBanner({
   className,
 }: JournalBannerProps) {
   const [showStickerPicker, setShowStickerPicker] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
@@ -69,14 +68,12 @@ export default function JournalBanner({
   const clearBanner = useCallback(() => {
     onImagesChange([]);
     onStickerChange(null);
-    setCurrentIndex(0);
   }, [onImagesChange, onStickerChange]);
 
   const removeImage = useCallback(
     (index: number) => {
       const updated = imageBlobs.filter((_, i) => i !== index);
       onImagesChange(updated);
-      setCurrentIndex(prev => Math.min(prev, Math.max(0, updated.length - 1)));
     },
     [imageBlobs, onImagesChange],
   );
@@ -97,44 +94,51 @@ export default function JournalBanner({
           !hasContent && 'border-b border-dashed border-border bg-muted/30',
         )}
       >
-        {imageBlobs.length > 0 && (
+        {imageBlobs.length === 1 && (
           <div className="relative w-full h-full">
-            <BlobBanner blob={imageBlobs[currentIndex] || imageBlobs[0]} />
-            {/* Image counter */}
-            {imageBlobs.length > 1 && (
-              <>
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-                  {imageBlobs.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentIndex(i)}
-                      className={cn(
-                        'w-2 h-2 rounded-full transition-all',
-                        i === currentIndex ? 'bg-white scale-125' : 'bg-white/50',
-                      )}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-                  className={cn(
-                    'absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-background/60 backdrop-blur p-1',
-                    currentIndex === 0 && 'opacity-30 pointer-events-none',
-                  )}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setCurrentIndex(prev => Math.min(imageBlobs.length - 1, prev + 1))}
-                  className={cn(
-                    'absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-background/60 backdrop-blur p-1',
-                    currentIndex === imageBlobs.length - 1 && 'opacity-30 pointer-events-none',
-                  )}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </>
-            )}
+            <BlobBanner blob={imageBlobs[0]} />
+          </div>
+        )}
+
+        {imageBlobs.length === 2 && (
+          <div className="relative w-full h-full grid grid-cols-2 gap-0.5">
+            {imageBlobs.map((blob, i) => (
+              <div key={i} className="relative overflow-hidden">
+                <BlobBanner blob={blob} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {imageBlobs.length === 3 && (
+          <div className="relative w-full h-full grid grid-cols-2 gap-0.5">
+            <div className="relative overflow-hidden row-span-2">
+              <BlobBanner blob={imageBlobs[0]} />
+            </div>
+            <div className="relative overflow-hidden">
+              <BlobBanner blob={imageBlobs[1]} />
+            </div>
+            <div className="relative overflow-hidden">
+              <BlobBanner blob={imageBlobs[2]} />
+            </div>
+          </div>
+        )}
+
+        {imageBlobs.length >= 4 && (
+          <div className="relative w-full h-full grid grid-cols-3 grid-rows-2 gap-0.5">
+            <div className="relative overflow-hidden col-span-2 row-span-2">
+              <BlobBanner blob={imageBlobs[0]} />
+            </div>
+            {imageBlobs.slice(1, 4).map((blob, i) => (
+              <div key={i} className="relative overflow-hidden">
+                <BlobBanner blob={blob} />
+                {i === 2 && imageBlobs.length > 4 && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">+{imageBlobs.length - 4}</span>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
@@ -158,15 +162,6 @@ export default function JournalBanner({
                 aria-label="Add more photos"
               >
                 <ImagePlus className="w-4 h-4" />
-              </button>
-            )}
-            {imageBlobs.length > 1 && (
-              <button
-                onClick={() => removeImage(currentIndex)}
-                className="rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Remove this photo"
-              >
-                <X className="w-4 h-4" />
               </button>
             )}
             <button
