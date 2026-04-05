@@ -76,9 +76,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '✨',
     image: templateFreeWrite,
     stickers: [
-      { src: kawaiiCat, pos: 'absolute -top-1 -left-3 w-20 h-20' },
-      { src: kawaiiBunny, pos: 'absolute -top-1 -right-3 w-16 h-16' },
-      { src: kawaiiStar, pos: 'absolute bottom-8 right-2 w-10 h-10 rotate-12' },
+      { src: kawaiiCat, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiBunny, pos: 'absolute -top-3 -right-4 w-24 h-24' },
+      { src: kawaiiStar, pos: 'absolute bottom-10 left-3 w-14 h-14 rotate-12' },
     ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
@@ -91,9 +91,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '🧠',
     image: templateVoice,
     stickers: [
-      { src: kawaiiPuppy, pos: 'absolute -top-2 -left-3 w-20 h-20' },
-      { src: kawaiiBear, pos: 'absolute -top-1 -right-3 w-16 h-16' },
-      { src: kawaiiPenguin, pos: 'absolute bottom-8 left-2 w-12 h-12 -rotate-6' },
+      { src: kawaiiPuppy, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiBear, pos: 'absolute -top-3 -right-4 w-24 h-24' },
+      { src: kawaiiPenguin, pos: 'absolute bottom-10 left-3 w-16 h-16 -rotate-6' },
     ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
@@ -106,9 +106,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '💗',
     image: templateGratitude,
     stickers: [
-      { src: kawaiiBunny, pos: 'absolute -top-2 -left-3 w-20 h-20' },
-      { src: kawaiiSakura, pos: 'absolute -top-1 -right-2 w-14 h-14' },
-      { src: kawaiiSakura, pos: 'absolute bottom-8 right-6 w-10 h-10 rotate-12' },
+      { src: kawaiiBunny, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiSakura, pos: 'absolute -top-2 -right-3 w-20 h-20' },
+      { src: kawaiiSakura, pos: 'absolute bottom-10 left-6 w-14 h-14 rotate-12' },
     ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
@@ -121,9 +121,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '😊',
     image: templateMood,
     stickers: [
-      { src: kawaiiFox, pos: 'absolute -top-2 -left-3 w-20 h-20' },
-      { src: kawaiiRainbow, pos: 'absolute -top-1 -right-2 w-16 h-16' },
-      { src: kawaiiStar, pos: 'absolute bottom-8 left-3 w-10 h-10 rotate-6' },
+      { src: kawaiiFox, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiRainbow, pos: 'absolute -top-3 -right-3 w-22 h-22' },
+      { src: kawaiiStar, pos: 'absolute bottom-10 left-3 w-14 h-14 rotate-6' },
     ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
@@ -136,9 +136,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '🔄',
     image: templateCbt,
     stickers: [
-      { src: kawaiiOwl, pos: 'absolute -top-2 -left-3 w-20 h-20' },
-      { src: kawaiiPenguin, pos: 'absolute -top-1 -right-3 w-16 h-16' },
-      { src: kawaiiStar, pos: 'absolute bottom-8 right-3 w-10 h-10 -rotate-12' },
+      { src: kawaiiOwl, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiPenguin, pos: 'absolute -top-3 -right-4 w-24 h-24' },
+      { src: kawaiiStar, pos: 'absolute bottom-10 left-3 w-14 h-14 -rotate-12' },
     ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
@@ -151,9 +151,9 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '🌙',
     image: templateWinddown,
     stickers: [
-      { src: kawaiiPanda, pos: 'absolute -top-2 -left-3 w-20 h-20' },
-      { src: kawaiiMoon, pos: 'absolute -top-1 -right-2 w-16 h-16' },
-      { src: kawaiiStar, pos: 'absolute bottom-8 left-4 w-10 h-10 rotate-12' },
+      { src: kawaiiPanda, pos: 'absolute -top-3 -left-4 w-28 h-28' },
+      { src: kawaiiMoon, pos: 'absolute -top-3 -right-3 w-22 h-22' },
+      { src: kawaiiStar, pos: 'absolute bottom-10 left-4 w-14 h-14 rotate-12' },
     ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
@@ -986,14 +986,14 @@ export default function UnifiedJournalPage() {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
                         const positions = [
-                          'absolute -top-1 -left-3 w-20 h-20',
-                          'absolute -top-1 -right-3 w-16 h-16',
-                          'absolute bottom-8 right-2 w-10 h-10 rotate-12',
+                          'absolute -top-3 -left-4 w-28 h-28',
+                          'absolute -top-3 -right-4 w-24 h-24',
+                          'absolute bottom-10 left-3 w-14 h-14 rotate-12',
                         ];
                         const Comp = sticker.component;
                         return (
                           <div key={id} className={cn('pointer-events-none', positions[i])}>
-                            <Comp size={i === 0 ? 80 : i === 1 ? 64 : 40} {...(sticker.props as any)} />
+                            <Comp size={i === 0 ? 112 : i === 1 ? 96 : 56} {...(sticker.props as any)} />
                           </div>
                         );
                       })
