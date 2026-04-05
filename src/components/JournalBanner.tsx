@@ -40,7 +40,7 @@ export default function JournalBanner({
   className,
 }: JournalBannerProps) {
   const [showStickerPicker, setShowStickerPicker] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback(
