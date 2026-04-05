@@ -800,16 +800,6 @@ export default function UnifiedJournalPage() {
             paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'
           }}
         >
-          {/* Sticker/Photo button */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-12 w-12 flex-shrink-0 touch-manipulation"
-            onClick={() => setMobileStickerDrawerOpen(true)}
-          >
-            <img src={stickerBtnIcon} alt="Stickers" className="h-8 w-8 object-contain" />
-          </Button>
-
           {/* Image upload button */}
           <Button
             variant="outline"
