@@ -30,8 +30,8 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Minimum confidence threshold - hide low-confidence detections to reduce hallucination visibility
-    const CONFIDENCE_THRESHOLD = 0.75;
+    // Confidence threshold disabled to debug response parsing
+    const CONFIDENCE_THRESHOLD = 0;
     
     // Request structured JSON response with confidence scores
     const enhancedPrompt = `Analyze this journal entry for cognitive distortions and return ONLY a JSON array. No explanations or extra text.
@@ -105,26 +105,25 @@ ${text}`;
     
     // If data contains distortions (structured format)
     if (Array.isArray(data)) {
-      // Parse confidence and filter out low-confidence results
+      // Handle both expected (type/span/reframe) and actual backend (distortion/example/description) field names
       const allDistortions = data.map((item: any) => ({
-        type: String(item.type || ""),
-        span: String(item.span || ""),
+        type: String(item.type || item.distortion || ""),
+        span: String(item.span || item.example || ""),
         rationale: "",
         confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5)),
       }));
       
-      // Filter by confidence threshold
       const distortions = allDistortions.filter(d => d.confidence >= CONFIDENCE_THRESHOLD);
-      
-      console.debug(`[AI Detect] Filtered ${allDistortions.length - distortions.length} low-confidence results (threshold: ${CONFIDENCE_THRESHOLD})`);
+      console.debug(`[AI Detect] Distortions (${distortions.length}/${allDistortions.length}):`, distortions);
       
       const reframes = data
-        .filter((i: any) => i?.reframe && (Number(i.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
+        .filter((i: any) => (i?.reframe || i?.description) && (Number(i.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
         .map((i: any) => ({
-          span: String(i.span || ""),
-          suggestion: String(i.reframe || ""),
+          span: String(i.span || i.example || ""),
+          suggestion: String(i.reframe || i.description || ""),
           socratic: "",
         }));
+      console.debug(`[AI Detect] Reframes (${reframes.length}):`, reframes);
       return { distortions, reframes };
     }
     
@@ -149,24 +148,23 @@ ${text}`;
         const parsed = JSON.parse(jsonStr);
         console.debug("[AI Detect] Parsed JSON from result:", parsed);
         if (Array.isArray(parsed)) {
-          // Parse confidence and filter out low-confidence results
+          // Handle both expected and actual backend field names
           const allDistortions = parsed.map((item: any) => ({
-            type: String(item.type || ""),
-            span: String(item.span || ""),
+            type: String(item.type || item.distortion || ""),
+            span: String(item.span || item.example || ""),
             rationale: "",
             confidence: Math.min(1, Math.max(0, Number(item.confidence) || 0.5)),
           }));
           
-          console.debug("[AI Detect] All distortions before filter:", allDistortions);
           const distortions = allDistortions.filter(d => d.confidence >= CONFIDENCE_THRESHOLD);
-          console.debug("[AI Detect] Distortions after filter (threshold", CONFIDENCE_THRESHOLD, "):", distortions);
+          console.debug("[AI Detect] Distortions:", distortions);
           
           const reframes = parsed
             .filter((item: any) => (Number(item.confidence) || 0.5) >= CONFIDENCE_THRESHOLD)
             .map((item: any) => ({
-              span: String(item.span || ""),
-              suggestion: String(item.reframe || ""),
-              socratic: String(item.type || ""),
+              span: String(item.span || item.example || ""),
+              suggestion: String(item.reframe || item.description || ""),
+              socratic: String(item.type || item.distortion || ""),
             }));
           console.debug("[AI Detect] Reframes:", reframes);
           return { distortions, reframes };
