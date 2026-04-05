@@ -109,6 +109,9 @@ function MobilePhotoCollage({ blobs }: { blobs: Blob[] }) {
   );
 }
 
+const DEFAULT_HEADER_COLOR = 'hsl(0 0% 100%)';
+const DEFAULT_HEADER_PATTERN = 'dots';
+
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
   const { entries, createEntry, updateEntry, getEntry, appendToEntry, loadEntries } = useEntries();
@@ -165,13 +168,19 @@ export default function UnifiedJournalPage() {
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
 
   // Header customization state
-  const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
+  const [customHeaderColor, setCustomHeaderColor] = useState<string>(DEFAULT_HEADER_COLOR);
   const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
-  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>('dots');
+  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>(DEFAULT_HEADER_PATTERN);
+  const customHeaderColorRef = useRef<string>(DEFAULT_HEADER_COLOR);
+  const customHeaderStickersRef = useRef<string[]>([]);
+  const customHeaderPatternRef = useRef<string>(DEFAULT_HEADER_PATTERN);
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
   useEffect(() => { bannerStickerRef.current = bannerSticker; }, [bannerSticker]);
+  useEffect(() => { customHeaderColorRef.current = customHeaderColor; }, [customHeaderColor]);
+  useEffect(() => { customHeaderStickersRef.current = customHeaderStickers; }, [customHeaderStickers]);
+  useEffect(() => { customHeaderPatternRef.current = customHeaderPattern; }, [customHeaderPattern]);
 
   useEffect(() => {
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -224,6 +233,21 @@ export default function UnifiedJournalPage() {
               if (entry.templateId && TEMPLATE_CONFIG[entry.templateId]) {
                 setResolvedTemplateId(entry.templateId);
               }
+              const nextHeaderColor = typeof (entry as any).headerColor === 'string'
+                ? (entry as any).headerColor
+                : DEFAULT_HEADER_COLOR;
+              const nextHeaderPattern = typeof (entry as any).headerPattern === 'string'
+                ? (entry as any).headerPattern
+                : DEFAULT_HEADER_PATTERN;
+              const nextHeaderStickers = Array.isArray((entry as any).headerStickers)
+                ? (entry as any).headerStickers
+                : [];
+              setCustomHeaderColor(nextHeaderColor);
+              customHeaderColorRef.current = nextHeaderColor;
+              setCustomHeaderPattern(nextHeaderPattern);
+              customHeaderPatternRef.current = nextHeaderPattern;
+              setCustomHeaderStickers(nextHeaderStickers);
+              customHeaderStickersRef.current = nextHeaderStickers;
               setBannerSticker((entry as any).bannerSticker || null);
               // Load banner blob from IDB
               const { getJournalEntry } = await import('@/lib/idb');
@@ -262,6 +286,12 @@ export default function UnifiedJournalPage() {
           setEntryId(null);
           setText('');
           setLastSavedText('');
+          setCustomHeaderColor(DEFAULT_HEADER_COLOR);
+          customHeaderColorRef.current = DEFAULT_HEADER_COLOR;
+          setCustomHeaderPattern(DEFAULT_HEADER_PATTERN);
+          customHeaderPatternRef.current = DEFAULT_HEADER_PATTERN;
+          setCustomHeaderStickers([]);
+          customHeaderStickersRef.current = [];
         } else {
           // No template — check if we should append to today's entry
           const currentEntries = useEntries.getState().entries;
@@ -427,6 +457,33 @@ export default function UnifiedJournalPage() {
     }
   }, [entryId, saveBannerData]);
 
+  const persistHeaderCustomization = useCallback(async (
+    nextState: { color?: string; stickers?: string[]; pattern?: string }
+  ) => {
+    const nextColor = nextState.color ?? customHeaderColorRef.current;
+    const nextStickers = nextState.stickers ?? customHeaderStickersRef.current;
+    const nextPattern = nextState.pattern ?? customHeaderPatternRef.current;
+
+    setCustomHeaderColor(nextColor);
+    customHeaderColorRef.current = nextColor;
+    setCustomHeaderStickers(nextStickers);
+    customHeaderStickersRef.current = nextStickers;
+    setCustomHeaderPattern(nextPattern);
+    customHeaderPatternRef.current = nextPattern;
+
+    if (entryId) {
+      try {
+        await updateEntry(entryId, {
+          headerColor: nextColor,
+          headerPattern: nextPattern,
+          headerStickers: nextStickers,
+        } as any);
+      } catch (error) {
+        console.error('Header customization save error:', error);
+      }
+    }
+  }, [entryId, updateEntry]);
+
   // Track whether we're currently saving to prevent duplicate AI calls
   const isSavingRef = useRef(false);
   const [saveCycle, setSaveCycle] = useState(0);
@@ -449,7 +506,12 @@ export default function UnifiedJournalPage() {
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
-            ...(templateId ? { templateId } : {}),
+            ...(templateId ? {
+              templateId,
+              headerColor: customHeaderColorRef.current,
+              headerPattern: customHeaderPatternRef.current,
+              headerStickers: customHeaderStickersRef.current,
+            } : {}),
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           setEntryId(newId);
@@ -474,7 +536,14 @@ export default function UnifiedJournalPage() {
             });
           } else {
             // Regular update
-            await updateEntry(entryId, { text: text.trim() });
+            await updateEntry(entryId, {
+              text: text.trim(),
+              ...(templateId ? {
+                headerColor: customHeaderColorRef.current,
+                headerPattern: customHeaderPatternRef.current,
+                headerStickers: customHeaderStickersRef.current,
+              } : {}),
+            } as any);
             // Track word count for challenges on first save of this session
             if (!hasTrackedSessionRef.current) {
               hasTrackedSessionRef.current = true;
@@ -639,7 +708,12 @@ export default function UnifiedJournalPage() {
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
-            ...(templateId ? { templateId } : {}),
+            ...(templateId ? {
+              templateId,
+              headerColor: customHeaderColorRef.current,
+              headerPattern: customHeaderPatternRef.current,
+              headerStickers: customHeaderStickersRef.current,
+            } : {}),
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
@@ -653,7 +727,14 @@ export default function UnifiedJournalPage() {
           console.log('Appended to entry:', entryId);
         } else if (currentText) {
           // Update existing entry
-          await updateEntry(entryId, { text: currentText });
+          await updateEntry(entryId, {
+            text: currentText,
+            ...(templateId ? {
+              headerColor: customHeaderColorRef.current,
+              headerPattern: customHeaderPatternRef.current,
+              headerStickers: customHeaderStickersRef.current,
+            } : {}),
+          } as any);
           savedId = entryId;
           console.log('Updated entry:', entryId);
         }
@@ -1019,9 +1100,15 @@ export default function UnifiedJournalPage() {
                     headerColor={customHeaderColor}
                     headerStickers={customHeaderStickers}
                     headerPattern={customHeaderPattern}
-                    onColorChange={setCustomHeaderColor}
-                    onStickersChange={setCustomHeaderStickers}
-                    onPatternChange={setCustomHeaderPattern}
+                    onColorChange={(color) => {
+                      void persistHeaderCustomization({ color });
+                    }}
+                    onStickersChange={(stickers) => {
+                      void persistHeaderCustomization({ stickers });
+                    }}
+                    onPatternChange={(pattern) => {
+                      void persistHeaderCustomization({ pattern });
+                    }}
                   />
 
                   {/* Sticker peeking from edge */}

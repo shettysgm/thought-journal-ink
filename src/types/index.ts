@@ -13,6 +13,9 @@ export type JournalEntry = {
   cardBackground?: string;     // pattern ID for card background texture
   cardBorder?: string;         // border style ID for card border
   templateId?: string;         // template used to create this entry
+  headerColor?: string;        // saved template header color
+  headerPattern?: string;      // saved template header pattern
+  headerStickers?: string[];   // saved template header stickers
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
   reframes?: Array<{           // AI-generated reframes
     span: string;

@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
+import { GRID_PATTERNS } from '@/components/HeaderCustomizer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
@@ -317,6 +318,18 @@ export default function CalendarPage() {
               const stickerDef = stickerId ? ALL_STICKERS.find(s => s.id === stickerId) : null;
               const entryBlobs = bannerBlobs[entry.id] || [];
               const entryTemplate = entry.templateId ? TEMPLATE_CONFIG[entry.templateId] : null;
+              const headerColor = typeof (entry as any).headerColor === 'string'
+                ? (entry as any).headerColor
+                : 'hsl(0 0% 100%)';
+              const headerPattern = typeof (entry as any).headerPattern === 'string'
+                ? (entry as any).headerPattern
+                : 'dots';
+              const headerStickerIds = Array.isArray((entry as any).headerStickers)
+                ? (entry as any).headerStickers
+                : [];
+              const customHeaderSticker = headerStickerIds.length > 0
+                ? ALL_STICKERS.find(s => s.id === headerStickerIds[0])
+                : null;
               return (
                 <Card
                   key={entry.id}
@@ -329,11 +342,21 @@ export default function CalendarPage() {
                     <div
                       className="relative rounded-t-xl overflow-hidden"
                       style={{
-                        backgroundColor: 'hsl(0 0% 100%)',
-                        backgroundImage: 'radial-gradient(circle, hsl(0 0% 80%) 1px, transparent 1px)',
-                        backgroundSize: '12px 12px',
+                        backgroundColor: headerColor,
+                        ...(GRID_PATTERNS.find(pattern => pattern.id === headerPattern)?.style || {}),
                       }}
                     >
+                      {customHeaderSticker ? (
+                        <div className="absolute -left-5 bottom-2 pointer-events-none drop-shadow-md">
+                          <customHeaderSticker.component size={72} {...(customHeaderSticker.props as any)} />
+                        </div>
+                      ) : (
+                        entryTemplate.stickers.slice(0, 1).map((sticker, index) => (
+                          <div key={index} className="absolute -left-5 bottom-2 pointer-events-none drop-shadow-md">
+                            <img src={sticker.src} alt="" className="w-[72px] h-[72px] object-contain" />
+                          </div>
+                        ))
+                      )}
                       <div className="relative z-10 text-center px-8 pt-5 pb-2">
                         <h2 className="text-sm font-bold text-foreground tracking-tight">
                           {entryTemplate.title}
