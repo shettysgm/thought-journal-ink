@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 
 // Lazy load non-critical routes
 const UnifiedJournalPage = lazy(() => import("./pages/UnifiedJournalPage"));
+const BreathePage = lazy(() => import("./pages/BreathePage"));
 const JournalPage = lazy(() => import("./pages/JournalPage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const QuizPage = lazy(() => import("./pages/QuizPage"));
@@ -37,6 +38,7 @@ export default function Router() {
             <Route path="/voice" element={<UnifiedJournalPage />} />
             <Route path="/unified" element={<UnifiedJournalPage />} />
             <Route path="/journal" element={<JournalPage />} />
+            <Route path="/breathe" element={<BreathePage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/settings" element={<SettingsPage />} />
