@@ -726,7 +726,7 @@ export default function UnifiedJournalPage() {
       }
     }
 
-    navigate('/journal');
+    navigate('/calendar');
   };
 
   // Render highlighted text (interim transcript now displayed separately)
