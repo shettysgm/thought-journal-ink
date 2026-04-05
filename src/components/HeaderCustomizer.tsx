@@ -110,11 +110,9 @@ export default function HeaderCustomizer({
 
   const toggleSticker = (id: string) => {
     if (headerStickers.includes(id)) {
-      onStickersChange(headerStickers.filter(s => s !== id));
-    } else if (headerStickers.length < 3) {
-      onStickersChange([...headerStickers, id]);
+      onStickersChange([]);
     } else {
-      onStickersChange([...headerStickers.slice(0, 2), id]);
+      onStickersChange([id]);
     }
   };
 
