@@ -974,7 +974,7 @@ export default function UnifiedJournalPage() {
                     onPatternChange={setCustomHeaderPattern}
                   />
 
-                  {/* Sticker in stylish blob frame */}
+                  {/* Sticker in stylish shaped frame */}
                   {(customHeaderStickers.length > 0
                     ? customHeaderStickers.slice(0, 1).map((id) => {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
@@ -982,13 +982,22 @@ export default function UnifiedJournalPage() {
                         const Comp = sticker.component;
                         return (
                           <div key={id} className="absolute top-3 left-3 pointer-events-none">
+                            {/* Outer decorative ring */}
                             <div
-                              className="w-20 h-20 flex items-center justify-center bg-accent/20 backdrop-blur-sm shadow-sm"
+                              className="w-[72px] h-[72px] p-[3px]"
                               style={{
-                                clipPath: 'polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)',
+                                clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.5))',
                               }}
                             >
-                              <Comp size={52} {...(sticker.props as any)} />
+                              <div
+                                className="w-full h-full flex items-center justify-center bg-background"
+                                style={{
+                                  clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                }}
+                              >
+                                <Comp size={42} {...(sticker.props as any)} />
+                              </div>
                             </div>
                           </div>
                         );
@@ -996,12 +1005,20 @@ export default function UnifiedJournalPage() {
                     : template.stickers.map((s, i) => (
                         <div key={i} className={cn('pointer-events-none', s.pos)}>
                           <div
-                            className="w-full h-full flex items-center justify-center bg-accent/20 backdrop-blur-sm shadow-sm"
+                            className="w-full h-full p-[3px]"
                             style={{
-                              clipPath: 'polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)',
+                              clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                              background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.5))',
                             }}
                           >
-                            <img src={s.src} alt="" className="w-3/4 h-3/4 object-contain" />
+                            <div
+                              className="w-full h-full flex items-center justify-center bg-background"
+                              style={{
+                                clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                              }}
+                            >
+                              <img src={s.src} alt="" className="w-3/5 h-3/5 object-contain" />
+                            </div>
                           </div>
                         </div>
                       ))
