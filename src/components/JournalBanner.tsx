@@ -49,7 +49,9 @@ export default function JournalBanner({
       const validFiles = files.filter(f => f.size <= 5 * 1024 * 1024);
       if (!validFiles.length) return;
       const compressed = await compressImages(validFiles);
-      onImagesChange([...imageBlobs, ...compressed]);
+      const remaining = 3 - imageBlobs.length;
+      if (remaining <= 0) return;
+      onImagesChange([...imageBlobs, ...compressed.slice(0, remaining)]);
       onStickerChange(null);
       e.target.value = '';
     },

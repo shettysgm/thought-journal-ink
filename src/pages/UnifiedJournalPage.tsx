@@ -1014,7 +1014,9 @@ export default function UnifiedJournalPage() {
             const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
             if (!valid.length) return;
             const compressed = await compressImages(valid);
-            const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+            const remaining = 3 - bannerImageBlobsRef.current.length;
+            if (remaining <= 0) return;
+            const nextBlobs = [...bannerImageBlobsRef.current, ...compressed.slice(0, remaining)];
             persistBannerState(nextBlobs, null);
             e.target.value = '';
           }}
@@ -1032,9 +1034,10 @@ export default function UnifiedJournalPage() {
                 variant="outline"
                 className="w-full gap-2"
                 onClick={() => mobileFileInputRef.current?.click()}
+                disabled={bannerImageBlobs.length >= 3}
               >
                 <ImagePlus className="w-4 h-4" />
-                {bannerImageBlobs.length > 0 ? `Add More Photos (${bannerImageBlobs.length})` : 'Upload Photos'}
+                {bannerImageBlobs.length >= 3 ? 'Max 3 Photos' : bannerImageBlobs.length > 0 ? `Add More Photos (${bannerImageBlobs.length}/3)` : 'Upload Photos'}
               </Button>
               <input
                 ref={mobileFileInputRef}
@@ -1047,7 +1050,9 @@ export default function UnifiedJournalPage() {
                   const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
                   if (!valid.length) return;
                   const compressed = await compressImages(valid);
-                  const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+                  const remaining = 3 - bannerImageBlobsRef.current.length;
+                  if (remaining <= 0) return;
+                  const nextBlobs = [...bannerImageBlobsRef.current, ...compressed.slice(0, remaining)];
                   persistBannerState(nextBlobs, null);
                   setMobileStickerDrawerOpen(false);
                   e.target.value = '';
