@@ -381,8 +381,22 @@ export default function CalendarPage() {
                     </div>
                   )}
                   <CardContent className="p-4">
-                    {entryBlobs.length > 0 ? (
-                      <div className={cn("w-full -mx-4 mb-3 rounded-t-lg overflow-hidden", !entryTemplate ? "-mt-4" : "", entryBlobs.length === 1 ? "h-36" : "")}>
+                    {entry.text && (
+                      <div className="bg-muted/30 rounded-lg p-3 mb-3">
+                        <TextWithStickers
+                          text={entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) + '…' : entry.text}
+                          className="text-foreground text-sm leading-relaxed"
+                        />
+                        {entry.text.length > 300 && (
+                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); toggleExpanded(entry.id); }} className="mt-1 p-0 h-auto text-primary text-xs">
+                            {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    {entryBlobs.length > 0 && (
+                      <div className={cn("w-full -mx-4 mb-3 overflow-hidden", entryBlobs.length === 1 ? "h-36" : "")}>
                         {entryBlobs.length === 1 ? (
                           <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
                         ) : (
@@ -395,23 +409,11 @@ export default function CalendarPage() {
                           </div>
                         )}
                       </div>
-                    ) : stickerDef ? (
-                      <div className="float-right -mr-2 -mt-2 ml-3 mb-1">
-                        <stickerDef.component size={72} {...(stickerDef.props as any)} />
-                      </div>
-                    ) : null}
+                    )}
 
-                    {entry.text && (
-                      <div className="bg-muted/30 rounded-lg p-3 mb-3">
-                        <TextWithStickers
-                          text={entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) + '…' : entry.text}
-                          className="text-foreground text-sm leading-relaxed"
-                        />
-                        {entry.text.length > 300 && (
-                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); toggleExpanded(entry.id); }} className="mt-1 p-0 h-auto text-primary text-xs">
-                            {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
-                          </Button>
-                        )}
+                    {!entryBlobs.length && stickerDef && (
+                      <div className="flex justify-center mb-3">
+                        <stickerDef.component size={72} {...(stickerDef.props as any)} />
                       </div>
                     )}
 
