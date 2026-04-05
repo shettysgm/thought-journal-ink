@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { compressImages } from '@/lib/compressImage';
-import { ImagePlus, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImagePlus, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ALL_STICKERS } from './KawaiiStickers';
