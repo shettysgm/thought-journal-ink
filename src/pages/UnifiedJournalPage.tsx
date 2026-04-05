@@ -974,25 +974,36 @@ export default function UnifiedJournalPage() {
                     onPatternChange={setCustomHeaderPattern}
                   />
 
-                  {/* Kawaii sticker decorations - use custom or default */}
+                  {/* Sticker in stylish blob frame */}
                   {(customHeaderStickers.length > 0
                     ? customHeaderStickers.slice(0, 1).map((id) => {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
                         const Comp = sticker.component;
                         return (
-                          <div key={id} className="absolute top-2 -left-2 w-24 h-24 pointer-events-none">
-                            <Comp size={96} {...(sticker.props as any)} />
+                          <div key={id} className="absolute top-3 left-3 pointer-events-none">
+                            <div
+                              className="w-20 h-20 flex items-center justify-center bg-accent/20 backdrop-blur-sm shadow-sm"
+                              style={{
+                                clipPath: 'polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)',
+                              }}
+                            >
+                              <Comp size={52} {...(sticker.props as any)} />
+                            </div>
                           </div>
                         );
                       })
                     : template.stickers.map((s, i) => (
-                        <img
-                          key={i}
-                          src={s.src}
-                          alt=""
-                          className={cn('object-contain pointer-events-none', s.pos)}
-                        />
+                        <div key={i} className={cn('pointer-events-none', s.pos)}>
+                          <div
+                            className="w-full h-full flex items-center justify-center bg-accent/20 backdrop-blur-sm shadow-sm"
+                            style={{
+                              clipPath: 'polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)',
+                            }}
+                          >
+                            <img src={s.src} alt="" className="w-3/4 h-3/4 object-contain" />
+                          </div>
+                        </div>
                       ))
                   )}
                   
