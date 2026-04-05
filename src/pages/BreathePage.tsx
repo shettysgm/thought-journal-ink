@@ -89,9 +89,9 @@ export default function BreathePage() {
           style={{
             width: 260,
             height: 260,
-            background: `radial-gradient(circle, ${currentPhase.color}20 0%, transparent 70%)`,
+            backgroundColor: 'hsl(var(--primary) / 0.08)',
           }}
-          animate={{ scale: getScale() * 1.1, opacity: isActive ? 0.5 : 0.15 }}
+          animate={{ scale: getScale() * 1.1, opacity: isActive ? 0.8 : 0.3 }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
         />
 
