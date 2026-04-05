@@ -111,7 +111,7 @@ export default function JournalBanner({
         )}
 
         {imageBlobs.length === 3 && (
-          <div className="relative w-full h-full grid grid-cols-2 gap-0.5">
+          <div className="relative w-full h-full grid grid-cols-2 grid-rows-2 gap-0.5">
             <div className="relative overflow-hidden row-span-2">
               <BlobBanner blob={imageBlobs[0]} />
             </div>
