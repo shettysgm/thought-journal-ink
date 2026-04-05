@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
+import HeaderCustomizer from '@/components/HeaderCustomizer';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -216,6 +217,10 @@ export default function UnifiedJournalPage() {
   const [mobileStickerDrawerOpen, setMobileStickerDrawerOpen] = useState(false);
   const MOBILE_ALL_STICKERS = ALL_STICKERS;
   const mobileFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Header customization state
+  const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
+  const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
@@ -965,17 +970,42 @@ export default function UnifiedJournalPage() {
               {template && (
                 <div
                   className="relative overflow-hidden rounded-t-2xl"
-                  style={{ backgroundColor: 'hsl(0 0% 100%)' }}
+                  style={{ backgroundColor: customHeaderColor }}
                 >
-                  {/* Kawaii sticker decorations */}
-                  {template.stickers.map((s, i) => (
-                    <img
-                      key={i}
-                      src={s.src}
-                      alt=""
-                      className={cn("object-contain pointer-events-none", s.pos)}
-                    />
-                  ))}
+                  {/* Customize button */}
+                  <HeaderCustomizer
+                    headerColor={customHeaderColor}
+                    headerStickers={customHeaderStickers}
+                    onColorChange={setCustomHeaderColor}
+                    onStickersChange={setCustomHeaderStickers}
+                  />
+
+                  {/* Kawaii sticker decorations - use custom or default */}
+                  {(customHeaderStickers.length > 0
+                    ? customHeaderStickers.map((id, i) => {
+                        const sticker = ALL_STICKERS.find(s => s.id === id);
+                        if (!sticker) return null;
+                        const positions = [
+                          'absolute -top-1 -left-3 w-20 h-20',
+                          'absolute -top-1 -right-3 w-16 h-16',
+                          'absolute bottom-8 right-2 w-10 h-10 rotate-12',
+                        ];
+                        const Comp = sticker.component;
+                        return (
+                          <div key={id} className={cn('pointer-events-none', positions[i])}>
+                            <Comp size={i === 0 ? 80 : i === 1 ? 64 : 40} {...(sticker.props as any)} />
+                          </div>
+                        );
+                      })
+                    : template.stickers.map((s, i) => (
+                        <img
+                          key={i}
+                          src={s.src}
+                          alt=""
+                          className={cn('object-contain pointer-events-none', s.pos)}
+                        />
+                      ))
+                  )}
                   
                   {/* Center content */}
                   <div className="relative z-10 text-center px-16 pt-8 pb-3">
@@ -997,7 +1027,7 @@ export default function UnifiedJournalPage() {
                     ))}
                   </div>
                   
-                  <div className={cn("h-1 w-full bg-gradient-to-r", template.gradient)} />
+                  <div className={cn('h-1 w-full bg-gradient-to-r', template.gradient)} />
                 </div>
               )}
 
