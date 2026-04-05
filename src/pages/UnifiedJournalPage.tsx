@@ -14,19 +14,13 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-// Kawaii stickers for header decorations
-import kawaiiCat from '@/assets/stickers/kawaii-cat-full.png';
-import kawaiiBunny from '@/assets/stickers/kawaii-bunny-full.png';
-import kawaiiPuppy from '@/assets/stickers/kawaii-puppy-full.png';
-import kawaiiBear from '@/assets/stickers/kawaii-bear-full.png';
-import kawaiiOwl from '@/assets/stickers/kawaii-owl-full.png';
-import kawaiiPanda from '@/assets/stickers/kawaii-panda-full.png';
-import kawaiiPenguin from '@/assets/stickers/kawaii-penguin-full.png';
-import kawaiiFox from '@/assets/stickers/kawaii-fox-full.png';
-import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
-import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
-import kawaiiStar from '@/assets/stickers/kawaii-star.png';
-import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
+// Neutral icons for header decorations
+import iconSurfboard from '@/assets/stickers/icon-surfboard.png';
+import iconGuitar from '@/assets/stickers/icon-guitar.png';
+import iconGamepad from '@/assets/stickers/icon-gamepad.png';
+import iconBasketball from '@/assets/stickers/icon-basketball.png';
+import iconHeadphones from '@/assets/stickers/icon-headphones.png';
+import iconBike from '@/assets/stickers/icon-bike.png';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -76,7 +70,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateFreeWrite,
     stickers: [
-      { src: kawaiiCat, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconGuitar, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
@@ -89,7 +83,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateVoice,
     stickers: [
-      { src: kawaiiPuppy, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconBasketball, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
@@ -102,7 +96,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateGratitude,
     stickers: [
-      { src: kawaiiBunny, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconSurfboard, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
@@ -115,7 +109,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateMood,
     stickers: [
-      { src: kawaiiFox, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconHeadphones, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
@@ -128,7 +122,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateCbt,
     stickers: [
-      { src: kawaiiOwl, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconBike, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
@@ -141,7 +135,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateWinddown,
     stickers: [
-      { src: kawaiiPanda, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconGamepad, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
