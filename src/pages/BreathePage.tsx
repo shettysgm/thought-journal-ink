@@ -55,10 +55,10 @@ export default function BreathePage() {
 
   // Circle scale: expand on inhale, hold during hold, shrink on exhale
   const getScale = () => {
-    if (!isActive) return 1;
-    if (phaseIndex === 0) return 1.6; // Inhale - expand
-    if (phaseIndex === 1) return 1.6; // Hold - stay expanded
-    return 1; // Exhale - shrink
+    if (!isActive) return 0.5;
+    if (phaseIndex === 0) return 1;    // Inhale - blow up
+    if (phaseIndex === 1) return 1;    // Hold - stay big
+    return 0.5;                         // Exhale - contract
   };
 
   const getTransitionDuration = () => {
