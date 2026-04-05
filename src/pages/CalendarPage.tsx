@@ -333,16 +333,36 @@ export default function CalendarPage() {
                     navigate(`/unified?edit=${entry.id}`);
                   }}
                 >
-                  {/* Template header */}
+                  {/* Template header - matches editor style */}
                   {entryTemplate && (
-                    <div className={cn("relative overflow-hidden", entryBlobs.length > 0 ? "" : "rounded-t-xl")}>
-                      <div className={cn("bg-gradient-to-br h-16 flex items-center gap-3 px-4", entryTemplate.gradient)}>
-                        <img src={entryTemplate.image} alt="" className="w-10 h-10 object-contain" />
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{entryTemplate.title}</p>
-                          <p className="text-[10px] text-muted-foreground">{entryTemplate.subtitle}</p>
-                        </div>
+                    <div
+                      className="relative rounded-t-xl overflow-hidden"
+                      style={{
+                        backgroundColor: 'hsl(0 0% 100%)',
+                        backgroundImage: 'radial-gradient(circle, hsl(0 0% 80%) 1px, transparent 1px)',
+                        backgroundSize: '12px 12px',
+                      }}
+                    >
+                      <div className="relative z-10 text-center px-8 pt-5 pb-2">
+                        <h2 className="text-sm font-bold text-foreground tracking-tight">
+                          {entryTemplate.title}
+                        </h2>
+                        <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{entryTemplate.subtitle}</p>
                       </div>
+                      {entryTemplate.prompts.length > 0 && (
+                        <div className="relative z-10 flex flex-col items-start gap-1 pl-8 pr-4 pb-3">
+                          {entryTemplate.prompts.slice(0, 2).map((prompt, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-lg border border-border/40 font-medium text-foreground/70"
+                              style={{ backgroundColor: 'hsl(0 0% 100% / 0.9)' }}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
+                              {prompt}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   <CardContent className="p-4">
