@@ -1015,8 +1015,6 @@ export default function UnifiedJournalPage() {
                       </span>
                     ))}
                   </div>
-                  
-                  <div className={cn('h-1 w-full bg-gradient-to-r', template.gradient)} />
                 </div>
               )}
 
