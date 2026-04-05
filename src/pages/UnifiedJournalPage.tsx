@@ -592,13 +592,13 @@ export default function UnifiedJournalPage() {
       }
 
       setIsDetecting(true);
-      sonnerToast.info(`🔍 AI analyzing ${trimmedText.length} chars...`);
+      console.log('[AI Detection] Starting analysis, text length:', trimmedText.length);
       try {
         const response = await detectWithAI(trimmedText);
         if (cancelled) return;
 
-        sonnerToast.success(`✅ AI response: ${response.distortions.length} distortions, ${response.reframes.length} reframes`);
         console.log('[AI Detection] Full response:', JSON.stringify(response, null, 2));
+        console.log('[AI Detection] Distortions count:', response.distortions.length, 'Reframes count:', response.reframes.length);
 
         if (response.distortions && response.distortions.length > 0) {
           const detectionsList: Detection[] = response.distortions.map((d, idx) => ({
@@ -608,7 +608,7 @@ export default function UnifiedJournalPage() {
             confidence: d.confidence
           }));
           setLiveDetections(detectionsList);
-          sonnerToast.info(`📝 Showing ${detectionsList.length} suggestions`);
+          console.log('[AI Detection] Live detections set:', detectionsList);
 
           const reframes = detectionsList.map(d => ({
             span: d.span,
@@ -618,12 +618,11 @@ export default function UnifiedJournalPage() {
           updateEntry(entryId, { reframes }).catch(e => console.warn('[AI Detection] reframe save failed:', e));
         } else {
           setLiveDetections([]);
-          sonnerToast.warning('AI returned 0 distortions');
+          console.log('[AI Detection] No distortions found');
         }
       } catch (error) {
         if (!cancelled) {
-          console.warn('[AI Detection] Error (non-blocking):', error);
-          sonnerToast.error(`❌ AI error: ${error instanceof Error ? error.message : String(error)}`);
+          console.error('[AI Detection] Error:', error);
         }
       } finally {
         if (!cancelled) setIsDetecting(false);
