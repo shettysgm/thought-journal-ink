@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft } from 'lucide-react';
+import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft, Info, X } from 'lucide-react';
 import { TEMPLATE_CONFIG } from '@/config/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +50,12 @@ export default function CalendarPage() {
   const [deleteTo, setDeleteTo] = useState<Date | undefined>(undefined);
   const [deleting, setDeleting] = useState(false);
   const entriesPerPage = 10;
+  const [oldFormatDismissed, setOldFormatDismissed] = useState(() => localStorage.getItem('old_format_notice_dismissed') === 'true');
+
+  const hasOldFormatEntries = useMemo(() => 
+    entries.some(e => !e.hasDrawing && !(e as any).templateId),
+    [entries]
+  );
 
   const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
     setExporting(true);
@@ -206,6 +212,25 @@ export default function CalendarPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search entries..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 h-10 rounded-xl" />
         </div>
+
+        {/* Old format entries notice */}
+        {hasOldFormatEntries && !oldFormatDismissed && (
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
+            <Info className="w-4 h-4 text-accent-foreground mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground flex-1">
+              Some older entries were created before templates were available. They'll appear with default styling but all your content is safe.
+            </p>
+            <button
+              onClick={() => {
+                setOldFormatDismissed(true);
+                localStorage.setItem('old_format_notice_dismissed', 'true');
+              }}
+              className="shrink-0 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Calendar */}
         <Card className="shadow-soft">
