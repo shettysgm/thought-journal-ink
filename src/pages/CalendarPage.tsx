@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type MouseEvent } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft } from 'lucide-react';
@@ -10,14 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
-import HighlightedTextWithReframes from '@/components/HighlightedTextWithReframes';
 import { cn } from '@/lib/utils';
 import { awaitPendingSave } from '@/lib/pendingSave';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { ALL_STICKERS } from '@/components/KawaiiStickers';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import CardBackgroundPicker, { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
+import { getPatternStyle, getBorderClassName } from '@/components/CardBackgroundPicker';
 
 function BlobImage({ blob, alt, className }: { blob: Blob; alt: string; className?: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob[]>>({});
   const [exporting, setExporting] = useState(false);
-  const [bgPickerOpen, setBgPickerOpen] = useState<string | null>(null);
+  
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportFrom, setExportFrom] = useState<Date | undefined>(undefined);
   const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
@@ -323,15 +322,7 @@ export default function CalendarPage() {
                   key={entry.id}
                   className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
                   style={getPatternStyle(entry.cardBackground)}
-                  onClick={(e: MouseEvent<HTMLDivElement>) => {
-                    const target = e.target as HTMLElement | null;
-                    if (target?.closest?.('button:not([data-entry-card])')) return;
-                    if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                    if (target?.closest?.('[role="alertdialog"]')) return;
-                    if (target?.closest?.('[data-radix-popper-content-wrapper]')) return;
-                    if (bgPickerOpen === entry.id) return;
-                    navigate(`/unified?edit=${entry.id}`);
-                  }}
+                  onClick={() => navigate(`/unified?edit=${entry.id}`)}
                 >
                   {/* Template header - matches editor style */}
                   {entryTemplate && (
@@ -388,12 +379,9 @@ export default function CalendarPage() {
 
                     {entry.text && (
                       <div className="bg-muted/30 rounded-lg p-3 mb-3">
-                        <div className="text-foreground text-sm">
-                          <HighlightedTextWithReframes
-                            text={entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) : entry.text}
-                            reframes={entry.reframes}
-                          />
-                        </div>
+                        <p className="text-foreground text-sm leading-relaxed">
+                          {entry.text.length > 300 && !expandedEntries.has(entry.id) ? entry.text.substring(0, 300) + '…' : entry.text}
+                        </p>
                         {entry.text.length > 300 && (
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); toggleExpanded(entry.id); }} className="mt-1 p-0 h-auto text-primary text-xs">
                             {expandedEntries.has(entry.id) ? "Show less" : "Show more"}
