@@ -36,6 +36,16 @@ import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
 import kawaiiCoffee from '@/assets/stickers/kawaii-coffee.png';
 import kawaiiBook from '@/assets/stickers/kawaii-book.png';
 
+// Masculine / hobby stickers
+import kawaiiLion from '@/assets/stickers/kawaii-lion.png';
+import kawaiiWolf from '@/assets/stickers/kawaii-wolf.png';
+import kawaiiDino from '@/assets/stickers/kawaii-dino.png';
+import kawaiiEagle from '@/assets/stickers/kawaii-eagle.png';
+import kawaiiGamepad from '@/assets/stickers/kawaii-gamepad.png';
+import kawaiiBasketball from '@/assets/stickers/kawaii-basketball.png';
+import kawaiiGuitar from '@/assets/stickers/kawaii-guitar.png';
+import kawaiiSkateboard from '@/assets/stickers/kawaii-skateboard.png';
+
 export interface StickerDef {
   id: string;
   component: React.FC<{ size?: number; className?: string }>;
