@@ -106,8 +106,11 @@ export const useDistortions = create<DistortionsState>((set, get) => ({
       }
     }
 
-    // Fallback: use sample questions
+    // Fallback: use sample questions with shuffled options
     const shuffled = [...SAMPLE_QUESTIONS].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    return shuffled.slice(0, count).map(q => ({
+      ...q,
+      options: [...q.options].sort(() => 0.5 - Math.random()),
+    }));
   },
 }));
