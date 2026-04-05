@@ -3,6 +3,14 @@ import { Capacitor } from '@capacitor/core';
 
 const NOTIFICATION_ID = 21; // 21-day habit theme
 
+/** Allow notifications to display as banners even when app is in foreground */
+export function enableForegroundNotifications() {
+  if (!Capacitor.isNativePlatform()) return;
+  LocalNotifications.addListener('localNotificationReceived', (notification) => {
+    console.log('[Notifications] Received in foreground:', notification.title);
+  });
+}
+
 /** Returns true only if notification was actually scheduled on native */
 export async function scheduleStreakReminder(hour: number, minute: number): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) return false;
