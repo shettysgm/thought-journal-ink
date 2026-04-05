@@ -1,23 +1,78 @@
 import { Link } from 'react-router-dom';
-import { PenLine, CalendarDays, Mic } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { CalendarDays, ChevronRight } from 'lucide-react';
 
 const TEMPLATES = [
   {
     id: 'free-write',
     title: 'Free Write',
-    description: 'Open-ended journaling — write whatever is on your mind with no structure or prompts.',
-    icon: PenLine,
+    subtitle: 'No rules, just you',
+    description: 'Write whatever comes to mind — no prompts, no pressure.',
     path: '/unified',
     emoji: '✍️',
+    gradient: 'from-teal-400 to-cyan-500',
+    bgAccent: 'bg-teal-50 dark:bg-teal-950/30',
+    borderAccent: 'border-teal-200 dark:border-teal-800/40',
+    iconBg: 'bg-teal-500/15',
   },
   {
     id: 'voice',
     title: 'Voice Note',
-    description: 'Record your thoughts out loud and let the app transcribe and analyze them.',
-    icon: Mic,
+    subtitle: 'Speak your mind',
+    description: 'Talk it out — we\'ll transcribe and help you reflect.',
     path: '/unified',
     emoji: '🎙️',
+    gradient: 'from-violet-400 to-purple-500',
+    bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
+    borderAccent: 'border-violet-200 dark:border-violet-800/40',
+    iconBg: 'bg-violet-500/15',
+  },
+  {
+    id: 'gratitude',
+    title: 'Gratitude',
+    subtitle: '3 good things today',
+    description: 'Capture moments of joy — big or small — to shift your focus.',
+    path: '/unified',
+    emoji: '🌸',
+    gradient: 'from-pink-400 to-rose-500',
+    bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
+    borderAccent: 'border-pink-200 dark:border-pink-800/40',
+    iconBg: 'bg-pink-500/15',
+  },
+  {
+    id: 'mood-checkin',
+    title: 'Mood Check-in',
+    subtitle: 'How are you really?',
+    description: 'Quick emotional pulse — rate your mood and add a note.',
+    path: '/unified',
+    emoji: '🌈',
+    gradient: 'from-amber-400 to-orange-500',
+    bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
+    borderAccent: 'border-amber-200 dark:border-amber-800/40',
+    iconBg: 'bg-amber-500/15',
+  },
+  {
+    id: 'thought-record',
+    title: 'CBT Thought Record',
+    subtitle: 'Challenge your thoughts',
+    description: 'Situation → Thought → Emotion → Reframe. Structured reflection.',
+    path: '/unified',
+    emoji: '🧠',
+    gradient: 'from-blue-400 to-indigo-500',
+    bgAccent: 'bg-blue-50 dark:bg-blue-950/30',
+    borderAccent: 'border-blue-200 dark:border-blue-800/40',
+    iconBg: 'bg-blue-500/15',
+  },
+  {
+    id: 'wind-down',
+    title: 'Wind Down',
+    subtitle: 'End the day gently',
+    description: 'Reflect on your day, release tension, and set tomorrow\'s intention.',
+    path: '/unified',
+    emoji: '🌙',
+    gradient: 'from-indigo-400 to-slate-500',
+    bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
+    borderAccent: 'border-indigo-200 dark:border-indigo-800/40',
+    iconBg: 'bg-indigo-500/15',
   },
 ];
 
@@ -32,10 +87,10 @@ export default function JournalPage() {
     >
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
-        <header className="flex items-center justify-between">
+        <header className="flex items-center justify-between mt-1">
           <div>
             <h1 className="text-lg font-semibold text-foreground">Journal</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Choose how you want to journal today</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Pick a template to start</p>
           </div>
           <Link
             to="/calendar"
@@ -46,27 +101,45 @@ export default function JournalPage() {
           </Link>
         </header>
 
-        {/* Templates */}
-        <div className="space-y-3">
-          {TEMPLATES.map((template) => {
-            const Icon = template.icon;
-            return (
-              <Link key={template.id} to={template.path}>
-                <Card className="shadow-soft hover:shadow-medium transition-all active:scale-[0.98] cursor-pointer border-border/60">
-                  <CardContent className="p-5 flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-2xl">
-                      {template.emoji}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-foreground">{template.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{template.description}</p>
-                    </div>
-                    <Icon className="w-5 h-5 text-muted-foreground shrink-0 mt-1" />
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+        {/* Template Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {TEMPLATES.map((template) => (
+            <Link key={template.id} to={template.path} className="block">
+              <div
+                className={`
+                  relative rounded-2xl border overflow-hidden
+                  ${template.bgAccent} ${template.borderAccent}
+                  hover:shadow-lg active:scale-[0.97] transition-all duration-200
+                  cursor-pointer group h-full
+                `}
+              >
+                {/* Gradient accent bar */}
+                <div className={`h-1.5 w-full bg-gradient-to-r ${template.gradient}`} />
+
+                <div className="p-4 flex flex-col gap-2.5">
+                  {/* Emoji icon */}
+                  <div className={`w-11 h-11 rounded-xl ${template.iconBg} flex items-center justify-center text-2xl`}>
+                    {template.emoji}
+                  </div>
+
+                  {/* Text */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground leading-tight">{template.title}</h3>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{template.subtitle}</p>
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed line-clamp-2">
+                    {template.description}
+                  </p>
+
+                  {/* Arrow */}
+                  <div className="flex justify-end mt-auto">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground/60 transition-colors" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>
