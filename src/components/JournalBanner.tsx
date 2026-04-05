@@ -27,7 +27,7 @@ function BlobBanner({ blob }: { blob: Blob }) {
     <img
       src={url}
       alt="Journal banner"
-      className="w-full h-full object-cover flex-shrink-0 snap-center"
+      className="absolute inset-0 w-full h-full object-cover"
     />
   );
 }
@@ -101,9 +101,9 @@ export default function JournalBanner({
         )}
 
         {imageBlobs.length === 2 && (
-          <div className="relative w-full h-full grid grid-cols-2 gap-0.5">
+          <div className="w-full h-full grid grid-cols-2 gap-0.5">
             {imageBlobs.map((blob, i) => (
-              <div key={i} className="relative overflow-hidden">
+              <div key={i} className="relative overflow-hidden min-h-0">
                 <BlobBanner blob={blob} />
               </div>
             ))}
@@ -111,26 +111,26 @@ export default function JournalBanner({
         )}
 
         {imageBlobs.length === 3 && (
-          <div className="relative w-full h-full grid grid-cols-2 grid-rows-2 gap-0.5">
-            <div className="relative overflow-hidden row-span-2">
+          <div className="w-full h-full grid grid-cols-2 grid-rows-[1fr_1fr] gap-0.5">
+            <div className="relative overflow-hidden row-span-2 min-h-0">
               <BlobBanner blob={imageBlobs[0]} />
             </div>
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden min-h-0">
               <BlobBanner blob={imageBlobs[1]} />
             </div>
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden min-h-0">
               <BlobBanner blob={imageBlobs[2]} />
             </div>
           </div>
         )}
 
         {imageBlobs.length >= 4 && (
-          <div className="relative w-full h-full grid grid-cols-3 grid-rows-2 gap-0.5">
-            <div className="relative overflow-hidden col-span-2 row-span-2">
+          <div className="w-full h-full grid grid-cols-3 grid-rows-[1fr_1fr] gap-0.5">
+            <div className="relative overflow-hidden col-span-2 row-span-2 min-h-0">
               <BlobBanner blob={imageBlobs[0]} />
             </div>
             {imageBlobs.slice(1, 4).map((blob, i) => (
-              <div key={i} className="relative overflow-hidden">
+              <div key={i} className="relative overflow-hidden min-h-0">
                 <BlobBanner blob={blob} />
                 {i === 2 && imageBlobs.length > 4 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
