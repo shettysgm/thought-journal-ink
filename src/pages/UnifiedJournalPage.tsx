@@ -13,6 +13,7 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
+import journalHeaderBg from '@/assets/journal-header-bg.png';
 import {
   AlertDialog,
   AlertDialogCancel,
