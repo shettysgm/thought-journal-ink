@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { useEntries } from '@/store/useEntries';
 import { useSettings } from '@/store/useSettings';
 import { format } from 'date-fns';
