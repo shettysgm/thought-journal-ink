@@ -974,25 +974,53 @@ export default function UnifiedJournalPage() {
                     onPatternChange={setCustomHeaderPattern}
                   />
 
-                  {/* Kawaii sticker decorations - use custom or default */}
+                  {/* Sticker in stylish shaped frame */}
                   {(customHeaderStickers.length > 0
                     ? customHeaderStickers.slice(0, 1).map((id) => {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
                         const Comp = sticker.component;
                         return (
-                          <div key={id} className="absolute top-2 -left-2 w-24 h-24 pointer-events-none">
-                            <Comp size={96} {...(sticker.props as any)} />
+                          <div key={id} className="absolute top-3 left-3 pointer-events-none">
+                            {/* Outer decorative ring */}
+                            <div
+                              className="w-[72px] h-[72px] p-[3px]"
+                              style={{
+                                clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.5))',
+                              }}
+                            >
+                              <div
+                                className="w-full h-full flex items-center justify-center bg-background"
+                                style={{
+                                  clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                }}
+                              >
+                                <Comp size={42} {...(sticker.props as any)} />
+                              </div>
+                            </div>
                           </div>
                         );
                       })
                     : template.stickers.map((s, i) => (
-                        <img
-                          key={i}
-                          src={s.src}
-                          alt=""
-                          className={cn('object-contain pointer-events-none', s.pos)}
-                        />
+                        <div key={i} className={cn('pointer-events-none', s.pos)}>
+                          <div
+                            className="w-full h-full p-[3px]"
+                            style={{
+                              clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                              background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.5))',
+                            }}
+                          >
+                            <div
+                              className="w-full h-full flex items-center justify-center bg-background"
+                              style={{
+                                clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                              }}
+                            >
+                              <img src={s.src} alt="" className="w-3/5 h-3/5 object-contain" />
+                            </div>
+                          </div>
+                        </div>
                       ))
                   )}
                   
