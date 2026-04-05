@@ -2,17 +2,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CalendarPage from '@/pages/CalendarPage';
-import { useEntries } from '@/store/useEntries';
 
-// Mock useEntries store
-const mockEntries: any[] = [];
-const mockStore = {
-  entries: mockEntries,
+// Mock store state
+const mockStore: any = {
+  entries: [],
   loading: false,
   loadEntries: vi.fn().mockResolvedValue(undefined),
   deleteEntry: vi.fn().mockResolvedValue(undefined),
   updateEntry: vi.fn().mockResolvedValue(undefined),
-  getState: () => ({ entries: mockEntries }),
 };
 
 vi.mock('@/store/useEntries', () => {
@@ -21,12 +18,12 @@ vi.mock('@/store/useEntries', () => {
   return { useEntries: fn };
 });
 
-// Mock IDB module to prevent real DB calls
 vi.mock('@/lib/idb', () => ({
   getAllEntries: vi.fn().mockResolvedValue([]),
   saveEntry: vi.fn().mockResolvedValue(undefined),
   deleteEntryFromIDB: vi.fn().mockResolvedValue(undefined),
   getEntry: vi.fn().mockResolvedValue(null),
+  getJournalEntry: vi.fn().mockResolvedValue(null),
   getAllDistortions: vi.fn().mockResolvedValue([]),
   saveDistortionMeta: vi.fn().mockResolvedValue(undefined),
   getDistortionsByDateRange: vi.fn().mockResolvedValue([]),
@@ -66,141 +63,71 @@ describe('CalendarPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    mockStore.entries = [];
+    mockStore.loading = false;
   });
 
   it('renders empty state when no entries', () => {
-    (useEntries as any).mockReturnValue({
-      entries: [],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
     renderCalendar();
     expect(screen.getByText('No Entries Yet')).toBeInTheDocument();
   });
 
   it('renders entry text in a card', async () => {
-    (useEntries as any).mockReturnValue({
-      entries: [baseEntry],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    mockStore.entries = [baseEntry];
     renderCalendar();
     await waitFor(() => {
       expect(screen.getByText('Today was a good day')).toBeInTheDocument();
     });
   });
 
-  it('renders text before photos (text appears first in DOM)', async () => {
-    const entryWithPhotos = {
-      ...baseEntry,
-      bannerBlobs: [new Blob(['img'], { type: 'image/png' })],
-    };
-
-    (useEntries as any).mockReturnValue({
-      entries: [entryWithPhotos],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+  it('renders text content inside entry card', async () => {
+    mockStore.entries = [baseEntry];
     renderCalendar();
     await waitFor(() => {
-      // Text should be in the DOM
-      expect(screen.getByText('Today was a good day')).toBeInTheDocument();
+      const textEl = screen.getByText('Today was a good day');
+      // Text should be inside a card structure
+      expect(textEl.closest('[class*="rounded"]')).toBeInTheDocument();
     });
   });
 
   it('shows welcome notice on first visit', () => {
-    (useEntries as any).mockReturnValue({
-      entries: [baseEntry],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    mockStore.entries = [baseEntry];
     renderCalendar();
     expect(screen.getByText(/Deleting or reinstalling the app/)).toBeInTheDocument();
   });
 
-  it('hides welcome notice after dismissal', async () => {
+  it('hides welcome notice after dismissal', () => {
     localStorage.setItem('calendar_welcome_dismissed', 'true');
-
-    (useEntries as any).mockReturnValue({
-      entries: [baseEntry],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    mockStore.entries = [baseEntry];
     renderCalendar();
     expect(screen.queryByText(/Deleting or reinstalling the app/)).not.toBeInTheDocument();
   });
 
   it('renders template header when entry has templateId', async () => {
-    const entryWithTemplate = {
+    mockStore.entries = [{
       ...baseEntry,
       templateId: 'gratitude',
       headerColor: 'hsl(160 50% 94%)',
       headerPattern: 'dots',
-    };
-
-    (useEntries as any).mockReturnValue({
-      entries: [entryWithTemplate],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    }];
     renderCalendar();
     await waitFor(() => {
-      // The gratitude template title should appear
       expect(screen.getByText('Gratitude')).toBeInTheDocument();
     });
   });
 
-  it('navigates to editor when entry is clicked', async () => {
-    (useEntries as any).mockReturnValue({
-      entries: [baseEntry],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+  it('entry card is clickable', async () => {
+    mockStore.entries = [baseEntry];
     renderCalendar();
     await waitFor(() => {
       expect(screen.getByText('Today was a good day')).toBeInTheDocument();
     });
-
-    // The card should have an onClick that navigates
     const card = screen.getByText('Today was a good day').closest('[class*="cursor-pointer"]');
     expect(card).toBeInTheDocument();
   });
 
   it('truncates long entries with Show more button', async () => {
-    const longEntry = {
-      ...baseEntry,
-      text: 'A'.repeat(350),
-    };
-
-    (useEntries as any).mockReturnValue({
-      entries: [longEntry],
-      loading: false,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    mockStore.entries = [{ ...baseEntry, text: 'A'.repeat(350) }];
     renderCalendar();
     await waitFor(() => {
       expect(screen.getByText('Show more')).toBeInTheDocument();
@@ -208,14 +135,7 @@ describe('CalendarPage', () => {
   });
 
   it('shows loading state', () => {
-    (useEntries as any).mockReturnValue({
-      entries: [],
-      loading: true,
-      loadEntries: vi.fn(),
-      deleteEntry: vi.fn(),
-      updateEntry: vi.fn(),
-    });
-
+    mockStore.loading = true;
     renderCalendar();
     expect(screen.getByText('Loading entries...')).toBeInTheDocument();
   });
