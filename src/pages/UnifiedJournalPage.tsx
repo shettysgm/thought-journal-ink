@@ -1001,7 +1001,7 @@ export default function UnifiedJournalPage() {
                     <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
                   </div>
                   
-                  <div className="relative z-10 flex flex-col items-start gap-1.5 px-6 pb-4">
+                  <div className="relative z-10 flex flex-col items-start gap-1.5 pl-16 pr-5 pb-4">
                     {template.prompts.map((prompt, i) => (
                       <span
                         key={i}
