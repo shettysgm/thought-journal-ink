@@ -967,25 +967,18 @@ export default function UnifiedJournalPage() {
                   className="relative overflow-hidden rounded-t-2xl"
                   style={{ backgroundColor: 'hsl(0 0% 100%)' }}
                 >
-                  {/* Kawaii illustrations - decorative corners */}
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -top-2 -left-4 w-24 h-24 object-contain opacity-80 pointer-events-none"
-                  />
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -top-2 -right-4 w-20 h-20 object-contain opacity-60 pointer-events-none scale-x-[-1]"
-                  />
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -bottom-3 right-8 w-16 h-16 object-contain opacity-40 pointer-events-none rotate-12"
-                  />
+                  {/* Kawaii sticker decorations */}
+                  {template.stickers.map((s, i) => (
+                    <img
+                      key={i}
+                      src={s.src}
+                      alt=""
+                      className={cn("object-contain pointer-events-none", s.pos)}
+                    />
+                  ))}
                   
                   {/* Center content */}
-                  <div className="relative z-10 text-center px-14 pt-8 pb-3">
+                  <div className="relative z-10 text-center px-16 pt-8 pb-3">
                     <h2 className="text-base font-bold text-foreground tracking-tight">
                       {template.emoji} {template.title}
                     </h2>
