@@ -984,11 +984,11 @@ export default function UnifiedJournalPage() {
               <div className="relative">
               <Textarea
                 ref={textareaRef}
-                placeholder={isRecording ? "Listening... (you can also type)" : "Type or tap Record to speak"}
+                placeholder={isRecording ? "Listening... (you can also type)" : (template?.placeholder || "Type or tap Record to speak")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className={cn(
-                  "min-h-[calc(100vh-200px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-8 pb-32 transition-all duration-300"
+                  "min-h-[calc(100vh-350px)] resize-none text-base leading-relaxed relative z-10 pointer-events-auto select-text cursor-text bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-6 pb-32 transition-all duration-300"
                 )}
                 style={{ lineHeight: '1.75' }}
               />
