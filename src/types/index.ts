@@ -12,6 +12,7 @@ export type JournalEntry = {
   bannerSticker?: string;      // sticker ID for header banner decoration
   cardBackground?: string;     // pattern ID for card background texture
   cardBorder?: string;         // border style ID for card border
+  templateId?: string;         // template used to create this entry
   blobPaths?: { drawing?: string; audio?: string }; // stored in IndexedDB as Blobs
   reframes?: Array<{           // AI-generated reframes
     span: string;

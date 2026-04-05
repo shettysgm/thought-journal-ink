@@ -522,6 +522,7 @@ export default function UnifiedJournalPage() {
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
+            ...(templateId ? { templateId } : {}),
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           setEntryId(newId);
@@ -706,6 +707,7 @@ export default function UnifiedJournalPage() {
             tags: ['unified'],
             hasAudio: audioSegments.length > 0,
             hasDrawing: false,
+            ...(templateId ? { templateId } : {}),
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
