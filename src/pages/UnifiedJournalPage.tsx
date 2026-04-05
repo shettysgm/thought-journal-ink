@@ -976,18 +976,13 @@ export default function UnifiedJournalPage() {
 
                   {/* Kawaii sticker decorations - use custom or default */}
                   {(customHeaderStickers.length > 0
-                    ? customHeaderStickers.map((id, i) => {
+                    ? customHeaderStickers.slice(0, 1).map((id) => {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
-                        const positions = [
-                          'absolute top-2 -left-2 w-24 h-24',
-                          'absolute top-2 right-6 w-20 h-20',
-                          'absolute top-3 left-1/2 -translate-x-1/2 w-16 h-16',
-                        ];
                         const Comp = sticker.component;
                         return (
-                          <div key={id} className={cn('pointer-events-none', positions[i])}>
-                            <Comp size={i === 0 ? 112 : i === 1 ? 96 : 56} {...(sticker.props as any)} />
+                          <div key={id} className="absolute top-2 -left-2 w-24 h-24 pointer-events-none">
+                            <Comp size={96} {...(sticker.props as any)} />
                           </div>
                         );
                       })
