@@ -447,6 +447,7 @@ export default function UnifiedJournalPage() {
 
   // Track whether we're currently saving to prevent duplicate AI calls
   const isSavingRef = useRef(false);
+  const [saveCycle, setSaveCycle] = useState(0);
 
   // Auto-save effect
   useEffect(() => {
@@ -515,6 +516,7 @@ export default function UnifiedJournalPage() {
         });
       } finally {
         isSavingRef.current = false;
+        setSaveCycle(prev => prev + 1);
       }
     }, 1500);
 
@@ -522,7 +524,7 @@ export default function UnifiedJournalPage() {
   }, [text, entryId, lastSavedText, createEntry, updateEntry, toast, audioSegments.length, isNewSession, appendToEntry, saveBannerData]);
 
   // Debounced AI detection - respects user's AI settings
-  // Skips while saving and avoids running on brand-new entries (createEntry does its own detection)
+  // Retries after save completion so detection isn't lost during autosave
   const hasRunInitialDetection = useRef(false);
   useEffect(() => {
     // Skip AI analysis if disabled in settings
@@ -531,7 +533,8 @@ export default function UnifiedJournalPage() {
       return;
     }
 
-    if (!text.trim() || text.trim().length < 20) {
+    const trimmedText = text.trim();
+    if (!trimmedText || trimmedText.length < 20) {
       setLiveDetections([]);
       return;
     }
@@ -547,24 +550,25 @@ export default function UnifiedJournalPage() {
 
     let cancelled = false;
     const timeoutId = setTimeout(async () => {
-      // Skip if currently saving
-      if (isSavingRef.current) return;
+      if (isSavingRef.current) {
+        console.log('[AI Detection] Delayed because auto-save is in progress');
+        return;
+      }
 
       setIsDetecting(true);
       try {
-        const response = await detectWithAI(text.trim());
+        const response = await detectWithAI(trimmedText);
         if (cancelled) return;
 
         if (response.distortions && response.distortions.length > 0) {
           const detectionsList: Detection[] = response.distortions.map((d, idx) => ({
             span: d.span,
-            type: d.type || "Cognitive Distortion",
-            reframe: response.reframes[idx]?.suggestion || "",
+            type: d.type || 'Cognitive Distortion',
+            reframe: response.reframes[idx]?.suggestion || '',
             confidence: d.confidence
           }));
           setLiveDetections(detectionsList);
 
-          // Persist reframes — but DON'T await to avoid blocking UI
           const reframes = detectionsList.map(d => ({
             span: d.span,
             suggestion: d.reframe,
@@ -577,18 +581,17 @@ export default function UnifiedJournalPage() {
       } catch (error) {
         if (!cancelled) {
           console.warn('[AI Detection] Error (non-blocking):', error);
-          // Don't clear existing detections on error — keep stale ones visible
         }
       } finally {
         if (!cancelled) setIsDetecting(false);
       }
-    }, 5000); // 5s debounce to reduce API pressure
+    }, 5000);
 
     return () => {
       cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [text, entryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions]);
+  }, [text, entryId, updateEntry, aiAnalysisEnabled, autoDetectDistortions, saveCycle]);
 
   const toggleRecording = async () => {
     if (!isSupported) return;
