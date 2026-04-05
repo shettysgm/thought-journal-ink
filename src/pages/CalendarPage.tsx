@@ -411,21 +411,6 @@ export default function CalendarPage() {
                     )}
 
                     <div className="flex items-center gap-1 mt-2 clear-both">
-                      <CardBackgroundPicker
-                        entryId={entry.id}
-                        currentPattern={entry.cardBackground}
-                        currentBorder={entry.cardBorder}
-                        open={bgPickerOpen === entry.id}
-                        onOpenChange={open => setBgPickerOpen(open ? entry.id : null)}
-                        onSelectPattern={async (id, patternId) => {
-                          await updateEntry(id, { cardBackground: patternId });
-                          toast({ title: patternId === 'none' ? "Background Removed" : "Background Applied" });
-                        }}
-                        onSelectBorder={async (id, borderId) => {
-                          await updateEntry(id, { cardBorder: borderId });
-                          toast({ title: borderId === 'none' ? "Border Removed" : "Border Applied" });
-                        }}
-                      />
                       <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleDelete(entry.id); }} className="text-muted-foreground hover:text-destructive ml-auto">
                         <Trash2 className="w-4 h-4" />
                       </Button>
