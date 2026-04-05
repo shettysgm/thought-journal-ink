@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 
 const REVIEW_STORAGE_KEY = 'app_review_state';
-const MIN_ENTRIES_BEFORE_PROMPT = 5;
+const MIN_ENTRIES_BEFORE_PROMPT = 3;
 const MIN_DAYS_BETWEEN_PROMPTS = 60;
 
 interface ReviewState {
