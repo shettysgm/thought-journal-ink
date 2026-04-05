@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, ChevronRight } from 'lucide-react';
+import templateFreeWrite from '@/assets/template-free-write.png';
+import templateVoice from '@/assets/template-voice.png';
+import templateGratitude from '@/assets/template-gratitude.png';
+import templateMood from '@/assets/template-mood.png';
+import templateCbt from '@/assets/template-cbt.png';
+import templateWinddown from '@/assets/template-winddown.png';
 
 const TEMPLATES = [
   {
@@ -8,11 +14,10 @@ const TEMPLATES = [
     subtitle: 'No rules, just you',
     description: 'Write whatever comes to mind — no prompts, no pressure.',
     path: '/unified',
-    emoji: '✍️',
+    image: templateFreeWrite,
     gradient: 'from-teal-400 to-cyan-500',
     bgAccent: 'bg-teal-50 dark:bg-teal-950/30',
     borderAccent: 'border-teal-200 dark:border-teal-800/40',
-    iconBg: 'bg-teal-500/15',
   },
   {
     id: 'voice',
@@ -20,11 +25,10 @@ const TEMPLATES = [
     subtitle: 'Speak your mind',
     description: 'Talk it out — we\'ll transcribe and help you reflect.',
     path: '/unified',
-    emoji: '🎙️',
+    image: templateVoice,
     gradient: 'from-violet-400 to-purple-500',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
     borderAccent: 'border-violet-200 dark:border-violet-800/40',
-    iconBg: 'bg-violet-500/15',
   },
   {
     id: 'gratitude',
@@ -32,11 +36,10 @@ const TEMPLATES = [
     subtitle: '3 good things today',
     description: 'Capture moments of joy — big or small — to shift your focus.',
     path: '/unified',
-    emoji: '🌸',
+    image: templateGratitude,
     gradient: 'from-pink-400 to-rose-500',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
     borderAccent: 'border-pink-200 dark:border-pink-800/40',
-    iconBg: 'bg-pink-500/15',
   },
   {
     id: 'mood-checkin',
@@ -44,35 +47,32 @@ const TEMPLATES = [
     subtitle: 'How are you really?',
     description: 'Quick emotional pulse — rate your mood and add a note.',
     path: '/unified',
-    emoji: '🌈',
+    image: templateMood,
     gradient: 'from-amber-400 to-orange-500',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
     borderAccent: 'border-amber-200 dark:border-amber-800/40',
-    iconBg: 'bg-amber-500/15',
   },
   {
     id: 'thought-record',
     title: 'CBT Thought Record',
     subtitle: 'Challenge your thoughts',
-    description: 'Situation → Thought → Emotion → Reframe. Structured reflection.',
+    description: 'Situation → Thought → Emotion → Reframe.',
     path: '/unified',
-    emoji: '🧠',
+    image: templateCbt,
     gradient: 'from-blue-400 to-indigo-500',
     bgAccent: 'bg-blue-50 dark:bg-blue-950/30',
     borderAccent: 'border-blue-200 dark:border-blue-800/40',
-    iconBg: 'bg-blue-500/15',
   },
   {
     id: 'wind-down',
     title: 'Wind Down',
     subtitle: 'End the day gently',
-    description: 'Reflect on your day, release tension, and set tomorrow\'s intention.',
+    description: 'Reflect on your day, release tension, set tomorrow\'s intention.',
     path: '/unified',
-    emoji: '🌙',
+    image: templateWinddown,
     gradient: 'from-indigo-400 to-slate-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
     borderAccent: 'border-indigo-200 dark:border-indigo-800/40',
-    iconBg: 'bg-indigo-500/15',
   },
 ];
 
@@ -116,10 +116,17 @@ export default function JournalPage() {
                 {/* Gradient accent bar */}
                 <div className={`h-1.5 w-full bg-gradient-to-r ${template.gradient}`} />
 
-                <div className="p-4 flex flex-col gap-2.5">
-                  {/* Emoji icon */}
-                  <div className={`w-11 h-11 rounded-xl ${template.iconBg} flex items-center justify-center text-2xl`}>
-                    {template.emoji}
+                <div className="p-4 flex flex-col gap-2">
+                  {/* Illustrated icon */}
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                    <img
+                      src={template.image}
+                      alt={template.title}
+                      loading="lazy"
+                      width={512}
+                      height={512}
+                      className="w-14 h-14 object-contain"
+                    />
                   </div>
 
                   {/* Text */}
