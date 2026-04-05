@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Palette, Sparkles } from 'lucide-react';
+import { Palette, Sparkles, Grid3X3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ALL_STICKERS, type StickerDef } from './KawaiiStickers';
+import { ALL_STICKERS } from './KawaiiStickers';
 import {
   Popover,
   PopoverContent,
@@ -19,20 +19,94 @@ const HEADER_COLORS = [
   { id: 'lilac', label: 'Lilac', value: 'hsl(290 40% 93%)' },
 ];
 
+export interface GridPattern {
+  id: string;
+  label: string;
+  style: React.CSSProperties;
+}
+
+export const GRID_PATTERNS: GridPattern[] = [
+  { id: 'none', label: 'None', style: {} },
+  {
+    id: 'grid-sm',
+    label: 'Small Grid',
+    style: {
+      backgroundImage:
+        'linear-gradient(to right, hsl(220 14% 86% / 0.4) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 14% 86% / 0.4) 1px, transparent 1px)',
+      backgroundSize: '14px 14px',
+    },
+  },
+  {
+    id: 'grid-md',
+    label: 'Medium Grid',
+    style: {
+      backgroundImage:
+        'linear-gradient(to right, hsl(220 14% 86% / 0.5) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 14% 86% / 0.5) 1px, transparent 1px)',
+      backgroundSize: '22px 22px',
+    },
+  },
+  {
+    id: 'dots',
+    label: 'Dots',
+    style: {
+      backgroundImage: 'radial-gradient(circle, hsl(220 14% 76% / 0.45) 1px, transparent 1px)',
+      backgroundSize: '16px 16px',
+    },
+  },
+  {
+    id: 'dots-lg',
+    label: 'Large Dots',
+    style: {
+      backgroundImage: 'radial-gradient(circle, hsl(220 14% 76% / 0.4) 1.5px, transparent 1.5px)',
+      backgroundSize: '24px 24px',
+    },
+  },
+  {
+    id: 'lines-h',
+    label: 'Lined',
+    style: {
+      backgroundImage: 'linear-gradient(to bottom, hsl(220 14% 86% / 0.45) 1px, transparent 1px)',
+      backgroundSize: '100% 18px',
+    },
+  },
+  {
+    id: 'diagonal',
+    label: 'Diagonal',
+    style: {
+      backgroundImage:
+        'repeating-linear-gradient(45deg, hsl(220 14% 86% / 0.35) 0, hsl(220 14% 86% / 0.35) 1px, transparent 1px, transparent 12px)',
+      backgroundSize: '17px 17px',
+    },
+  },
+  {
+    id: 'crosshatch',
+    label: 'Crosshatch',
+    style: {
+      backgroundImage:
+        'repeating-linear-gradient(45deg, hsl(220 14% 86% / 0.3) 0, hsl(220 14% 86% / 0.3) 1px, transparent 1px, transparent 14px), repeating-linear-gradient(-45deg, hsl(220 14% 86% / 0.3) 0, hsl(220 14% 86% / 0.3) 1px, transparent 1px, transparent 14px)',
+      backgroundSize: '20px 20px',
+    },
+  },
+];
+
 interface HeaderCustomizerProps {
   headerColor: string;
-  headerStickers: string[]; // sticker IDs (max 3)
+  headerStickers: string[];
+  headerPattern: string;
   onColorChange: (color: string) => void;
   onStickersChange: (stickerIds: string[]) => void;
+  onPatternChange: (patternId: string) => void;
 }
 
 export default function HeaderCustomizer({
   headerColor,
   headerStickers,
+  headerPattern,
   onColorChange,
   onStickersChange,
+  onPatternChange,
 }: HeaderCustomizerProps) {
-  const [tab, setTab] = useState<'color' | 'stickers'>('color');
+  const [tab, setTab] = useState<'color' | 'pattern' | 'stickers'>('color');
 
   const toggleSticker = (id: string) => {
     if (headerStickers.includes(id)) {
@@ -40,7 +114,6 @@ export default function HeaderCustomizer({
     } else if (headerStickers.length < 3) {
       onStickersChange([...headerStickers, id]);
     } else {
-      // Replace the last one
       onStickersChange([...headerStickers.slice(0, 2), id]);
     }
   };
@@ -62,28 +135,23 @@ export default function HeaderCustomizer({
 
         {/* Tabs */}
         <div className="flex rounded-lg bg-muted/50 p-0.5 mb-3">
-          <button
-            onClick={() => setTab('color')}
-            className={cn(
-              'flex-1 text-xs py-1.5 rounded-md transition-colors font-medium flex items-center justify-center gap-1',
-              tab === 'color'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Palette className="w-3 h-3" /> Color
-          </button>
-          <button
-            onClick={() => setTab('stickers')}
-            className={cn(
-              'flex-1 text-xs py-1.5 rounded-md transition-colors font-medium flex items-center justify-center gap-1',
-              tab === 'stickers'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Sparkles className="w-3 h-3" /> Stickers
-          </button>
+          {(['color', 'pattern', 'stickers'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={cn(
+                'flex-1 text-[11px] py-1.5 rounded-md transition-colors font-medium flex items-center justify-center gap-1',
+                tab === t
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {t === 'color' && <Palette className="w-3 h-3" />}
+              {t === 'pattern' && <Grid3X3 className="w-3 h-3" />}
+              {t === 'stickers' && <Sparkles className="w-3 h-3" />}
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
 
         {tab === 'color' && (
@@ -100,6 +168,25 @@ export default function HeaderCustomizer({
                 )}
                 style={{ backgroundColor: c.value }}
                 title={c.label}
+              />
+            ))}
+          </div>
+        )}
+
+        {tab === 'pattern' && (
+          <div className="grid grid-cols-4 gap-2">
+            {GRID_PATTERNS.map(p => (
+              <button
+                key={p.id}
+                onClick={() => onPatternChange(p.id)}
+                className={cn(
+                  'w-full aspect-square rounded-lg border-2 transition-all hover:scale-105',
+                  headerPattern === p.id
+                    ? 'border-primary ring-1 ring-primary/30'
+                    : 'border-border/50',
+                )}
+                style={{ backgroundColor: 'hsl(0 0% 100%)', ...p.style }}
+                title={p.label}
               />
             ))}
           </div>

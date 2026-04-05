@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
 import JournalSidePanel from '@/components/JournalSidePanel';
-import HeaderCustomizer from '@/components/HeaderCustomizer';
+import HeaderCustomizer, { GRID_PATTERNS } from '@/components/HeaderCustomizer';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -215,6 +215,7 @@ export default function UnifiedJournalPage() {
   // Header customization state
   const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
   const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
+  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>('none');
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
@@ -964,14 +965,19 @@ export default function UnifiedJournalPage() {
               {template && (
                 <div
                   className="relative overflow-hidden rounded-t-2xl"
-                  style={{ backgroundColor: customHeaderColor }}
+                  style={{
+                    backgroundColor: customHeaderColor,
+                    ...(GRID_PATTERNS.find(p => p.id === customHeaderPattern)?.style || {}),
+                  }}
                 >
                   {/* Customize button */}
                   <HeaderCustomizer
                     headerColor={customHeaderColor}
                     headerStickers={customHeaderStickers}
+                    headerPattern={customHeaderPattern}
                     onColorChange={setCustomHeaderColor}
                     onStickersChange={setCustomHeaderStickers}
+                    onPatternChange={setCustomHeaderPattern}
                   />
 
                   {/* Kawaii sticker decorations - use custom or default */}
