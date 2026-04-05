@@ -30,8 +30,8 @@ export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   try {
     console.debug("[AI Detect] POST", url, { textLen: text.length, hasContext: !!context });
     
-    // Minimum confidence threshold - hide low-confidence detections to reduce hallucination visibility
-    const CONFIDENCE_THRESHOLD = 0.75;
+    // Confidence threshold disabled to debug response parsing
+    const CONFIDENCE_THRESHOLD = 0;
     
     // Request structured JSON response with confidence scores
     const enhancedPrompt = `Analyze this journal entry for cognitive distortions and return ONLY a JSON array. No explanations or extra text.
