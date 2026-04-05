@@ -958,7 +958,7 @@ export default function UnifiedJournalPage() {
               {/* Kawaii Template Header */}
               {template && (
                 <div
-                  className="relative overflow-hidden rounded-t-2xl"
+                  className="relative rounded-t-2xl"
                   style={{
                     backgroundColor: customHeaderColor,
                     ...(GRID_PATTERNS.find(p => p.id === customHeaderPattern)?.style || {}),
