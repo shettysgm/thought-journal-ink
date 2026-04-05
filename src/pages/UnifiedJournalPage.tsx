@@ -63,7 +63,7 @@ const TEMPLATE_CONFIG: Record<string, {
   subtitle: string;
   emoji: string;
   image: string;
-  headerBg: string;
+  stickers: { src: string; pos: string }[];
   gradient: string;
   bgAccent: string;
   placeholder: string;
@@ -74,7 +74,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How was your day, really?',
     emoji: '✨',
     image: templateFreeWrite,
-    headerBg: headerDailyReflection,
+    stickers: [
+      { src: kawaiiCat, pos: 'absolute -top-1 -left-3 w-20 h-20' },
+      { src: kawaiiBunny, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 right-2 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
     placeholder: 'What stood out to you today?',
@@ -85,7 +89,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Let it all out 💭',
     emoji: '🧠',
     image: templateVoice,
-    headerBg: headerAnxietyDump,
+    stickers: [
+      { src: kawaiiPuppy, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiBear, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiPenguin, pos: 'absolute bottom-8 left-2 w-12 h-12 -rotate-6' },
+    ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
     placeholder: 'What\'s racing through your mind right now?',
@@ -96,7 +104,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: '3 good things today 🌸',
     emoji: '💗',
     image: templateGratitude,
-    headerBg: headerGratitude,
+    stickers: [
+      { src: kawaiiBunny, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiSakura, pos: 'absolute -top-1 -right-2 w-14 h-14' },
+      { src: kawaiiSakura, pos: 'absolute bottom-8 right-6 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
     placeholder: 'I\'m grateful for...',
@@ -107,7 +119,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How are you really? 🌈',
     emoji: '😊',
     image: templateMood,
-    headerBg: headerMoodCheckin,
+    stickers: [
+      { src: kawaiiFox, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiRainbow, pos: 'absolute -top-1 -right-2 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 left-3 w-10 h-10 rotate-6' },
+    ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
     placeholder: 'How are you feeling right now?',
@@ -118,7 +134,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Challenge your thoughts 💡',
     emoji: '🔄',
     image: templateCbt,
-    headerBg: headerThoughtReframe,
+    stickers: [
+      { src: kawaiiOwl, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiPenguin, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 right-3 w-10 h-10 -rotate-12' },
+    ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
     placeholder: 'What situation is on your mind?',
@@ -129,7 +149,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'For the quiet hours 🌙',
     emoji: '🌙',
     image: templateWinddown,
-    headerBg: headerLateNight,
+    stickers: [
+      { src: kawaiiPanda, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiMoon, pos: 'absolute -top-1 -right-2 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 left-4 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
     placeholder: 'What\'s keeping you up tonight?',
