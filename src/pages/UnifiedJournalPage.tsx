@@ -1001,13 +1001,14 @@ export default function UnifiedJournalPage() {
                     <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{template.subtitle}</p>
                   </div>
                   
-                  <div className="relative z-10 flex flex-wrap justify-center gap-1.5 px-5 pb-4">
+                  <div className="relative z-10 flex flex-col items-start gap-1.5 px-6 pb-4">
                     {template.prompts.map((prompt, i) => (
                       <span
                         key={i}
-                        className="text-[10px] px-2.5 py-1 rounded-full border border-border/50 font-medium text-foreground/70"
-                        style={{ backgroundColor: 'hsl(0 0% 100% / 0.96)' }}
+                        className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg border border-border/40 font-medium text-foreground/70"
+                        style={{ backgroundColor: 'hsl(0 0% 100% / 0.9)' }}
                       >
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
                         {prompt}
                       </span>
                     ))}
