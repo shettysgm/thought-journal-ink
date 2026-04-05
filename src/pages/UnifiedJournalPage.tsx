@@ -73,7 +73,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'daily-reflection': {
     title: 'Daily Reflection',
     subtitle: 'How was your day, really?',
-    emoji: '✨',
+    emoji: '',
     image: templateFreeWrite,
     stickers: [
       { src: kawaiiCat, pos: 'absolute top-2 -left-2 w-24 h-24' },
@@ -87,7 +87,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'anxiety-dump': {
     title: 'Anxiety Dump',
     subtitle: 'Let it all out 💭',
-    emoji: '🧠',
+    emoji: '',
     image: templateVoice,
     stickers: [
       { src: kawaiiPuppy, pos: 'absolute top-2 -left-2 w-24 h-24' },
@@ -101,7 +101,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'gratitude': {
     title: 'Gratitude',
     subtitle: '3 good things today 🌸',
-    emoji: '💗',
+    emoji: '',
     image: templateGratitude,
     stickers: [
       { src: kawaiiBunny, pos: 'absolute top-2 -left-2 w-24 h-24' },
@@ -115,7 +115,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'mood-checkin': {
     title: 'Mood Check-in',
     subtitle: 'How are you really? 🌈',
-    emoji: '😊',
+    emoji: '',
     image: templateMood,
     stickers: [
       { src: kawaiiFox, pos: 'absolute top-2 -left-2 w-24 h-24' },
@@ -129,7 +129,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'thought-reframe': {
     title: 'Thought Reframe',
     subtitle: 'Challenge your thoughts 💡',
-    emoji: '🔄',
+    emoji: '',
     image: templateCbt,
     stickers: [
       { src: kawaiiOwl, pos: 'absolute top-2 -left-2 w-24 h-24' },
@@ -143,7 +143,7 @@ const TEMPLATE_CONFIG: Record<string, {
   'late-night': {
     title: 'Late Night Thoughts',
     subtitle: 'For the quiet hours 🌙',
-    emoji: '🌙',
+    emoji: '',
     image: templateWinddown,
     stickers: [
       { src: kawaiiPanda, pos: 'absolute top-2 -left-2 w-24 h-24' },
