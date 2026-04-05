@@ -86,28 +86,19 @@ export default function JournalPage() {
       }}
     >
       <div className="max-w-lg mx-auto space-y-6">
-        {/* Playful Header */}
-        <header className="relative rounded-2xl overflow-hidden border border-border/50">
-          <img
-            src={journalHeaderBg}
-            alt=""
-            className="w-full h-32 object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-between px-5">
-            <div>
-              <h1 className="text-2xl font-black text-foreground tracking-tight" style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', cursive" }}>
-                My Journal ✨
-              </h1>
-              <p className="text-xs font-medium text-muted-foreground mt-0.5">Pick a template & start writing</p>
-            </div>
-            <Link
-              to="/calendar"
-              className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border/60 hover:bg-background transition-colors"
-            >
-              <CalendarDays className="w-3.5 h-3.5" />
-              Calendar
-            </Link>
+        {/* Header */}
+        <header className="flex items-center justify-between mt-1">
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">Journal</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Pick a template to start</p>
           </div>
+          <Link
+            to="/calendar"
+            className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            <CalendarDays className="w-4 h-4" />
+            Calendar
+          </Link>
         </header>
 
         {/* Template Grid */}
