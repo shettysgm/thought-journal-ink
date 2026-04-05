@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 // Lazy load non-critical routes
 const UnifiedJournalPage = lazy(() => import("./pages/UnifiedJournalPage"));
 const JournalPage = lazy(() => import("./pages/JournalPage"));
+const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const QuizPage = lazy(() => import("./pages/QuizPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
