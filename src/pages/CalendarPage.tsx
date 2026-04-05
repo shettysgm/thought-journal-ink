@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft } from 'lucide-react';
+import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft, Info, X } from 'lucide-react';
 import { TEMPLATE_CONFIG } from '@/config/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
