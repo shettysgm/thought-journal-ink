@@ -930,9 +930,8 @@ export default function UnifiedJournalPage() {
             const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
             if (!valid.length) return;
             const compressed = await compressImages(valid);
-            setBannerImageBlobs(prev => [...prev, ...compressed]);
-            setBannerSticker(null);
-            if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+            const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+            persistBannerState(nextBlobs, null);
             e.target.value = '';
           }}
         />
@@ -964,10 +963,9 @@ export default function UnifiedJournalPage() {
                   const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
                   if (!valid.length) return;
                   const compressed = await compressImages(valid);
-                  setBannerImageBlobs(prev => [...prev, ...compressed]);
-                  setBannerSticker(null);
+                  const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+                  persistBannerState(nextBlobs, null);
                   setMobileStickerDrawerOpen(false);
-                  if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                   e.target.value = '';
                 }}
               />
@@ -980,10 +978,9 @@ export default function UnifiedJournalPage() {
                     <button
                       key={sticker.id}
                       onClick={() => {
-                        setBannerSticker(bannerSticker === sticker.id ? null : sticker.id);
-                        setBannerImageBlobs([]);
+                        const nextSticker = bannerStickerRef.current === sticker.id ? null : sticker.id;
+                        persistBannerState([], nextSticker);
                         setMobileStickerDrawerOpen(false);
-                        if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                       }}
                       className={cn(
                         'flex items-center justify-center p-2 rounded-lg hover:bg-accent/50 transition-colors aspect-square',
@@ -1155,9 +1152,7 @@ export default function UnifiedJournalPage() {
                   </div>
                   <button
                     onClick={() => {
-                      setBannerImageBlobs([]);
-                      setBannerSticker(null);
-                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                      persistBannerState([], null);
                     }}
                     className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground text-xs"
                   >
@@ -1174,18 +1169,10 @@ export default function UnifiedJournalPage() {
                   imageBlobs={bannerImageBlobs}
                   selectedSticker={bannerSticker}
                   onImagesChange={(blobs) => {
-                    setBannerImageBlobs(blobs);
-                    // Immediately persist if entry exists
-                    if (entryId) {
-                      // Use a microtask so ref is updated first
-                      setTimeout(() => saveBannerData(entryId), 0);
-                    }
+                    persistBannerState(blobs, bannerStickerRef.current);
                   }}
                   onStickerChange={(id) => {
-                    setBannerSticker(id);
-                    if (entryId) {
-                      setTimeout(() => saveBannerData(entryId), 0);
-                    }
+                    persistBannerState([], id);
                   }}
                 />
               </div>
