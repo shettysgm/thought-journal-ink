@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type MouseEvent } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft } from 'lucide-react';
