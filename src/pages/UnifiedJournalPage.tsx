@@ -14,13 +14,6 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-// Neutral icons for header decorations
-import iconSurfboard from '@/assets/stickers/icon-surfboard.png';
-import iconGuitar from '@/assets/stickers/icon-guitar.png';
-import iconGamepad from '@/assets/stickers/icon-gamepad.png';
-import iconBasketball from '@/assets/stickers/icon-basketball.png';
-import iconHeadphones from '@/assets/stickers/icon-headphones.png';
-import iconBike from '@/assets/stickers/icon-bike.png';
 import {
   AlertDialog,
   AlertDialogCancel,
