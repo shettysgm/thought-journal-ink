@@ -8,7 +8,7 @@ import AIConsentDialog from "@/components/AIConsentDialog";
 import LockScreen from "@/components/LockScreen";
 import { useSettings } from "@/store/useSettings";
 import { useEffect } from "react";
-import { scheduleStreakReminder } from "@/lib/notifications";
+import { scheduleStreakReminder, enableForegroundNotifications } from "@/lib/notifications";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +17,7 @@ const App = () => {
 
   useEffect(() => {
     loadSettings();
+    enableForegroundNotifications();
   }, [loadSettings]);
 
   // Schedule daily reminder on every app launch (native only)
