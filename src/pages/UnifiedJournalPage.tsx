@@ -14,13 +14,6 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-// Neutral icons for header decorations
-import iconSurfboard from '@/assets/stickers/icon-surfboard.png';
-import iconGuitar from '@/assets/stickers/icon-guitar.png';
-import iconGamepad from '@/assets/stickers/icon-gamepad.png';
-import iconBasketball from '@/assets/stickers/icon-basketball.png';
-import iconHeadphones from '@/assets/stickers/icon-headphones.png';
-import iconBike from '@/assets/stickers/icon-bike.png';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -69,9 +62,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How was your day, really?',
     emoji: '',
     image: templateFreeWrite,
-    stickers: [
-      { src: iconGuitar, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
     placeholder: 'What stood out to you today?',
@@ -82,9 +73,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Let it all out',
     emoji: '',
     image: templateVoice,
-    stickers: [
-      { src: iconBasketball, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
     placeholder: 'What\'s racing through your mind right now?',
@@ -95,9 +84,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: '3 good things today',
     emoji: '',
     image: templateGratitude,
-    stickers: [
-      { src: iconSurfboard, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
     placeholder: 'I\'m grateful for...',
@@ -108,9 +95,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How are you really?',
     emoji: '',
     image: templateMood,
-    stickers: [
-      { src: iconHeadphones, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
     placeholder: 'How are you feeling right now?',
@@ -121,9 +106,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Challenge your thoughts',
     emoji: '',
     image: templateCbt,
-    stickers: [
-      { src: iconBike, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
     placeholder: 'What situation is on your mind?',
@@ -134,9 +117,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'For the quiet hours',
     emoji: '',
     image: templateWinddown,
-    stickers: [
-      { src: iconGamepad, pos: 'absolute top-2 -left-2 w-24 h-24' },
-    ],
+    stickers: [],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
     placeholder: 'What\'s keeping you up tonight?',
@@ -203,7 +184,7 @@ export default function UnifiedJournalPage() {
   // Header customization state
   const [customHeaderColor, setCustomHeaderColor] = useState<string>('hsl(0 0% 100%)');
   const [customHeaderStickers, setCustomHeaderStickers] = useState<string[]>([]);
-  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>('none');
+  const [customHeaderPattern, setCustomHeaderPattern] = useState<string>('dots');
 
   // Keep refs in sync
   useEffect(() => { bannerImageBlobsRef.current = bannerImageBlobs; }, [bannerImageBlobs]);
