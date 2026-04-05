@@ -470,6 +470,10 @@ export default function UnifiedJournalPage() {
             }
           }
         }
+        // Always persist banner data when we have an entry
+        if (savedId) {
+          await saveBannerData(savedId);
+        }
         setLastSavedText(text);
         setSaveStatus('saved');
       } catch (error) {
