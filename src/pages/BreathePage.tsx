@@ -10,7 +10,7 @@ const PHASES = [
 const TOTAL_DURATION = PHASES.reduce((sum, p) => sum + p.duration, 0);
 
 const ENCOURAGEMENTS = [
-  'You're doing great',
+  "You're doing great",
   'Let your mind settle',
   'Feel the calm wash over you',
   'Each breath brings peace',
