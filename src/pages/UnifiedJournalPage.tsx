@@ -810,6 +810,16 @@ export default function UnifiedJournalPage() {
             <img src={stickerBtnIcon} alt="Stickers" className="h-8 w-8 object-contain" />
           </Button>
 
+          {/* Image upload button */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 flex-shrink-0 touch-manipulation"
+            onClick={() => mobileFileInputRef.current?.click()}
+          >
+            <ImagePlus className="h-5 w-5 text-muted-foreground" />
+          </Button>
+
           <Button
             onTouchEnd={(e) => {
               e.preventDefault();
