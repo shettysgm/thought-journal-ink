@@ -13,12 +13,19 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-import headerDailyReflection from '@/assets/header-daily-reflection.png';
-import headerAnxietyDump from '@/assets/header-anxiety-dump.png';
-import headerGratitude from '@/assets/header-gratitude.png';
-import headerMoodCheckin from '@/assets/header-mood-checkin.png';
-import headerThoughtReframe from '@/assets/header-thought-reframe.png';
-import headerLateNight from '@/assets/header-late-night.png';
+// Kawaii stickers for header decorations
+import kawaiiCat from '@/assets/stickers/kawaii-cat-full.png';
+import kawaiiBunny from '@/assets/stickers/kawaii-bunny-full.png';
+import kawaiiPuppy from '@/assets/stickers/kawaii-puppy-full.png';
+import kawaiiBear from '@/assets/stickers/kawaii-bear-full.png';
+import kawaiiOwl from '@/assets/stickers/kawaii-owl-full.png';
+import kawaiiPanda from '@/assets/stickers/kawaii-panda-full.png';
+import kawaiiPenguin from '@/assets/stickers/kawaii-penguin-full.png';
+import kawaiiFox from '@/assets/stickers/kawaii-fox-full.png';
+import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
+import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
+import kawaiiStar from '@/assets/stickers/kawaii-star.png';
+import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -56,7 +63,7 @@ const TEMPLATE_CONFIG: Record<string, {
   subtitle: string;
   emoji: string;
   image: string;
-  headerBg: string;
+  stickers: { src: string; pos: string }[];
   gradient: string;
   bgAccent: string;
   placeholder: string;
@@ -67,7 +74,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How was your day, really?',
     emoji: '✨',
     image: templateFreeWrite,
-    headerBg: headerDailyReflection,
+    stickers: [
+      { src: kawaiiCat, pos: 'absolute -top-1 -left-3 w-20 h-20' },
+      { src: kawaiiBunny, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 right-2 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
     placeholder: 'What stood out to you today?',
@@ -78,7 +89,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Let it all out 💭',
     emoji: '🧠',
     image: templateVoice,
-    headerBg: headerAnxietyDump,
+    stickers: [
+      { src: kawaiiPuppy, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiBear, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiPenguin, pos: 'absolute bottom-8 left-2 w-12 h-12 -rotate-6' },
+    ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
     placeholder: 'What\'s racing through your mind right now?',
@@ -89,7 +104,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: '3 good things today 🌸',
     emoji: '💗',
     image: templateGratitude,
-    headerBg: headerGratitude,
+    stickers: [
+      { src: kawaiiBunny, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiSakura, pos: 'absolute -top-1 -right-2 w-14 h-14' },
+      { src: kawaiiSakura, pos: 'absolute bottom-8 right-6 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
     placeholder: 'I\'m grateful for...',
@@ -100,7 +119,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How are you really? 🌈',
     emoji: '😊',
     image: templateMood,
-    headerBg: headerMoodCheckin,
+    stickers: [
+      { src: kawaiiFox, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiRainbow, pos: 'absolute -top-1 -right-2 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 left-3 w-10 h-10 rotate-6' },
+    ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
     placeholder: 'How are you feeling right now?',
@@ -111,7 +134,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Challenge your thoughts 💡',
     emoji: '🔄',
     image: templateCbt,
-    headerBg: headerThoughtReframe,
+    stickers: [
+      { src: kawaiiOwl, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiPenguin, pos: 'absolute -top-1 -right-3 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 right-3 w-10 h-10 -rotate-12' },
+    ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
     placeholder: 'What situation is on your mind?',
@@ -122,7 +149,11 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'For the quiet hours 🌙',
     emoji: '🌙',
     image: templateWinddown,
-    headerBg: headerLateNight,
+    stickers: [
+      { src: kawaiiPanda, pos: 'absolute -top-2 -left-3 w-20 h-20' },
+      { src: kawaiiMoon, pos: 'absolute -top-1 -right-2 w-16 h-16' },
+      { src: kawaiiStar, pos: 'absolute bottom-8 left-4 w-10 h-10 rotate-12' },
+    ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
     placeholder: 'What\'s keeping you up tonight?',
@@ -936,25 +967,18 @@ export default function UnifiedJournalPage() {
                   className="relative overflow-hidden rounded-t-2xl"
                   style={{ backgroundColor: 'hsl(0 0% 100%)' }}
                 >
-                  {/* Kawaii illustrations - decorative corners */}
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -top-2 -left-4 w-24 h-24 object-contain opacity-80 pointer-events-none"
-                  />
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -top-2 -right-4 w-20 h-20 object-contain opacity-60 pointer-events-none scale-x-[-1]"
-                  />
-                  <img
-                    src={template.headerBg}
-                    alt=""
-                    className="absolute -bottom-3 right-8 w-16 h-16 object-contain opacity-40 pointer-events-none rotate-12"
-                  />
+                  {/* Kawaii sticker decorations */}
+                  {template.stickers.map((s, i) => (
+                    <img
+                      key={i}
+                      src={s.src}
+                      alt=""
+                      className={cn("object-contain pointer-events-none", s.pos)}
+                    />
+                  ))}
                   
                   {/* Center content */}
-                  <div className="relative z-10 text-center px-14 pt-8 pb-3">
+                  <div className="relative z-10 text-center px-16 pt-8 pb-3">
                     <h2 className="text-base font-bold text-foreground tracking-tight">
                       {template.emoji} {template.title}
                     </h2>
