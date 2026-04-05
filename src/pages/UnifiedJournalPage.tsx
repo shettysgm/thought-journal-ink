@@ -13,7 +13,12 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-import journalHeaderBg from '@/assets/journal-header-bg.png';
+import headerDailyReflection from '@/assets/header-daily-reflection.png';
+import headerAnxietyDump from '@/assets/header-anxiety-dump.png';
+import headerGratitude from '@/assets/header-gratitude.png';
+import headerMoodCheckin from '@/assets/header-mood-checkin.png';
+import headerThoughtReframe from '@/assets/header-thought-reframe.png';
+import headerLateNight from '@/assets/header-late-night.png';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -51,6 +56,7 @@ const TEMPLATE_CONFIG: Record<string, {
   subtitle: string;
   emoji: string;
   image: string;
+  headerBg: string;
   gradient: string;
   bgAccent: string;
   placeholder: string;
@@ -61,6 +67,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How was your day, really?',
     emoji: '✨',
     image: templateFreeWrite,
+    headerBg: headerDailyReflection,
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
     placeholder: 'What stood out to you today?',
@@ -71,6 +78,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Let it all out 💭',
     emoji: '🧠',
     image: templateVoice,
+    headerBg: headerAnxietyDump,
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
     placeholder: 'What\'s racing through your mind right now?',
@@ -81,6 +89,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: '3 good things today 🌸',
     emoji: '💗',
     image: templateGratitude,
+    headerBg: headerGratitude,
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
     placeholder: 'I\'m grateful for...',
@@ -91,6 +100,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'How are you really? 🌈',
     emoji: '😊',
     image: templateMood,
+    headerBg: headerMoodCheckin,
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
     placeholder: 'How are you feeling right now?',
@@ -101,6 +111,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'Challenge your thoughts 💡',
     emoji: '🔄',
     image: templateCbt,
+    headerBg: headerThoughtReframe,
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
     placeholder: 'What situation is on your mind?',
@@ -111,6 +122,7 @@ const TEMPLATE_CONFIG: Record<string, {
     subtitle: 'For the quiet hours 🌙',
     emoji: '🌙',
     image: templateWinddown,
+    headerBg: headerLateNight,
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
     placeholder: 'What\'s keeping you up tonight?',
@@ -923,7 +935,7 @@ export default function UnifiedJournalPage() {
                 <div className="relative overflow-hidden rounded-t-2xl">
                   {/* Doodle background */}
                   <img
-                    src={journalHeaderBg}
+                    src={template.headerBg}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover opacity-60"
                   />
