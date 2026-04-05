@@ -89,20 +89,20 @@ export default function BreathePage() {
           style={{
             width: 260,
             height: 260,
-            background: `radial-gradient(circle, ${currentPhase.color}20 0%, transparent 70%)`,
+            backgroundColor: 'hsl(var(--primary) / 0.08)',
           }}
-          animate={{ scale: getScale() * 1.1, opacity: isActive ? 0.5 : 0.15 }}
+          animate={{ scale: getScale() * 1.1, opacity: isActive ? 0.8 : 0.3 }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
         />
 
         {/* Main circle */}
         <motion.div
-          className="absolute rounded-full flex items-center justify-center"
+          className="absolute rounded-full flex items-center justify-center shadow-lg"
           style={{
             width: 240,
             height: 240,
-            background: `radial-gradient(circle at 40% 40%, ${currentPhase.color}35, ${currentPhase.color}12)`,
-            border: `2px solid ${currentPhase.color}30`,
+            backgroundColor: 'hsl(var(--primary) / 0.15)',
+            border: '2px solid hsl(var(--primary) / 0.3)',
           }}
           animate={{ scale: getScale() }}
           transition={{ duration: getTransitionDuration(), ease: 'easeInOut' }}
