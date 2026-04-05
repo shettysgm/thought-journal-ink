@@ -135,6 +135,8 @@ export default function UnifiedJournalPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
+  const templateId = searchParams.get('template');
+  const template = templateId ? TEMPLATE_CONFIG[templateId] : null;
   
   const [text, setText] = useState('');
   const [entryId, setEntryId] = useState<string | null>(editEntryId);
