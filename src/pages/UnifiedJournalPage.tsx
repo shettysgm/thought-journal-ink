@@ -85,7 +85,7 @@ const TEMPLATE_CONFIG: Record<string, {
   },
   'anxiety-dump': {
     title: 'Anxiety Dump',
-    subtitle: 'Let it all out 💭',
+    subtitle: 'Let it all out',
     emoji: '',
     image: templateVoice,
     stickers: [
@@ -98,7 +98,7 @@ const TEMPLATE_CONFIG: Record<string, {
   },
   'gratitude': {
     title: 'Gratitude',
-    subtitle: '3 good things today 🌸',
+    subtitle: '3 good things today',
     emoji: '',
     image: templateGratitude,
     stickers: [
@@ -111,7 +111,7 @@ const TEMPLATE_CONFIG: Record<string, {
   },
   'mood-checkin': {
     title: 'Mood Check-in',
-    subtitle: 'How are you really? 🌈',
+    subtitle: 'How are you really?',
     emoji: '',
     image: templateMood,
     stickers: [
@@ -124,7 +124,7 @@ const TEMPLATE_CONFIG: Record<string, {
   },
   'thought-reframe': {
     title: 'Thought Reframe',
-    subtitle: 'Challenge your thoughts 💡',
+    subtitle: 'Challenge your thoughts',
     emoji: '',
     image: templateCbt,
     stickers: [
@@ -137,7 +137,7 @@ const TEMPLATE_CONFIG: Record<string, {
   },
   'late-night': {
     title: 'Late Night Thoughts',
-    subtitle: 'For the quiet hours 🌙',
+    subtitle: 'For the quiet hours',
     emoji: '',
     image: templateWinddown,
     stickers: [
