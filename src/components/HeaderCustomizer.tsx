@@ -49,10 +49,10 @@ export default function HeaderCustomizer({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="absolute top-2 right-2 z-20 p-2 rounded-full bg-background/80 backdrop-blur-sm border shadow-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-1 right-1 z-20 p-1.5 rounded-full bg-background/70 backdrop-blur-sm text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Customize header"
         >
-          <Palette className="w-5 h-5" />
+          <Palette className="w-4 h-4" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-64 p-3" onClick={e => e.stopPropagation()}>
