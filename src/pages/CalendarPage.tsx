@@ -323,15 +323,7 @@ export default function CalendarPage() {
                   key={entry.id}
                   className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
                   style={getPatternStyle(entry.cardBackground)}
-                  onClick={(e: MouseEvent<HTMLDivElement>) => {
-                    const target = e.target as HTMLElement | null;
-                    if (target?.closest?.('button:not([data-entry-card])')) return;
-                    if (target?.closest?.('[data-reframe-trigger="true"]')) return;
-                    if (target?.closest?.('[role="alertdialog"]')) return;
-                    if (target?.closest?.('[data-radix-popper-content-wrapper]')) return;
-                    if (bgPickerOpen === entry.id) return;
-                    navigate(`/unified?edit=${entry.id}`);
-                  }}
+                  onClick={() => navigate(`/unified?edit=${entry.id}`)}
                 >
                   {/* Template header - matches editor style */}
                   {entryTemplate && (
