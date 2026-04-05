@@ -383,10 +383,16 @@ export default function UnifiedJournalPage() {
   });
 
   // Persist banner blobs + sticker to IDB for a given entry
-  const saveBannerData = useCallback(async (eid: string) => {
-    const blobs = bannerImageBlobsRef.current;
-    const sticker = bannerStickerRef.current;
-    console.log('[Banner] saveBannerData called for', eid, 'blobs:', blobs.length, 'sticker:', sticker);
+  const saveBannerData = useCallback(async (
+    eid: string,
+    bannerState?: { blobs?: Blob[]; sticker?: string | null }
+  ) => {
+    const blobs = bannerState?.blobs ?? bannerImageBlobsRef.current;
+    const sticker = bannerState?.sticker ?? bannerStickerRef.current;
+
+    bannerImageBlobsRef.current = blobs;
+    bannerStickerRef.current = sticker;
+
     try {
       const { saveJournalEntry, getJournalEntry } = await import('@/lib/idb');
       const existing = await getJournalEntry(eid);
@@ -402,17 +408,24 @@ export default function UnifiedJournalPage() {
         } else {
           delete updated.bannerBlobs;
         }
-        // Clean up legacy single blob
         delete updated.bannerBlob;
         await saveJournalEntry(updated);
-        console.log('[Banner] Saved successfully, bannerBlobs count:', blobs.length);
-      } else {
-        console.warn('[Banner] No existing entry found for', eid);
       }
     } catch (e) {
       console.error('Banner save error:', e);
     }
   }, []);
+
+  const persistBannerState = useCallback((nextBlobs: Blob[], nextSticker: string | null) => {
+    setBannerImageBlobs(nextBlobs);
+    bannerImageBlobsRef.current = nextBlobs;
+    setBannerSticker(nextSticker);
+    bannerStickerRef.current = nextSticker;
+
+    if (entryId) {
+      void saveBannerData(entryId, { blobs: nextBlobs, sticker: nextSticker });
+    }
+  }, [entryId, saveBannerData]);
 
   // Track whether we're currently saving to prevent duplicate AI calls
   const isSavingRef = useRef(false);
@@ -610,7 +623,8 @@ export default function UnifiedJournalPage() {
     } catch {}
 
     const currentText = (text || '').trim();
-    const needsSave = currentText && currentText !== lastSavedText.trim();
+    const hasBannerContent = bannerImageBlobsRef.current.length > 0 || !!bannerStickerRef.current;
+    const needsSave = (currentText && currentText !== lastSavedText.trim()) || (!entryId && hasBannerContent);
     
     if (needsSave) {
       setSaveStatus('saving');
@@ -629,7 +643,7 @@ export default function UnifiedJournalPage() {
             ...(bannerStickerRef.current ? { bannerSticker: bannerStickerRef.current } : {}),
           } as any);
           console.log('Created new entry:', savedId);
-        } else if (isNewSession && entryId) {
+        } else if (isNewSession && entryId && currentText) {
           // Append to existing entry
           await appendToEntry(entryId, {
             text: currentText,
@@ -637,7 +651,7 @@ export default function UnifiedJournalPage() {
           });
           savedId = entryId;
           console.log('Appended to entry:', entryId);
-        } else {
+        } else if (currentText) {
           // Update existing entry
           await updateEntry(entryId, { text: currentText });
           savedId = entryId;
@@ -916,9 +930,8 @@ export default function UnifiedJournalPage() {
             const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
             if (!valid.length) return;
             const compressed = await compressImages(valid);
-            setBannerImageBlobs(prev => [...prev, ...compressed]);
-            setBannerSticker(null);
-            if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+            const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+            persistBannerState(nextBlobs, null);
             e.target.value = '';
           }}
         />
@@ -950,10 +963,9 @@ export default function UnifiedJournalPage() {
                   const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
                   if (!valid.length) return;
                   const compressed = await compressImages(valid);
-                  setBannerImageBlobs(prev => [...prev, ...compressed]);
-                  setBannerSticker(null);
+                  const nextBlobs = [...bannerImageBlobsRef.current, ...compressed];
+                  persistBannerState(nextBlobs, null);
                   setMobileStickerDrawerOpen(false);
-                  if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                   e.target.value = '';
                 }}
               />
@@ -966,10 +978,9 @@ export default function UnifiedJournalPage() {
                     <button
                       key={sticker.id}
                       onClick={() => {
-                        setBannerSticker(bannerSticker === sticker.id ? null : sticker.id);
-                        setBannerImageBlobs([]);
+                        const nextSticker = bannerStickerRef.current === sticker.id ? null : sticker.id;
+                        persistBannerState([], nextSticker);
                         setMobileStickerDrawerOpen(false);
-                        if (entryId) setTimeout(() => saveBannerData(entryId), 0);
                       }}
                       className={cn(
                         'flex items-center justify-center p-2 rounded-lg hover:bg-accent/50 transition-colors aspect-square',
@@ -1141,9 +1152,7 @@ export default function UnifiedJournalPage() {
                   </div>
                   <button
                     onClick={() => {
-                      setBannerImageBlobs([]);
-                      setBannerSticker(null);
-                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
+                      persistBannerState([], null);
                     }}
                     className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground text-xs"
                   >
@@ -1160,18 +1169,10 @@ export default function UnifiedJournalPage() {
                   imageBlobs={bannerImageBlobs}
                   selectedSticker={bannerSticker}
                   onImagesChange={(blobs) => {
-                    setBannerImageBlobs(blobs);
-                    // Immediately persist if entry exists
-                    if (entryId) {
-                      // Use a microtask so ref is updated first
-                      setTimeout(() => saveBannerData(entryId), 0);
-                    }
+                    persistBannerState(blobs, bannerStickerRef.current);
                   }}
                   onStickerChange={(id) => {
-                    setBannerSticker(id);
-                    if (entryId) {
-                      setTimeout(() => saveBannerData(entryId), 0);
-                    }
+                    persistBannerState([], id);
                   }}
                 />
               </div>
