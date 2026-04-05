@@ -13,7 +13,12 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-import journalHeaderBg from '@/assets/journal-header-bg.png';
+import headerDailyReflection from '@/assets/header-daily-reflection.png';
+import headerAnxietyDump from '@/assets/header-anxiety-dump.png';
+import headerGratitude from '@/assets/header-gratitude.png';
+import headerMoodCheckin from '@/assets/header-mood-checkin.png';
+import headerThoughtReframe from '@/assets/header-thought-reframe.png';
+import headerLateNight from '@/assets/header-late-night.png';
 import {
   AlertDialog,
   AlertDialogCancel,
