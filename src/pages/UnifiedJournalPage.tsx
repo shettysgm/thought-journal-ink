@@ -965,14 +965,19 @@ export default function UnifiedJournalPage() {
               {template && (
                 <div
                   className="relative overflow-hidden rounded-t-2xl"
-                  style={{ backgroundColor: customHeaderColor }}
+                  style={{
+                    backgroundColor: customHeaderColor,
+                    ...(GRID_PATTERNS.find(p => p.id === customHeaderPattern)?.style || {}),
+                  }}
                 >
                   {/* Customize button */}
                   <HeaderCustomizer
                     headerColor={customHeaderColor}
                     headerStickers={customHeaderStickers}
+                    headerPattern={customHeaderPattern}
                     onColorChange={setCustomHeaderColor}
                     onStickersChange={setCustomHeaderStickers}
+                    onPatternChange={setCustomHeaderPattern}
                   />
 
                   {/* Kawaii sticker decorations - use custom or default */}
