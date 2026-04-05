@@ -624,7 +624,6 @@ export default function UnifiedJournalPage() {
         if (!cancelled) {
           console.error('[AI Detection] Error:', error);
         }
-        }
       } finally {
         if (!cancelled) setIsDetecting(false);
       }
