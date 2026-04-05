@@ -13,12 +13,19 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-import headerDailyReflection from '@/assets/header-daily-reflection.png';
-import headerAnxietyDump from '@/assets/header-anxiety-dump.png';
-import headerGratitude from '@/assets/header-gratitude.png';
-import headerMoodCheckin from '@/assets/header-mood-checkin.png';
-import headerThoughtReframe from '@/assets/header-thought-reframe.png';
-import headerLateNight from '@/assets/header-late-night.png';
+// Kawaii stickers for header decorations
+import kawaiiCat from '@/assets/stickers/kawaii-cat-full.png';
+import kawaiiBunny from '@/assets/stickers/kawaii-bunny-full.png';
+import kawaiiPuppy from '@/assets/stickers/kawaii-puppy-full.png';
+import kawaiiBear from '@/assets/stickers/kawaii-bear-full.png';
+import kawaiiOwl from '@/assets/stickers/kawaii-owl-full.png';
+import kawaiiPanda from '@/assets/stickers/kawaii-panda-full.png';
+import kawaiiPenguin from '@/assets/stickers/kawaii-penguin-full.png';
+import kawaiiFox from '@/assets/stickers/kawaii-fox-full.png';
+import kawaiiSakura from '@/assets/stickers/kawaii-sakura.png';
+import kawaiiMoon from '@/assets/stickers/kawaii-moon.png';
+import kawaiiStar from '@/assets/stickers/kawaii-star.png';
+import kawaiiRainbow from '@/assets/stickers/kawaii-rainbow.png';
 import {
   AlertDialog,
   AlertDialogCancel,
