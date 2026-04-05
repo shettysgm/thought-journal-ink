@@ -15,7 +15,7 @@ describe('BottomNav', () => {
   it('renders all four navigation items', () => {
     renderWithRouter();
     expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Write')).toBeInTheDocument();
+    expect(screen.getByText('Breathe')).toBeInTheDocument();
     expect(screen.getByText('Journal')).toBeInTheDocument();
     expect(screen.getByText('Quiz')).toBeInTheDocument();
   });
@@ -32,7 +32,7 @@ describe('BottomNav', () => {
   it('links to correct paths', () => {
     renderWithRouter();
     expect(screen.getByText('Home').closest('a')).toHaveAttribute('href', '/');
-    expect(screen.getByText('Write').closest('a')).toHaveAttribute('href', '/text');
+    expect(screen.getByText('Breathe').closest('a')).toHaveAttribute('href', '/breathe');
     expect(screen.getByText('Journal').closest('a')).toHaveAttribute('href', '/journal');
     expect(screen.getByText('Quiz').closest('a')).toHaveAttribute('href', '/quiz');
   });
