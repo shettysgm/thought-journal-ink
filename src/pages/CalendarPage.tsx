@@ -213,7 +213,7 @@ export default function CalendarPage() {
           <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
             <Info className="w-4 h-4 text-accent-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground flex-1">
-              Welcome to your journal! Older entries may appear with default styling, but all your content is safe and sound.
+              Deleting or reinstalling the app will permanently remove all journal entries. Always export your entries from Settings before deleting the app.
             </p>
             <button
               onClick={() => {
