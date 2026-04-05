@@ -346,9 +346,14 @@ export default function UnifiedJournalPage() {
               variant: 'destructive'
             });
           }
+        } else if (templateId) {
+          // Template or daily prompt selected — always start a fresh entry
+          setIsNewSession(true);
+          setEntryId(null);
+          setText('');
+          setLastSavedText('');
         } else {
-          // New session - check if we should append to today's entry
-          // Read entries directly from the store after loadEntries has resolved
+          // No template — check if we should append to today's entry
           const currentEntries = useEntries.getState().entries;
           const today = new Date();
           const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -362,12 +367,11 @@ export default function UnifiedJournalPage() {
           if (todaysUnifiedEntry) {
             console.log('Found existing entry for today:', todaysUnifiedEntry.id);
             setEntryId(todaysUnifiedEntry.id);
-            // Preload with a timestamp divider so typing appends naturally
             const base = (todaysUnifiedEntry.text || '');
             const header = `${base ? '\n\n' : ''}— Added ${format(new Date(), 'h:mm a')} —\n`;
             const initial = `${base}${header}`;
             setText(initial);
-            setLastSavedText(initial); // avoid saving until user types
+            setLastSavedText(initial);
             setIsNewSession(false);
             if (todaysUnifiedEntry.reframes?.length) {
               setLiveDetections(todaysUnifiedEntry.reframes.map(r => ({
