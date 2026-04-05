@@ -111,6 +111,19 @@ export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDe
       { id: 'kawaii-book', component: KawaiiImg, props: { src: kawaiiBook } },
     ]
   },
+  masculine: {
+    name: 'Cool & Sporty',
+    stickers: [
+      { id: 'kawaii-lion', component: KawaiiImg, props: { src: kawaiiLion } },
+      { id: 'kawaii-wolf', component: KawaiiImg, props: { src: kawaiiWolf } },
+      { id: 'kawaii-dino', component: KawaiiImg, props: { src: kawaiiDino } },
+      { id: 'kawaii-eagle', component: KawaiiImg, props: { src: kawaiiEagle } },
+      { id: 'kawaii-gamepad', component: KawaiiImg, props: { src: kawaiiGamepad } },
+      { id: 'kawaii-basketball', component: KawaiiImg, props: { src: kawaiiBasketball } },
+      { id: 'kawaii-guitar', component: KawaiiImg, props: { src: kawaiiGuitar } },
+      { id: 'kawaii-skateboard', component: KawaiiImg, props: { src: kawaiiSkateboard } },
+    ]
+  },
 };
 
 /** Flat list of all stickers for lookups */
