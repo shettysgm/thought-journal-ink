@@ -39,7 +39,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob[]>>({});
   const [exporting, setExporting] = useState(false);
-  const [bgPickerOpen, setBgPickerOpen] = useState<string | null>(null);
+  
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportFrom, setExportFrom] = useState<Date | undefined>(undefined);
   const [exportTo, setExportTo] = useState<Date | undefined>(undefined);
