@@ -5,9 +5,21 @@ import CalendarPage from '@/pages/CalendarPage';
 import { useEntries } from '@/store/useEntries';
 
 // Mock useEntries store
-vi.mock('@/store/useEntries', () => ({
-  useEntries: vi.fn(),
-}));
+const mockEntries: any[] = [];
+const mockStore = {
+  entries: mockEntries,
+  loading: false,
+  loadEntries: vi.fn().mockResolvedValue(undefined),
+  deleteEntry: vi.fn().mockResolvedValue(undefined),
+  updateEntry: vi.fn().mockResolvedValue(undefined),
+  getState: () => ({ entries: mockEntries }),
+};
+
+vi.mock('@/store/useEntries', () => {
+  const fn: any = vi.fn(() => mockStore);
+  fn.getState = () => mockStore;
+  return { useEntries: fn };
+});
 
 // Mock IDB module to prevent real DB calls
 vi.mock('@/lib/idb', () => ({
