@@ -111,17 +111,17 @@ export const KAWAII_STICKERS: Record<string, { name: string; stickers: StickerDe
       { id: 'kawaii-book', component: KawaiiImg, props: { src: kawaiiBook } },
     ]
   },
-  masculine: {
-    name: 'Cool & Sporty',
+  sporty: {
+    name: 'Sports & Music',
     stickers: [
-      { id: 'kawaii-lion', component: KawaiiImg, props: { src: kawaiiLion } },
-      { id: 'kawaii-wolf', component: KawaiiImg, props: { src: kawaiiWolf } },
-      { id: 'kawaii-dino', component: KawaiiImg, props: { src: kawaiiDino } },
-      { id: 'kawaii-eagle', component: KawaiiImg, props: { src: kawaiiEagle } },
-      { id: 'kawaii-gamepad', component: KawaiiImg, props: { src: kawaiiGamepad } },
-      { id: 'kawaii-basketball', component: KawaiiImg, props: { src: kawaiiBasketball } },
-      { id: 'kawaii-guitar', component: KawaiiImg, props: { src: kawaiiGuitar } },
-      { id: 'kawaii-skateboard', component: KawaiiImg, props: { src: kawaiiSkateboard } },
+      { id: 'icon-surfboard', component: KawaiiImg, props: { src: iconSurfboard } },
+      { id: 'icon-guitar', component: KawaiiImg, props: { src: iconGuitar } },
+      { id: 'icon-gamepad', component: KawaiiImg, props: { src: iconGamepad } },
+      { id: 'icon-basketball', component: KawaiiImg, props: { src: iconBasketball } },
+      { id: 'icon-skateboard', component: KawaiiImg, props: { src: iconSkateboard } },
+      { id: 'icon-headphones', component: KawaiiImg, props: { src: iconHeadphones } },
+      { id: 'icon-soccer', component: KawaiiImg, props: { src: iconSoccer } },
+      { id: 'icon-bike', component: KawaiiImg, props: { src: iconBike } },
     ]
   },
 };
