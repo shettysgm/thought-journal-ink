@@ -77,7 +77,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateFreeWrite,
     stickers: [
       { src: kawaiiCat, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiBunny, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
@@ -91,7 +90,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateVoice,
     stickers: [
       { src: kawaiiPuppy, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiBear, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
@@ -105,7 +103,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateGratitude,
     stickers: [
       { src: kawaiiBunny, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiSakura, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
@@ -119,7 +116,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateMood,
     stickers: [
       { src: kawaiiFox, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiRainbow, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
@@ -133,7 +129,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateCbt,
     stickers: [
       { src: kawaiiOwl, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiPenguin, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
@@ -147,7 +142,6 @@ const TEMPLATE_CONFIG: Record<string, {
     image: templateWinddown,
     stickers: [
       { src: kawaiiPanda, pos: 'absolute top-2 -left-2 w-24 h-24' },
-      { src: kawaiiMoon, pos: 'absolute top-2 right-6 w-20 h-20' },
     ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
@@ -982,18 +976,13 @@ export default function UnifiedJournalPage() {
 
                   {/* Kawaii sticker decorations - use custom or default */}
                   {(customHeaderStickers.length > 0
-                    ? customHeaderStickers.map((id, i) => {
+                    ? customHeaderStickers.slice(0, 1).map((id) => {
                         const sticker = ALL_STICKERS.find(s => s.id === id);
                         if (!sticker) return null;
-                        const positions = [
-                          'absolute top-2 -left-2 w-24 h-24',
-                          'absolute top-2 right-6 w-20 h-20',
-                          'absolute top-3 left-1/2 -translate-x-1/2 w-16 h-16',
-                        ];
                         const Comp = sticker.component;
                         return (
-                          <div key={id} className={cn('pointer-events-none', positions[i])}>
-                            <Comp size={i === 0 ? 112 : i === 1 ? 96 : 56} {...(sticker.props as any)} />
+                          <div key={id} className="absolute top-2 -left-2 w-24 h-24 pointer-events-none">
+                            <Comp size={96} {...(sticker.props as any)} />
                           </div>
                         );
                       })

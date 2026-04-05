@@ -110,11 +110,9 @@ export default function HeaderCustomizer({
 
   const toggleSticker = (id: string) => {
     if (headerStickers.includes(id)) {
-      onStickersChange(headerStickers.filter(s => s !== id));
-    } else if (headerStickers.length < 3) {
-      onStickersChange([...headerStickers, id]);
+      onStickersChange([]);
     } else {
-      onStickersChange([...headerStickers.slice(0, 2), id]);
+      onStickersChange([id]);
     }
   };
 
@@ -195,7 +193,7 @@ export default function HeaderCustomizer({
         {tab === 'stickers' && (
           <div>
             <p className="text-[10px] text-muted-foreground mb-2">
-              Pick up to 3 stickers for your header
+              Pick a sticker for your header
             </p>
             <div className="grid grid-cols-5 gap-1.5 max-h-[200px] overflow-y-auto pr-1">
               {ALL_STICKERS.map(sticker => {
