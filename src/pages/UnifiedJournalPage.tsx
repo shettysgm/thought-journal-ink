@@ -913,40 +913,70 @@ export default function UnifiedJournalPage() {
           <div className="flex gap-4">
             {/* Main editor */}
             <div className={cn(
-              "relative flex-1 bg-card rounded-lg shadow-sm border min-h-[calc(100vh-200px)] overflow-visible transition-all duration-500",
+              "relative flex-1 bg-card rounded-2xl shadow-sm border overflow-visible transition-all duration-500",
               isRecording && "ring-2 ring-green-500/30 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             )}>
             
-              {/* Recording waveform overlay */}
-              {isRecording && (
-                <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-lg">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+              {/* Kawaii Template Header */}
+              {template && (
+                <div className={cn(
+                  "relative overflow-hidden rounded-t-2xl",
+                  template.bgAccent
+                )}>
+                  {/* Gradient bar */}
+                  <div className={cn("h-1.5 w-full bg-gradient-to-r", template.gradient)} />
+                  
+                  <div className="px-5 py-4 flex items-start gap-4">
+                    {/* Template illustration */}
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={template.image} 
+                        alt={template.title}
+                        className="w-16 h-16 object-contain drop-shadow-md"
+                        width={512}
+                        height={512}
+                      />
+                    </div>
+                    
+                    {/* Template info */}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5">
+                        {template.emoji} {template.title}
+                      </h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">{template.subtitle}</p>
+                      
+                      {/* Prompts as kawaii chips */}
+                      <div className="flex flex-wrap gap-1.5 mt-2.5">
+                        {template.prompts.map((prompt, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              "text-[10px] px-2.5 py-1 rounded-full border font-medium",
+                              template.bgAccent,
+                              "text-foreground/70 border-current/10"
+                            )}
+                          >
+                            {prompt}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative kawaii dots */}
+                  <div className="absolute top-3 right-3 flex gap-1 opacity-30">
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/25" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/15" />
+                  </div>
                 </div>
               )}
 
-              {/* Selected sticker/photo preview inside editor */}
-              {(bannerImageBlobs.length > 0 || bannerSticker) && (
-                <div className="relative flex items-center justify-center p-4 border-b bg-muted/20 gap-2 overflow-x-auto">
-                  {bannerImageBlobs.map((blob, i) => (
-                    <MobileBlobPreview key={i} blob={blob} />
-                  ))}
-                  {bannerSticker && bannerImageBlobs.length === 0 && (() => {
-                    const def = MOBILE_ALL_STICKERS.find(s => s.id === bannerSticker);
-                    if (!def) return null;
-                    return <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />;
-                  })()}
-                  <button
-                    onClick={() => {
-                      setBannerImageBlobs([]);
-                      setBannerSticker(null);
-                      if (entryId) setTimeout(() => saveBannerData(entryId), 0);
-                    }}
-                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground"
-                  >
-                    <span className="sr-only">Remove</span>
-                    ✕
-                  </button>
+              {/* Recording waveform overlay */}
+              {isRecording && (
+                <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-green-500/10 to-green-500/5 animate-pulse" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                 </div>
               )}
 
