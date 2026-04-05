@@ -38,6 +38,7 @@ export default function Router() {
             <Route path="/voice" element={<UnifiedJournalPage />} />
             <Route path="/unified" element={<UnifiedJournalPage />} />
             <Route path="/journal" element={<JournalPage />} />
+            <Route path="/breathe" element={<BreathePage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/settings" element={<SettingsPage />} />
