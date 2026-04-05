@@ -981,7 +981,7 @@ export default function UnifiedJournalPage() {
                         if (!sticker) return null;
                         const positions = [
                           'absolute top-2 -left-2 w-24 h-24',
-                          'absolute top-1 -right-2 w-20 h-20',
+                          'absolute top-2 right-6 w-20 h-20',
                           'absolute top-3 left-1/2 -translate-x-1/2 w-16 h-16',
                         ];
                         const Comp = sticker.component;
