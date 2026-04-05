@@ -213,6 +213,25 @@ export default function CalendarPage() {
           <Input placeholder="Search entries..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 h-10 rounded-xl" />
         </div>
 
+        {/* Old format entries notice */}
+        {hasOldFormatEntries && !oldFormatDismissed && (
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
+            <Info className="w-4 h-4 text-accent-foreground mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground flex-1">
+              Some older entries were created before templates were available. They'll appear with default styling but all your content is safe.
+            </p>
+            <button
+              onClick={() => {
+                setOldFormatDismissed(true);
+                localStorage.setItem('old_format_notice_dismissed', 'true');
+              }}
+              className="shrink-0 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Calendar */}
         <Card className="shadow-soft">
           <CardHeader className="pb-2">
