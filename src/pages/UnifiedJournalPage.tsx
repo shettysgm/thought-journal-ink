@@ -70,7 +70,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateFreeWrite,
     stickers: [
-      { src: kawaiiCat, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconGuitar, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-violet-300 to-indigo-400',
     bgAccent: 'bg-violet-50 dark:bg-violet-950/30',
@@ -83,7 +83,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateVoice,
     stickers: [
-      { src: kawaiiPuppy, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconBasketball, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-rose-300 to-pink-400',
     bgAccent: 'bg-rose-50 dark:bg-rose-950/30',
@@ -96,7 +96,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateGratitude,
     stickers: [
-      { src: kawaiiBunny, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconSurfboard, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-pink-300 to-rose-400',
     bgAccent: 'bg-pink-50 dark:bg-pink-950/30',
@@ -109,7 +109,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateMood,
     stickers: [
-      { src: kawaiiFox, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconHeadphones, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-amber-300 to-orange-400',
     bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
@@ -122,7 +122,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateCbt,
     stickers: [
-      { src: kawaiiOwl, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconBike, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-sky-300 to-blue-400',
     bgAccent: 'bg-sky-50 dark:bg-sky-950/30',
@@ -135,7 +135,7 @@ const TEMPLATE_CONFIG: Record<string, {
     emoji: '',
     image: templateWinddown,
     stickers: [
-      { src: kawaiiPanda, pos: 'absolute top-2 -left-2 w-24 h-24' },
+      { src: iconGamepad, pos: 'absolute top-2 -left-2 w-24 h-24' },
     ],
     gradient: 'from-indigo-300 to-purple-500',
     bgAccent: 'bg-indigo-50 dark:bg-indigo-950/30',
