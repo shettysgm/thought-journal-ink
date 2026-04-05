@@ -124,6 +124,17 @@ const TEMPLATE_CONFIG: Record<string, {
     placeholder: 'What\'s keeping you up tonight?',
     prompts: ['What\'s on your mind?', 'What would help you let go?', 'Tomorrow I want to...'],
   },
+  'daily-prompt': {
+    title: "Today's Prompt",
+    subtitle: 'A thought to explore',
+    emoji: '',
+    image: templateFreeWrite,
+    stickers: [],
+    gradient: 'from-amber-200 to-yellow-400',
+    bgAccent: 'bg-amber-50 dark:bg-amber-950/30',
+    placeholder: 'Start writing your thoughts...',
+    prompts: [],
+  },
 };
 
 function MobileBlobPreview({
@@ -201,7 +212,16 @@ export default function UnifiedJournalPage() {
   const navigate = useNavigate();
   const editEntryId = searchParams.get('edit');
   const templateId = searchParams.get('template');
-  const template = templateId ? TEMPLATE_CONFIG[templateId] : null;
+  const promptText = searchParams.get('promptText');
+  const template = templateId ? (() => {
+    const base = TEMPLATE_CONFIG[templateId];
+    if (!base) return null;
+    // For daily-prompt, inject the prompt text into the prompts array
+    if (templateId === 'daily-prompt' && promptText) {
+      return { ...base, prompts: [promptText] };
+    }
+    return base;
+  })() : null;
   
   const [text, setText] = useState('');
   const [entryId, setEntryId] = useState<string | null>(editEntryId);
