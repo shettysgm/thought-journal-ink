@@ -194,7 +194,7 @@ function MobilePhotoCollage({ blobs }: { blobs: Blob[] }) {
 
 export default function UnifiedJournalPage() {
   const { toast } = useToast();
-  const { createEntry, updateEntry, getEntry, appendToEntry, loadEntries } = useEntries();
+  const { entries, createEntry, updateEntry, getEntry, appendToEntry, loadEntries } = useEntries();
   const { aiAnalysisEnabled, autoDetectDistortions } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -284,78 +284,85 @@ export default function UnifiedJournalPage() {
         // Load all entries first
         await loadEntries();
       
-      if (editEntryId) {
-        // Loading specific entry for editing
-        setIsNewSession(false);
-        try {
-          const entry = await getEntry(editEntryId);
-          if (entry) {
-            setText(entry.text || '');
-            setLastSavedText(entry.text || '');
-            setEntryId(editEntryId);
-            setBannerSticker((entry as any).bannerSticker || null);
-            // Load banner blob from IDB
-            const { getJournalEntry } = await import('@/lib/idb');
-            const raw = await getJournalEntry(editEntryId);
-            if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
-              setBannerImageBlobs((raw as any).bannerBlobs);
-            } else if (raw && (raw as any).bannerBlob) {
-              // Backwards compat: single blob → array
-              setBannerImageBlobs([(raw as any).bannerBlob]);
+        if (editEntryId) {
+          // Loading specific entry for editing
+          setIsNewSession(false);
+          try {
+            const entry = await getEntry(editEntryId);
+            if (entry) {
+              setText(entry.text || '');
+              setLastSavedText(entry.text || '');
+              setEntryId(editEntryId);
+              setBannerSticker((entry as any).bannerSticker || null);
+              // Load banner blob from IDB
+              const { getJournalEntry } = await import('@/lib/idb');
+              const raw = await getJournalEntry(editEntryId);
+              if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
+                setBannerImageBlobs((raw as any).bannerBlobs);
+              } else if (raw && (raw as any).bannerBlob) {
+                // Backwards compat: single blob → array
+                setBannerImageBlobs([(raw as any).bannerBlob]);
+              }
+              if (entry.reframes) {
+                const detectionsList: Detection[] = entry.reframes.map(r => ({
+                  span: r.span,
+                  type: r.socratic || 'Cognitive Distortion',
+                  reframe: r.suggestion
+                }));
+                setLiveDetections(detectionsList);
+              }
+            } else {
+              // If edit id is invalid, clear state to avoid mutating stale entry
+              setEntryId(null);
+              setText('');
+              setLastSavedText('');
             }
-            if (entry.reframes) {
-              const detectionsList: Detection[] = entry.reframes.map(r => ({
+          } catch (error) {
+            console.error('Error loading entry:', error);
+            toast({
+              title: 'Load Failed',
+              description: 'Could not load the entry.',
+              variant: 'destructive'
+            });
+          }
+        } else {
+          // New session - check if we should append to today's entry
+          // Read entries directly from the store after loadEntries has resolved
+          const currentEntries = useEntries.getState().entries;
+          const today = new Date();
+          const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+          const todaysEntries = currentEntries.filter(entry => {
+            const entryDate = new Date(entry.createdAt);
+            return entryDate >= startOfDay && entryDate <= endOfDay;
+          });
+          const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
+          
+          if (todaysUnifiedEntry) {
+            console.log('Found existing entry for today:', todaysUnifiedEntry.id);
+            setEntryId(todaysUnifiedEntry.id);
+            // Preload with a timestamp divider so typing appends naturally
+            const base = (todaysUnifiedEntry.text || '');
+            const header = `${base ? '\n\n' : ''}— Added ${format(new Date(), 'h:mm a')} —\n`;
+            const initial = `${base}${header}`;
+            setText(initial);
+            setLastSavedText(initial); // avoid saving until user types
+            setIsNewSession(false);
+            if (todaysUnifiedEntry.reframes?.length) {
+              setLiveDetections(todaysUnifiedEntry.reframes.map(r => ({
                 span: r.span,
-                type: r.socratic || "Cognitive Distortion",
-                reframe: r.suggestion
-              }));
-              setLiveDetections(detectionsList);
+                type: r.socratic || 'Cognitive Distortion',
+                reframe: r.suggestion,
+              })));
             }
           } else {
-            // If edit id is invalid, clear state to avoid mutating stale entry
+            console.log('No entry found for today, will create new one');
             setEntryId(null);
             setText('');
             setLastSavedText('');
+            setIsNewSession(true);
           }
-        } catch (error) {
-          console.error('Error loading entry:', error);
-          toast({
-            title: "Load Failed",
-            description: "Could not load the entry.",
-            variant: "destructive"
-          });
         }
-      } else {
-        // New session - check if we should append to today's entry
-        // Read entries directly from the store after loadEntries has resolved
-        const currentEntries = useEntries.getState().entries;
-        const today = new Date();
-        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-        const todaysEntries = currentEntries.filter(entry => {
-          const entryDate = new Date(entry.createdAt);
-          return entryDate >= startOfDay && entryDate <= endOfDay;
-        });
-        const todaysUnifiedEntry = todaysEntries.find(e => e.tags?.includes('unified'));
-        
-        if (todaysUnifiedEntry) {
-          console.log('Found existing entry for today:', todaysUnifiedEntry.id);
-          setEntryId(todaysUnifiedEntry.id);
-          // Preload with a timestamp divider so typing appends naturally
-          const base = (todaysUnifiedEntry.text || '');
-          const header = `${base ? '\n\n' : ''}— Added ${format(new Date(), 'h:mm a')} —\n`;
-          const initial = `${base}${header}`;
-          setText(initial);
-          setLastSavedText(initial); // avoid saving until user types
-          setIsNewSession(false);
-        } else {
-          console.log('No entry found for today, will create new one');
-          setEntryId(null);
-          setText('');
-          setLastSavedText('');
-          setIsNewSession(true);
-        }
-      }
       } finally {
         setIsInitializing(false);
       }
@@ -363,6 +370,29 @@ export default function UnifiedJournalPage() {
     
     initialize();
   }, [editEntryId, getEntry, toast, loadEntries]);
+
+  useEffect(() => {
+    if (!entryId) return;
+
+    const currentEntry = entries.find(entry => entry.id === entryId);
+    if (!currentEntry?.reframes?.length) return;
+
+    setLiveDetections(prev => {
+      const nextDetections: Detection[] = currentEntry.reframes!.map(r => ({
+        span: r.span,
+        type: r.socratic || 'Cognitive Distortion',
+        reframe: r.suggestion,
+        confidence: prev.find(d => d.span === r.span)?.confidence,
+      }));
+
+      const isSame = prev.length === nextDetections.length && prev.every((d, index) => {
+        const next = nextDetections[index];
+        return next && d.span === next.span && d.type === next.type && d.reframe === next.reframe;
+      });
+
+      return isSame ? prev : nextDetections;
+    });
+  }, [entries, entryId]);
 
   const handleFinalTranscript = useCallback((finalText: string) => {
     const trimmed = (finalText || '').trim();
