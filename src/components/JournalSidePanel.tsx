@@ -49,7 +49,9 @@ export default function JournalSidePanel({
       const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
       if (!valid.length) return;
       const compressed = await compressImages(valid);
-      onImagesChange([...imageBlobs, ...compressed]);
+      const remaining = 3 - imageBlobs.length;
+      if (remaining <= 0) return;
+      onImagesChange([...imageBlobs, ...compressed.slice(0, remaining)]);
       onStickerChange(null);
       e.target.value = '';
     },
