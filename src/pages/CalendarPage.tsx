@@ -50,12 +50,7 @@ export default function CalendarPage() {
   const [deleteTo, setDeleteTo] = useState<Date | undefined>(undefined);
   const [deleting, setDeleting] = useState(false);
   const entriesPerPage = 10;
-  const [oldFormatDismissed, setOldFormatDismissed] = useState(() => localStorage.getItem('old_format_notice_dismissed') === 'true');
-
-  const hasOldFormatEntries = useMemo(() => 
-    entries.some(e => !e.hasDrawing && !(e as any).templateId),
-    [entries]
-  );
+  const [welcomeDismissed, setWelcomeDismissed] = useState(() => localStorage.getItem('calendar_welcome_dismissed') === 'true');
 
   const handleExportJournals = async (dateRange?: { from: Date; to: Date }) => {
     setExporting(true);
@@ -213,17 +208,17 @@ export default function CalendarPage() {
           <Input placeholder="Search entries..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 h-10 rounded-xl" />
         </div>
 
-        {/* Old format entries notice */}
-        {hasOldFormatEntries && !oldFormatDismissed && (
+        {/* Welcome notice */}
+        {!welcomeDismissed && (
           <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
             <Info className="w-4 h-4 text-accent-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground flex-1">
-              Some older entries were created before templates were available. They'll appear with default styling but all your content is safe.
+              Welcome to your journal! Older entries may appear with default styling, but all your content is safe and sound.
             </p>
             <button
               onClick={() => {
-                setOldFormatDismissed(true);
-                localStorage.setItem('old_format_notice_dismissed', 'true');
+                setWelcomeDismissed(true);
+                localStorage.setItem('calendar_welcome_dismissed', 'true');
               }}
               className="shrink-0 text-muted-foreground hover:text-foreground"
             >
