@@ -354,7 +354,11 @@ export default function CalendarPage() {
               return (
                 <Card
                   key={entry.id}
-                  className={cn("shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden", getBorderClassName(entry.cardBorder))}
+                  className={cn(
+                    "shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-visible",
+                    getBorderClassName(entry.cardBorder),
+                    !entryTemplate && stickerDef && !entryBlobs.length && "mt-8"
+                  )}
                   style={getPatternStyle(entry.cardBackground)}
                   onClick={() => navigate(`/unified?edit=${entry.id}`)}
                 >
@@ -398,6 +402,15 @@ export default function CalendarPage() {
                           ))}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Banner sticker peeking from header edge */}
+                  {stickerDef && !entryBlobs.length && (
+                    <div className="relative h-6">
+                      <div className="absolute left-1/2 -translate-x-1/2 -top-6 pointer-events-none drop-shadow-lg z-10">
+                        <stickerDef.component size={52} {...(stickerDef.props as any)} />
+                      </div>
                     </div>
                   )}
                   <CardContent className="p-4">
@@ -450,11 +463,6 @@ export default function CalendarPage() {
                       </div>
                     )}
 
-                    {!entryBlobs.length && stickerDef && (
-                      <div className="flex justify-center mb-3">
-                        <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
-                      </div>
-                    )}
 
                     {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
