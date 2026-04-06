@@ -1164,26 +1164,21 @@ export default function UnifiedJournalPage() {
                 </div>
               )}
 
-              {/* Banner sticker/photos in header */}
-              {(bannerSticker || bannerImageBlobs.length > 0) && (
-                <div className={cn(
-                  "relative w-full overflow-hidden transition-all duration-300",
-                  !template && "rounded-t-2xl",
-                  bannerImageBlobs.length > 0 ? "h-40 sm:h-52" : "h-28"
-                )}>
-                  {bannerImageBlobs.length > 0 ? (
-                    <MobilePhotoCollage blobs={bannerImageBlobs} />
-                  ) : bannerSticker && (() => {
-                    const def = ALL_STICKERS.find(s => s.id === bannerSticker);
-                    if (!def) return null;
-                    return (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
-                        <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
+              {/* Banner sticker in header */}
+              {bannerSticker && bannerImageBlobs.length === 0 && (() => {
+                const def = ALL_STICKERS.find(s => s.id === bannerSticker);
+                if (!def) return null;
+                return (
+                  <div className={cn(
+                    "relative w-full h-28 overflow-hidden transition-all duration-300",
+                    !template && "rounded-t-2xl"
+                  )}>
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
+                      <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Recording waveform overlay */}
               {isRecording && (
@@ -1307,6 +1302,22 @@ export default function UnifiedJournalPage() {
               </div>
             )}
 
+              {/* Photos at bottom */}
+              {bannerImageBlobs.length > 0 && (
+                <div className="relative border-t bg-muted/10 rounded-b-2xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Camera className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Attached</span>
+                  </div>
+                  <MobilePhotoCollage blobs={bannerImageBlobs} />
+                  <button
+                    onClick={() => persistBannerState([], null)}
+                    className="absolute top-2 right-2 rounded-full bg-background/80 backdrop-blur p-1.5 text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right side panel - hidden on mobile, shown on sm+ */}
