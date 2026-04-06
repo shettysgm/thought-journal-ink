@@ -398,19 +398,6 @@ export default function CalendarPage() {
                           ))}
                         </div>
                       )}
-                      {/* Banner sticker in header */}
-                      {stickerDef && !entryBlobs.length && (
-                        <div className="flex items-center justify-center py-3 bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
-                          <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Sticker when no template */}
-                  {!entryTemplate && stickerDef && !entryBlobs.length && (
-                    <div className="flex items-center justify-center py-3 rounded-t-xl bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
-                      <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
                     </div>
                   )}
                   <CardContent className="p-4">
@@ -463,6 +450,11 @@ export default function CalendarPage() {
                       </div>
                     )}
 
+                    {!entryBlobs.length && stickerDef && (
+                      <div className="flex justify-center mb-3">
+                        <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
+                      </div>
+                    )}
 
                     {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
