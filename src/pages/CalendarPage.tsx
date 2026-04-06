@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { subDays, isAfter, startOfDay, format, isSameDay } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Mic, Search, Trash2, FileDown, CalendarRange, ChevronLeft, Info, X } from 'lucide-react';
+import { FileText, Mic, Trash2, FileDown, CalendarRange, ChevronLeft, Info, X } from 'lucide-react';
 import { TEMPLATE_CONFIG } from '@/config/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -203,10 +203,6 @@ export default function CalendarPage() {
         </header>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search entries..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 h-10 rounded-xl" />
-        </div>
 
         {/* Welcome notice */}
         {!welcomeDismissed && (
