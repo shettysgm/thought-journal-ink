@@ -1164,6 +1164,27 @@ export default function UnifiedJournalPage() {
                 </div>
               )}
 
+              {/* Banner sticker/photos in header */}
+              {(bannerSticker || bannerImageBlobs.length > 0) && (
+                <div className={cn(
+                  "relative w-full overflow-hidden transition-all duration-300",
+                  !template && "rounded-t-2xl",
+                  bannerImageBlobs.length > 0 ? "h-40 sm:h-52" : "h-28"
+                )}>
+                  {bannerImageBlobs.length > 0 ? (
+                    <MobilePhotoCollage blobs={bannerImageBlobs} />
+                  ) : bannerSticker && (() => {
+                    const def = ALL_STICKERS.find(s => s.id === bannerSticker);
+                    if (!def) return null;
+                    return (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
+                        <def.component size={72} {...(def.props as any)} className="drop-shadow-lg" />
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Recording waveform overlay */}
               {isRecording && (
                 <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden rounded-2xl">
