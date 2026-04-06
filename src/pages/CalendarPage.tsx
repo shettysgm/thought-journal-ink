@@ -355,9 +355,8 @@ export default function CalendarPage() {
                 <Card
                   key={entry.id}
                   className={cn(
-                    "shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-visible",
-                    getBorderClassName(entry.cardBorder),
-                    !entryTemplate && stickerDef && !entryBlobs.length && "mt-8"
+                    "shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden",
+                    getBorderClassName(entry.cardBorder)
                   )}
                   style={getPatternStyle(entry.cardBackground)}
                   onClick={() => navigate(`/unified?edit=${entry.id}`)}
@@ -405,12 +404,10 @@ export default function CalendarPage() {
                     </div>
                   )}
 
-                  {/* Banner sticker peeking from header edge */}
+                  {/* Banner sticker between header and content */}
                   {stickerDef && !entryBlobs.length && (
-                    <div className="relative h-6">
-                      <div className="absolute left-1/2 -translate-x-1/2 -top-6 pointer-events-none drop-shadow-lg z-10">
-                        <stickerDef.component size={52} {...(stickerDef.props as any)} />
-                      </div>
+                    <div className="flex justify-center py-2">
+                      <stickerDef.component size={48} {...(stickerDef.props as any)} className="drop-shadow-md" />
                     </div>
                   )}
                   <CardContent className="p-4">
