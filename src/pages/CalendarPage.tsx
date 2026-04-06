@@ -355,9 +355,8 @@ export default function CalendarPage() {
                 <Card
                   key={entry.id}
                   className={cn(
-                    "shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-visible",
-                    getBorderClassName(entry.cardBorder),
-                    !entryTemplate && stickerDef && !entryBlobs.length && "mt-8"
+                    "shadow-soft hover:shadow-medium transition-shadow cursor-pointer overflow-hidden",
+                    getBorderClassName(entry.cardBorder)
                   )}
                   style={getPatternStyle(entry.cardBackground)}
                   onClick={() => navigate(`/unified?edit=${entry.id}`)}
