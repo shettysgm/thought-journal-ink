@@ -1328,7 +1328,7 @@ export default function UnifiedJournalPage() {
                     persistBannerState(blobs, bannerStickerRef.current);
                   }}
                   onStickerChange={(id) => {
-                    persistBannerState([], id);
+                    persistBannerState(id ? [] : bannerImageBlobsRef.current, id);
                   }}
                 />
               </div>
