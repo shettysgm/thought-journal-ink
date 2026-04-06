@@ -450,6 +450,11 @@ export default function CalendarPage() {
                       </div>
                     )}
 
+                    {!entryBlobs.length && stickerDef && (
+                      <div className="flex justify-center mb-3">
+                        <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
+                      </div>
+                    )}
 
                     {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
