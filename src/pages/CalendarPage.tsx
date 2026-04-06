@@ -398,6 +398,19 @@ export default function CalendarPage() {
                           ))}
                         </div>
                       )}
+                      {/* Banner sticker in header */}
+                      {stickerDef && !entryBlobs.length && (
+                        <div className="flex items-center justify-center py-3 bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
+                          <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Sticker when no template */}
+                  {!entryTemplate && stickerDef && !entryBlobs.length && (
+                    <div className="flex items-center justify-center py-3 rounded-t-xl bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
+                      <stickerDef.component size={56} {...(stickerDef.props as any)} className="drop-shadow-md" />
                     </div>
                   )}
                   <CardContent className="p-4">
@@ -416,26 +429,40 @@ export default function CalendarPage() {
                     )}
 
                     {entryBlobs.length > 0 && (
-                      <div className={cn("w-full -mx-4 mb-3 overflow-hidden", entryBlobs.length === 1 ? "h-36" : "")}>
+                      <div className="w-full mb-3 overflow-hidden rounded-lg">
                         {entryBlobs.length === 1 ? (
-                          <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
-                        ) : (
-                          <div className="flex gap-1 overflow-x-auto snap-x snap-mandatory h-36">
+                          <div className="h-36">
+                            <BlobImage blob={entryBlobs[0]} alt="Journal banner" className="w-full h-full" />
+                          </div>
+                        ) : entryBlobs.length === 2 ? (
+                          <div className="grid grid-cols-2 gap-0.5 h-36">
                             {entryBlobs.map((blob, i) => (
-                              <div key={i} className="flex-shrink-0 snap-center h-full" style={{ width: entryBlobs.length === 2 ? '50%' : '70%' }}>
+                              <div key={i} className="overflow-hidden min-h-0">
                                 <BlobImage blob={blob} alt={`Photo ${i + 1}`} className="w-full h-full" />
                               </div>
                             ))}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 grid-rows-2 gap-0.5 h-44">
+                            <div className="row-span-2 overflow-hidden min-h-0">
+                              <BlobImage blob={entryBlobs[0]} alt="Photo 1" className="w-full h-full" />
+                            </div>
+                            <div className="overflow-hidden min-h-0">
+                              <BlobImage blob={entryBlobs[1]} alt="Photo 2" className="w-full h-full" />
+                            </div>
+                            <div className="overflow-hidden min-h-0 relative">
+                              <BlobImage blob={entryBlobs[2]} alt="Photo 3" className="w-full h-full" />
+                              {entryBlobs.length > 3 && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                  <span className="text-white font-semibold text-sm">+{entryBlobs.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
                     )}
 
-                    {!entryBlobs.length && stickerDef && (
-                      <div className="flex justify-center mb-3">
-                        <stickerDef.component size={72} {...(stickerDef.props as any)} />
-                      </div>
-                    )}
 
                     {entry.tags && entry.tags.filter(t => t !== 'unified').length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
