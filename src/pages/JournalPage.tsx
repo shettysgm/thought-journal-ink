@@ -75,6 +75,17 @@ const TEMPLATES = [
     bgAccent: 'bg-stone-50 dark:bg-stone-900/30',
     borderAccent: 'border-stone-200 dark:border-stone-700/40',
   },
+  {
+    id: 'thought-record',
+    title: 'Thought Record',
+    subtitle: 'CBT worksheet',
+    description: 'Examine a thought step-by-step and find a balanced perspective.',
+    path: '/thought-record',
+    image: templateCbt,
+    gradient: 'from-sky-200 to-sky-300',
+    bgAccent: 'bg-sky-50 dark:bg-sky-900/30',
+    borderAccent: 'border-sky-200 dark:border-sky-700/40',
+  },
 ];
 export default function JournalPage() {
   return (
