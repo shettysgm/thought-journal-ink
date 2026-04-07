@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Check, Sparkles, Dumbbell, Users, Clock, CalendarDays, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, Check, Sparkles, Dumbbell, Users, Clock, CalendarDays, CalendarPlus, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useEntries } from '@/store/useEntries';
@@ -71,6 +71,7 @@ export default function ActivityPlanner() {
   const [customActivity, setCustomActivity] = useState('');
   const [timing, setTiming] = useState('');
   const [saving, setSaving] = useState(false);
+  const [remindMe, setRemindMe] = useState(true);
 
   const totalSteps = 5;
   const selectedActivity = activity || customActivity;
@@ -119,15 +120,16 @@ export default function ActivityPlanner() {
 
     await createEntry({ text, templateId: 'activity-plan', tags: ['activity-plan', catLabel.toLowerCase()] });
 
-    // Schedule a reminder notification on the target day
-    const { reminderTime } = useSettings.getState();
-    const [h, m] = reminderTime ? reminderTime.split(':').map(Number) : [9, 0];
-    const now = new Date();
-    let targetDate = now;
-    if (timing === 'tomorrow') targetDate = addDays(now, 1);
-    else if (timing === 'this-week') targetDate = addDays(now, 3); // mid-week nudge
-
-    await scheduleActivityReminder(selectedActivity, targetDate, h, m);
+    // Schedule a reminder notification if opted in
+    if (remindMe) {
+      const { reminderTime } = useSettings.getState();
+      const [h, m] = reminderTime ? reminderTime.split(':').map(Number) : [9, 0];
+      const now = new Date();
+      let targetDate = now;
+      if (timing === 'tomorrow') targetDate = addDays(now, 1);
+      else if (timing === 'this-week') targetDate = addDays(now, 3);
+      await scheduleActivityReminder(selectedActivity, targetDate, h, m);
+    }
 
     navigate('/journal');
   };
@@ -290,6 +292,29 @@ export default function ActivityPlanner() {
                     );
                   })}
                 </div>
+
+                {/* Reminder toggle */}
+                {timing && (
+                  <button
+                    onClick={() => setRemindMe(r => !r)}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left mt-2 ${
+                      remindMe
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:bg-muted'
+                    }`}
+                  >
+                    <Bell className={`w-5 h-5 ${remindMe ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-foreground">Remind me</span>
+                      <p className="text-[11px] text-muted-foreground">
+                        {timing === 'today' ? 'Get a nudge today' : timing === 'tomorrow' ? 'Get a nudge tomorrow morning' : 'Get a nudge mid-week'}
+                      </p>
+                    </div>
+                    <div className={`w-9 h-5 rounded-full transition-colors ${remindMe ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+                      <div className={`w-4 h-4 rounded-full bg-white mt-0.5 transition-transform ${remindMe ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+                    </div>
+                  </button>
+                )}
               </>
             )}
 
