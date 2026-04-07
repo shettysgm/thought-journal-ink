@@ -54,17 +54,6 @@ const TEMPLATES = [
     borderAccent: 'border-slate-200 dark:border-slate-700/40',
   },
   {
-    id: 'thought-reframe',
-    title: 'Thought Reframe',
-    subtitle: 'Challenge your thoughts',
-    description: 'What happened → What you thought → A kinder perspective.',
-    path: '/unified',
-    image: templateCbt,
-    gradient: 'from-gray-200 to-gray-300',
-    bgAccent: 'bg-gray-50 dark:bg-gray-900/30',
-    borderAccent: 'border-gray-200 dark:border-gray-700/40',
-  },
-  {
     id: 'late-night',
     title: 'Late Night Thoughts',
     subtitle: 'For the quiet hours',
