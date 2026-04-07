@@ -131,7 +131,7 @@ export default function ActivityPlanner() {
       await scheduleActivityReminder(selectedActivity, targetDate, h, m);
     }
 
-    navigate('/journal');
+    navigate('/calendar');
   };
 
   return (
