@@ -97,8 +97,8 @@ export default function QuizPage() {
 
           <Card className="shadow-medium">
             <CardContent className="p-8 text-center">
-              <HelpCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Not Enough Data</h3>
+              <HelpCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-base font-semibold mb-2">Not Enough Data</h3>
               <p className="text-muted-foreground mb-4">
                 You need to journal more to generate quiz questions from your own thought patterns.
               </p>
@@ -140,10 +140,10 @@ export default function QuizPage() {
               <CardTitle className="text-center">Your Results</CardTitle>
             </CardHeader>
             <CardContent className="p-8 text-center space-y-6">
-              <div className={`text-6xl font-bold ${getScoreColor(result.score, result.total)}`}>
+              <div className={`text-4xl font-bold ${getScoreColor(result.score, result.total)}`}>
                 {result.score}/{result.total}
               </div>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {result.score === result.total && "Perfect! "}
                 {result.score >= result.total * 0.8 && result.score < result.total && "Great job! "}
                 {result.score >= result.total * 0.6 && result.score < result.total * 0.8 && "Good work! "}
@@ -248,7 +248,7 @@ export default function QuizPage() {
               
               {/* Question phrase */}
               <div className="p-4 bg-muted/30 rounded-lg border-l-4 border-primary">
-                <p className="text-lg italic">"{currentQuestion.phrase}"</p>
+                <p className="text-sm italic">"{currentQuestion.phrase}"</p>
               </div>
 
               {/* Answer options */}
