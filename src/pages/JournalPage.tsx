@@ -97,9 +97,9 @@ export default function JournalPage() {
           {TEMPLATES.map((template) => (
             <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
               <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card">
-                <div className="p-4 flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
-                    <img src={template.image} alt={template.title} className="w-6 h-6 object-contain" loading="lazy" />
+                <div className="p-4 flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
+                    <img src={template.image} alt={template.title} className="w-10 h-10 object-contain" loading="lazy" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
