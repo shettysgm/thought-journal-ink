@@ -14,8 +14,8 @@ const TEMPLATES = [
     subtitle: 'How was your day, really?',
     path: '/unified',
     image: templateFreeWrite,
-    iconBg: 'bg-violet-100 dark:bg-violet-900/40',
-    pill: 'text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/50',
+    iconBg: 'bg-stone-100 dark:bg-stone-800/40',
+    pill: 'text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800/50',
   },
   {
     id: 'anxiety-dump',
@@ -23,8 +23,8 @@ const TEMPLATES = [
     subtitle: 'Let it all out',
     path: '/unified',
     image: templateVoice,
-    iconBg: 'bg-rose-100 dark:bg-rose-900/40',
-    pill: 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50',
+    iconBg: 'bg-warm-gray-100 bg-zinc-100 dark:bg-zinc-800/40',
+    pill: 'text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800/50',
   },
   {
     id: 'gratitude',
@@ -32,8 +32,8 @@ const TEMPLATES = [
     subtitle: '3 good things today',
     path: '/unified',
     image: templateGratitude,
-    iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-    pill: 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50',
+    iconBg: 'bg-orange-50 dark:bg-orange-900/30',
+    pill: 'text-orange-700/70 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/40',
   },
   {
     id: 'late-night',
@@ -41,8 +41,8 @@ const TEMPLATES = [
     subtitle: 'For the quiet hours',
     path: '/unified',
     image: templateWinddown,
-    iconBg: 'bg-indigo-100 dark:bg-indigo-900/40',
-    pill: 'text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50',
+    iconBg: 'bg-slate-100 dark:bg-slate-800/40',
+    pill: 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/50',
   },
   {
     id: 'thought-record',
@@ -50,8 +50,8 @@ const TEMPLATES = [
     subtitle: 'CBT worksheet',
     path: '/thought-record',
     image: templateCbt,
-    iconBg: 'bg-sky-100 dark:bg-sky-900/40',
-    pill: 'text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/50',
+    iconBg: 'bg-sky-50 dark:bg-sky-900/30',
+    pill: 'text-sky-700/70 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/40',
   },
   {
     id: 'activity-plan',
@@ -59,8 +59,8 @@ const TEMPLATES = [
     subtitle: 'Break the cycle',
     path: '/activity-plan',
     image: templateMood,
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
-    pill: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50',
+    iconBg: 'bg-teal-50 dark:bg-teal-900/30',
+    pill: 'text-teal-700/70 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/40',
   },
 ];
 
