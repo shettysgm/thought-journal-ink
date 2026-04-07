@@ -96,8 +96,8 @@ export default function JournalPage() {
         <Link to={`${TEMPLATES[0].path}?template=${TEMPLATES[0].id}`} className="block">
           <div className="relative rounded-2xl overflow-hidden bg-card border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group">
             <div className="flex items-center gap-4 p-5">
-              <div className={`w-14 h-14 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
-                <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-10 h-10 object-contain" loading="lazy" />
+              <div className={`w-16 h-16 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
+                <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-14 h-14 object-contain" loading="lazy" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-[15px] font-semibold text-foreground">{TEMPLATES[0].title}</h3>
@@ -124,8 +124,8 @@ export default function JournalPage() {
                 {spanFull ? (
                   <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group bg-card">
                     <div className="flex items-center gap-4 p-4">
-                      <div className={`w-12 h-12 rounded-xl ${template.iconBg} flex items-center justify-center shrink-0`}>
-                        <img src={template.image} alt={template.title} className="w-8 h-8 object-contain" loading="lazy" />
+                      <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center shrink-0`}>
+                        <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-foreground">{template.title}</h3>
@@ -141,8 +141,8 @@ export default function JournalPage() {
                 ) : (
                   <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
                     <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[148px] justify-center">
-                      <div className={`w-12 h-12 rounded-xl ${template.iconBg} flex items-center justify-center`}>
-                        <img src={template.image} alt={template.title} loading="lazy" className="w-8 h-8 object-contain" />
+                      <div className={`w-16 h-16 rounded-xl ${template.iconBg} flex items-center justify-center`}>
+                        <img src={template.image} alt={template.title} loading="lazy" className="w-14 h-14 object-contain" />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-foreground leading-tight">{template.title}</h3>
