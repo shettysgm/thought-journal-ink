@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Hand, Ear, Flower, Coffee, ChevronRight, RotateCcw } from 'lucide-react';
+import { Eye, Hand, Ear, Flower, Coffee, ChevronRight, RotateCcw, Check, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 
 const STEPS = [
-  { sense: 'See', count: 5, icon: Eye, prompt: 'Name 5 things you can see', color: 'hsl(var(--primary))' },
-  { sense: 'Touch', count: 4, icon: Hand, prompt: 'Name 4 things you can touch', color: 'hsl(var(--accent))' },
-  { sense: 'Hear', count: 3, icon: Ear, prompt: 'Name 3 things you can hear', color: 'hsl(var(--primary))' },
-  { sense: 'Smell', count: 2, icon: Flower, prompt: 'Name 2 things you can smell', color: 'hsl(var(--accent))' },
-  { sense: 'Taste', count: 1, icon: Coffee, prompt: 'Name 1 thing you can taste', color: 'hsl(var(--primary))' },
+  { sense: 'See', count: 5, icon: Eye, prompt: 'Notice 5 things you can see' },
+  { sense: 'Touch', count: 4, icon: Hand, prompt: 'Notice 4 things you can touch' },
+  { sense: 'Hear', count: 3, icon: Ear, prompt: 'Notice 3 things you can hear' },
+  { sense: 'Smell', count: 2, icon: Flower, prompt: 'Notice 2 things you can smell' },
+  { sense: 'Taste', count: 1, icon: Coffee, prompt: 'Notice 1 thing you can taste' },
 ] as const;
 
 const COMPLETIONS = [
@@ -22,13 +22,14 @@ const COMPLETIONS = [
 export default function GroundingExercise() {
   const [started, setStarted] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const [inputs, setInputs] = useState<string[][]>(STEPS.map(s => Array(s.count).fill('')));
+  const [tapped, setTapped] = useState<number[]>(STEPS.map(() => 0));
+  const [notes, setNotes] = useState<string[]>(STEPS.map(() => ''));
+  const [showNote, setShowNote] = useState<boolean[]>(STEPS.map(() => false));
   const [done, setDone] = useState(false);
 
   const step = STEPS[stepIndex];
-  const progress = ((stepIndex) / STEPS.length) * 100;
-
-  const canAdvance = inputs[stepIndex].every(v => v.trim().length > 0);
+  const progress = (stepIndex / STEPS.length) * 100;
+  const canAdvance = tapped[stepIndex] >= step.count;
 
   const advance = useCallback(() => {
     if (stepIndex < STEPS.length - 1) {
@@ -41,18 +42,37 @@ export default function GroundingExercise() {
   const reset = useCallback(() => {
     setStarted(false);
     setStepIndex(0);
-    setInputs(STEPS.map(s => Array(s.count).fill('')));
+    setTapped(STEPS.map(() => 0));
+    setNotes(STEPS.map(() => ''));
+    setShowNote(STEPS.map(() => false));
     setDone(false);
   }, []);
 
-  const updateInput = (itemIndex: number, value: string) => {
-    setInputs(prev => {
-      const copy = prev.map(arr => [...arr]);
-      copy[stepIndex][itemIndex] = value;
+  const handleTap = () => {
+    setTapped(prev => {
+      const copy = [...prev];
+      if (copy[stepIndex] < step.count) copy[stepIndex]++;
       return copy;
     });
   };
 
+  const toggleNote = () => {
+    setShowNote(prev => {
+      const copy = [...prev];
+      copy[stepIndex] = !copy[stepIndex];
+      return copy;
+    });
+  };
+
+  const updateNote = (value: string) => {
+    setNotes(prev => {
+      const copy = [...prev];
+      copy[stepIndex] = value;
+      return copy;
+    });
+  };
+
+  // Intro screen
   if (!started) {
     return (
       <div className="flex flex-col items-center text-center gap-5 px-6 py-8">
@@ -78,6 +98,7 @@ export default function GroundingExercise() {
     );
   }
 
+  // Completion screen
   if (done) {
     return (
       <motion.div
@@ -90,7 +111,7 @@ export default function GroundingExercise() {
           className="w-20 h-20 rounded-full flex items-center justify-center"
           style={{ backgroundColor: 'hsl(var(--primary) / 0.12)' }}
         >
-          <Eye className="w-8 h-8 text-primary" />
+          <Check className="w-8 h-8 text-primary" />
         </div>
         <h2 className="text-lg font-semibold text-foreground">All done</h2>
         <p className="text-sm text-muted-foreground max-w-[240px]">
@@ -104,9 +125,11 @@ export default function GroundingExercise() {
   }
 
   const Icon = step.icon;
+  const count = tapped[stepIndex];
+  const total = step.count;
 
   return (
-    <div className="flex flex-col items-center px-6 pt-2 pb-4 gap-6">
+    <div className="flex flex-col items-center px-6 pt-2 pb-4 gap-5">
       {/* Progress */}
       <div className="w-full max-w-[300px]">
         <div className="flex justify-between text-[11px] text-muted-foreground mb-1.5">
@@ -120,7 +143,7 @@ export default function GroundingExercise() {
       <AnimatePresence mode="wait">
         <motion.div
           key={stepIndex}
-          className="flex flex-col items-center gap-5 w-full max-w-[300px]"
+          className="flex flex-col items-center gap-4 w-full max-w-[300px]"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -30 }}
@@ -137,19 +160,62 @@ export default function GroundingExercise() {
           {/* Prompt */}
           <p className="text-sm font-medium text-foreground text-center">{step.prompt}</p>
 
-          {/* Inputs */}
-          <div className="w-full flex flex-col gap-2.5">
-            {inputs[stepIndex].map((val, i) => (
-              <Input
+          {/* Tap counter dots */}
+          <div className="flex items-center gap-2.5">
+            {Array.from({ length: total }).map((_, i) => (
+              <motion.div
                 key={i}
-                value={val}
-                onChange={e => updateInput(i, e.target.value)}
-                placeholder={`${step.sense} #${i + 1}`}
-                className="h-9 text-sm"
-                autoFocus={i === 0}
-              />
+                className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                style={{
+                  backgroundColor: i < count
+                    ? 'hsl(var(--primary))'
+                    : 'hsl(var(--muted))',
+                }}
+                whileTap={{ scale: 0.9 }}
+                animate={i < count ? { scale: [1, 1.15, 1] } : {}}
+                transition={{ duration: 0.2 }}
+                onClick={i === count ? handleTap : undefined}
+              >
+                {i < count && <Check className="w-4 h-4 text-primary-foreground" />}
+              </motion.div>
             ))}
           </div>
+
+          {/* Tap instruction */}
+          <p className="text-xs text-muted-foreground">
+            {count < total
+              ? `Tap when you notice each one (${count}/${total})`
+              : 'All noticed ✓'}
+          </p>
+
+          {/* Optional note toggle */}
+          <button
+            onClick={toggleNote}
+            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <PenLine className="w-3 h-3" />
+            {showNote[stepIndex] ? 'Hide notes' : 'Want to write them down?'}
+          </button>
+
+          {/* Optional note input */}
+          <AnimatePresence>
+            {showNote[stepIndex] && (
+              <motion.div
+                className="w-full"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Input
+                  value={notes[stepIndex]}
+                  onChange={e => updateNote(e.target.value)}
+                  placeholder={`What do you ${step.sense.toLowerCase()}?`}
+                  className="h-9 text-sm"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </AnimatePresence>
 
