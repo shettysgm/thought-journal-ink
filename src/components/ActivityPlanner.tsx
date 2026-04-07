@@ -360,9 +360,9 @@ export default function ActivityPlanner() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom button */}
+      {/* Bottom button — only show on steps that need it */}
       <div className="px-5 pt-4">
-        {step < totalSteps ? (
+        {step === 3 ? (
           <Button
             onClick={goNext}
             disabled={!canAdvance()}
@@ -370,7 +370,15 @@ export default function ActivityPlanner() {
           >
             Continue
           </Button>
-        ) : (
+        ) : step === 4 ? (
+          <Button
+            onClick={goNext}
+            disabled={!canAdvance()}
+            className="w-full h-12 rounded-xl text-sm font-semibold"
+          >
+            Continue
+          </Button>
+        ) : step === totalSteps ? (
           <Button
             onClick={handleSave}
             disabled={saving}
@@ -379,7 +387,7 @@ export default function ActivityPlanner() {
             <Check className="w-4 h-4" />
             {saving ? 'Saving...' : 'Set this intention'}
           </Button>
-        )}
+        ) : null}
       </div>
     </div>
   );
