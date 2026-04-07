@@ -193,13 +193,39 @@ export default function ThoughtRecord() {
 
     const allLabels = [...new Set([...data.emotionsBefore.map(e => e.label), ...data.emotionsAfter.map(e => e.label)])];
 
+    const improved = allLabels.some(label => {
+      const shift = getShift(label);
+      return shift && shift.diff > 0;
+    });
+
     return (
       <div className="space-y-5">
         <div className="text-center">
           <Brain className="w-10 h-10 mx-auto text-primary mb-2" />
           <h2 className="text-lg font-semibold text-foreground">Thought Record Complete</h2>
-          <p className="text-xs text-muted-foreground mt-1">Here's how your emotions shifted</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {improved ? "Here's how your emotions shifted" : "You showed up for yourself — that matters"}
+          </p>
         </div>
+
+        {!improved && (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center space-y-2">
+            <p className="text-sm text-foreground">
+              It's completely normal not to feel better right away. Noticing your thought patterns is the most important step in CBT.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Change builds over time with practice. You've already done the hardest part.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => navigate('/breathe')}
+            >
+              Try a Grounding or Breathing Exercise
+            </Button>
+          </div>
+        )}
 
         <div className="rounded-xl border border-border bg-card p-4 space-y-3">
           {allLabels.map(label => {
