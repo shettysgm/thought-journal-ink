@@ -83,16 +83,16 @@ export default function QuizPage() {
   if (questions.length === 0) {
     return (
       <div 
-        className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+        className="min-h-screen bg-white dark:bg-background px-5 pb-24"
         style={{ 
-          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+          paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
         }}
       >
-        <div className="max-w-4xl mx-auto space-y-6">
-          <header className="mt-2">
-              <h1 className="text-3xl font-bold text-foreground">CBT Quiz</h1>
-              <p className="text-muted-foreground">Practice identifying cognitive distortions</p>
+        <div className="max-w-lg mx-auto space-y-5">
+          <header className="mt-1">
+              <h1 className="text-lg font-semibold text-foreground">CBT Quiz</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Practice identifying cognitive distortions</p>
           </header>
 
           <Card className="shadow-medium">
@@ -123,16 +123,16 @@ export default function QuizPage() {
   if (quizCompleted && result) {
     return (
       <div 
-        className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+        className="min-h-screen bg-white dark:bg-background px-5 pb-24"
         style={{ 
-          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-          paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+          paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
         }}
       >
-        <div className="max-w-4xl mx-auto space-y-6">
-          <header className="mt-2">
-              <h1 className="text-3xl font-bold text-foreground">Quiz Complete!</h1>
-              <p className="text-muted-foreground">Here's how you did</p>
+        <div className="max-w-lg mx-auto space-y-5">
+          <header className="mt-1">
+              <h1 className="text-lg font-semibold text-foreground">Quiz Complete!</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Here's how you did</p>
           </header>
 
           <Card className="shadow-medium">
@@ -213,18 +213,18 @@ export default function QuizPage() {
 
   return (
     <div 
-      className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+      className="min-h-screen bg-white dark:bg-background px-5 pb-24"
       style={{ 
-        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-5">
         
         {/* Header */}
-        <header className="mt-2">
-            <h1 className="text-3xl font-bold text-foreground">CBT Quiz</h1>
-            <p className="text-muted-foreground">Practice identifying cognitive distortions</p>
+        <header className="mt-1">
+            <h1 className="text-lg font-semibold text-foreground">CBT Quiz</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Practice identifying cognitive distortions</p>
         </header>
 
         {/* Progress */}

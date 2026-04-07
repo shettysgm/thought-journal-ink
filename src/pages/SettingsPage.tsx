@@ -184,18 +184,18 @@ export default function SettingsPage() {
 
   return (
     <div 
-      className="min-h-screen bg-white px-4 md:px-6 pt-14 pb-6"
+      className="min-h-screen bg-white dark:bg-background px-5 pb-24"
       style={{ 
-        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-        paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))'
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-5">
         
         {/* Header */}
-        <header className="mt-2">
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your privacy and preferences</p>
+        <header className="mt-1">
+            <h1 className="text-lg font-semibold text-foreground">Settings</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Manage your privacy and preferences</p>
         </header>
 
         {/* Storage Usage */}
