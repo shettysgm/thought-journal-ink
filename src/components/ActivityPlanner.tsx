@@ -353,6 +353,18 @@ export default function ActivityPlanner() {
                       <p className="text-sm font-medium text-foreground">{TIMINGS.find(t => t.id === timing)?.label}</p>
                     </div>
                   </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center gap-3">
+                    <Bell className={`w-5 h-5 ${remindMe ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Reminder</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {remindMe
+                          ? timing === 'today' ? 'Nudge today' : timing === 'tomorrow' ? 'Nudge tomorrow morning' : 'Nudge mid-week'
+                          : 'Off'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
