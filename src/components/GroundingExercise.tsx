@@ -80,7 +80,7 @@ export default function GroundingExercise() {
           className="w-16 h-16 rounded-full flex items-center justify-center"
           style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
         >
-          <Eye className="w-7 h-7 text-primary" />
+          <Scan className="w-7 h-7 text-primary" />
         </div>
         <h2 className="text-base font-semibold text-foreground">5-4-3-2-1 Grounding</h2>
         <div className="max-w-[280px] space-y-3">
