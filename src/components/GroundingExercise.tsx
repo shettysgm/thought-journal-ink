@@ -83,14 +83,9 @@ export default function GroundingExercise() {
           <Scan className="w-7 h-7 text-primary" />
         </div>
         <h2 className="text-base font-semibold text-foreground">5-4-3-2-1 Grounding</h2>
-        <div className="max-w-[280px] space-y-3">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            When anxiety pulls you out of the present, this technique anchors you back by engaging all five senses.
-          </p>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            It interrupts the fight-or-flight response and redirects your brain toward what's real and safe around you — a clinically backed method for managing panic and overwhelm.
-          </p>
-        </div>
+        <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
+          Engage your five senses to anchor yourself in the present moment.
+        </p>
         <Button onClick={() => setStarted(true)} className="rounded-full px-6 mt-2" size="sm">
           Begin Exercise
         </Button>
