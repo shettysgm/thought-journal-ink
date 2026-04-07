@@ -10,7 +10,7 @@ import { useEntries } from '@/store/useEntries';
 
 const EMOTIONS = [
   { label: 'Anxious', emoji: '😰' },
-  { label: 'Sad', emoji: '😢' },
+  { label: 'Overwhelmed', emoji: '😩' },
   { label: 'Angry', emoji: '😠' },
   { label: 'Guilty', emoji: '😔' },
   { label: 'Hopeless', emoji: '😞' },
