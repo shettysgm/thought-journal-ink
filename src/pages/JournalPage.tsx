@@ -70,7 +70,7 @@ export default function JournalPage() {
 
   return (
     <div
-      className="min-h-screen bg-background px-5 pb-24"
+      className="min-h-screen bg-white dark:bg-background px-5 pb-24"
       style={{
         paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
@@ -94,7 +94,7 @@ export default function JournalPage() {
 
         {/* Featured hero card */}
         <Link to={`${TEMPLATES[0].path}?template=${TEMPLATES[0].id}`} className="block">
-          <div className="relative rounded-2xl overflow-hidden bg-card border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group">
+          <div className="relative rounded-2xl overflow-hidden bg-card border-0 shadow-sm hover:shadow-xl active:scale-[0.98] transition-all duration-200 group">
             <div className="flex items-center gap-4 p-5">
               <div className={`w-16 h-16 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
                 <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-14 h-14 object-contain" loading="lazy" />
@@ -122,7 +122,7 @@ export default function JournalPage() {
                 className={`block ${spanFull ? 'col-span-2' : ''}`}
               >
                 {spanFull ? (
-                  <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group bg-card">
+                  <div className="relative rounded-2xl border-0 shadow-sm overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group bg-card">
                     <div className="flex items-center gap-4 p-4">
                       <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center shrink-0`}>
                         <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
@@ -139,7 +139,7 @@ export default function JournalPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
+                  <div className="relative rounded-2xl border-0 shadow-sm overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
                     <div className="p-4 flex flex-col items-center text-center gap-3 min-h-[148px] justify-center">
                       <div className={`w-16 h-16 rounded-xl ${template.iconBg} flex items-center justify-center`}>
                         <img src={template.image} alt={template.title} loading="lazy" className="w-14 h-14 object-contain" />
