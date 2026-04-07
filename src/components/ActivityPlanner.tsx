@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, Sparkles, Dumbbell, Users, Clock, CalendarDays, CalendarPlus, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ const slideVariants = {
 
 export default function ActivityPlanner() {
   const navigate = useNavigate();
-  const { createEntry } = useEntries();
+  const { createEntry, entries, loadEntries } = useEntries();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [moodBefore, setMoodBefore] = useState<number | null>(null);
@@ -72,6 +72,24 @@ export default function ActivityPlanner() {
   const [timing, setTiming] = useState('');
   const [saving, setSaving] = useState(false);
   const [remindMe, setRemindMe] = useState(true);
+
+  // Check if an activity plan already exists today — redirect to edit it
+  useEffect(() => {
+    const check = async () => {
+      await loadEntries();
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+      const existing = useEntries.getState().entries.find(e => {
+        const d = new Date(e.createdAt);
+        return d >= startOfDay && d <= endOfDay && e.templateId === 'activity-plan';
+      });
+      if (existing) {
+        navigate(`/unified?edit=${existing.id}`, { replace: true });
+      }
+    };
+    check();
+  }, [loadEntries, navigate]);
 
   const totalSteps = 5;
   const selectedActivity = activity || customActivity;

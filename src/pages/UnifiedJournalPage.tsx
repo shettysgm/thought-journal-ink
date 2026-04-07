@@ -284,7 +284,24 @@ export default function UnifiedJournalPage() {
             });
           }
         } else if (templateId) {
-          // Template or daily prompt selected — always start a fresh entry
+          // Template selected — check if today already has an entry with this template
+          const currentEntries = useEntries.getState().entries;
+          const today = new Date();
+          const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+          const existingTemplateEntry = currentEntries.find(entry => {
+            const entryDate = new Date(entry.createdAt);
+            return entryDate >= startOfDay && entryDate <= endOfDay && entry.templateId === templateId;
+          });
+
+          if (existingTemplateEntry) {
+            // Reopen existing entry for editing instead of creating duplicate
+            console.log('Found existing template entry for today, reopening:', existingTemplateEntry.id);
+            navigate(`/unified?edit=${existingTemplateEntry.id}`, { replace: true });
+            return;
+          }
+
+          // No existing entry — start a fresh one
           setIsNewSession(true);
           setEntryId(null);
           setText('');
