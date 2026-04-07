@@ -244,7 +244,7 @@ export default function ActivityPlanner() {
                   {SUGGESTIONS[category].map(s => (
                     <button
                       key={s}
-                      onClick={() => { setActivity(s); setCustomActivity(''); }}
+                      onClick={() => { setActivity(s); setCustomActivity(''); setTimeout(goNext, 300); }}
                       className={`px-3 py-2 rounded-xl text-sm transition-all border ${
                         activity === s
                           ? 'border-primary bg-primary/10 text-primary font-medium'
@@ -279,7 +279,7 @@ export default function ActivityPlanner() {
                     return (
                       <button
                         key={t.id}
-                        onClick={() => { setTiming(t.id); }}
+                        onClick={() => { setTiming(t.id); setTimeout(goNext, 300); }}
                         className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                           timing === t.id
                             ? 'border-primary bg-primary/5 ring-1 ring-primary'
