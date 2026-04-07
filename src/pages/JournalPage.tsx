@@ -115,32 +115,54 @@ export default function JournalPage() {
 
         {/* Grid — remaining templates */}
         <div className="grid grid-cols-2 gap-3">
-          {TEMPLATES.slice(1).map((template) => (
-            <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
-              <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
+          {TEMPLATES.slice(1).map((template, i) => {
+            const isLast = i === TEMPLATES.slice(1).length - 1;
+            const isOdd = TEMPLATES.slice(1).length % 2 === 1;
+            const spanFull = isLast && isOdd;
 
-                <div className="relative p-4 flex flex-col items-center text-center gap-3 min-h-[160px]">
-                  {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center mt-1`}>
-                    <img
-                      src={template.image}
-                      alt={template.title}
-                      loading="lazy"
-                      className="w-10 h-10 object-contain"
-                    />
+            return (
+              <Link
+                key={template.id}
+                to={`${template.path}?template=${template.id}`}
+                className={`block ${spanFull ? 'col-span-2' : ''}`}
+              >
+                {spanFull ? (
+                  /* Wide horizontal layout for lone last card */
+                  <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group bg-card">
+                    <div className="flex items-center gap-4 p-4">
+                      <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center shrink-0`}>
+                        <img src={template.image} alt={template.title} className="w-10 h-10 object-contain" loading="lazy" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground">{template.title}</h3>
+                        <p className={`text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full inline-block ${template.pill}`}>
+                          {template.subtitle}
+                        </p>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
+                        <ArrowRight className="w-4 h-4 text-primary" />
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Text */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground leading-tight">{template.title}</h3>
-                    <p className={`text-[10px] font-medium mt-1.5 px-2 py-0.5 rounded-full inline-block ${template.pill}`}>
-                      {template.subtitle}
-                    </p>
+                ) : (
+                  /* Standard square card */
+                  <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
+                    <div className="relative p-4 flex flex-col items-center text-center gap-3 min-h-[160px]">
+                      <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center mt-1`}>
+                        <img src={template.image} alt={template.title} loading="lazy" className="w-10 h-10 object-contain" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground leading-tight">{template.title}</h3>
+                        <p className={`text-[10px] font-medium mt-1.5 px-2 py-0.5 rounded-full inline-block ${template.pill}`}>
+                          {template.subtitle}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
