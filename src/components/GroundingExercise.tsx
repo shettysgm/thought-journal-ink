@@ -20,6 +20,7 @@ const COMPLETIONS = [
 ];
 
 export default function GroundingExercise() {
+  const [started, setStarted] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [inputs, setInputs] = useState<string[][]>(STEPS.map(s => Array(s.count).fill('')));
   const [done, setDone] = useState(false);
