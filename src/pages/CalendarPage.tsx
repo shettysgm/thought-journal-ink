@@ -176,7 +176,7 @@ export default function CalendarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+      <div className="min-h-screen bg-white dark:bg-background px-5" style={{ paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))' }}>
         <div className="max-w-lg mx-auto text-center">Loading entries...</div>
       </div>
     );
