@@ -187,7 +187,7 @@ export default function ActivityPlanner() {
                   {MOODS.map(m => (
                     <button
                       key={m.value}
-                      onClick={() => setMoodBefore(m.value)}
+                      onClick={() => { setMoodBefore(m.value); setTimeout(goNext, 300); }}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all ${
                         moodBefore === m.value
                           ? 'bg-primary/10 ring-2 ring-primary scale-110'
@@ -214,7 +214,7 @@ export default function ActivityPlanner() {
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => { setCategory(cat.id); setActivity(''); setCustomActivity(''); }}
+                        onClick={() => { setCategory(cat.id); setActivity(''); setCustomActivity(''); setTimeout(goNext, 300); }}
                         className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                           category === cat.id
                             ? 'border-primary bg-primary/5 ring-1 ring-primary'
@@ -279,7 +279,7 @@ export default function ActivityPlanner() {
                     return (
                       <button
                         key={t.id}
-                        onClick={() => setTiming(t.id)}
+                        onClick={() => { setTiming(t.id); }}
                         className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                           timing === t.id
                             ? 'border-primary bg-primary/5 ring-1 ring-primary'
@@ -360,9 +360,9 @@ export default function ActivityPlanner() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom button */}
+      {/* Bottom button — only show on steps that need it */}
       <div className="px-5 pt-4">
-        {step < totalSteps ? (
+        {step === 3 ? (
           <Button
             onClick={goNext}
             disabled={!canAdvance()}
@@ -370,7 +370,15 @@ export default function ActivityPlanner() {
           >
             Continue
           </Button>
-        ) : (
+        ) : step === 4 ? (
+          <Button
+            onClick={goNext}
+            disabled={!canAdvance()}
+            className="w-full h-12 rounded-xl text-sm font-semibold"
+          >
+            Continue
+          </Button>
+        ) : step === totalSteps ? (
           <Button
             onClick={handleSave}
             disabled={saving}
@@ -379,7 +387,7 @@ export default function ActivityPlanner() {
             <Check className="w-4 h-4" />
             {saving ? 'Saving...' : 'Set this intention'}
           </Button>
-        )}
+        ) : null}
       </div>
     </div>
   );
