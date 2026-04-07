@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, ArrowRight } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
 
 const PROMPTS = [
@@ -46,19 +45,22 @@ export default function DailyPrompt() {
   };
 
   return (
-    <Card
-      className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card"
+    <div
+      className="relative rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-lg active:scale-[0.98] transition-all duration-200 group cursor-pointer"
       onClick={handleClick}
     >
-      <CardContent className="p-4 flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
-          <Lightbulb className="w-[18px] h-[18px] text-accent-strong" strokeWidth={2} />
+      <div className="flex items-center gap-4 p-4">
+        <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
+          <Lightbulb className="w-7 h-7 text-accent-strong" strokeWidth={1.5} />
         </div>
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-primary uppercase tracking-wide">Today's Prompt</p>
-          <p className="text-sm text-foreground leading-relaxed">{prompt}</p>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[15px] font-semibold text-foreground">Today's Prompt</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{prompt}</p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
+          <ArrowRight className="w-4 h-4 text-primary" />
+        </div>
+      </div>
+    </div>
   );
 }
