@@ -223,8 +223,11 @@ export default function GardenPage() {
       <div className="max-w-lg mx-auto space-y-5">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-foreground">Mind Garden</h1>
+        <header className="flex items-center justify-between mt-1">
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">Mind Garden</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Grow with every entry</p>
+          </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{WEATHER_ICONS[weather]}</span>
             <span className="capitalize">{season}</span>
