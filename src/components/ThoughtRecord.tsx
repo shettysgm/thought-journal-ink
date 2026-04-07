@@ -212,16 +212,16 @@ export default function ThoughtRecord() {
                 <div className="flex-1 flex items-center gap-2">
                   <span className="text-xs font-mono text-muted-foreground">{shift.before}</span>
                   <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                  <span className={`text-xs font-mono font-bold ${shift.diff > 0 ? 'text-green-600 dark:text-green-400' : shift.diff < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                  <span className={`text-xs font-mono font-bold ${shift.diff > 0 ? 'text-primary' : shift.diff < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {shift.after}
                   </span>
                   {shift.diff > 0 && (
-                    <span className="text-[10px] text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                    <span className="text-[10px] text-primary flex items-center gap-0.5">
                       <ChevronDown className="w-3 h-3" /> -{shift.diff}
                     </span>
                   )}
                   {shift.diff < 0 && (
-                    <span className="text-[10px] text-red-500 flex items-center gap-0.5">
+                    <span className="text-[10px] text-destructive flex items-center gap-0.5">
                       <ChevronUp className="w-3 h-3" /> +{Math.abs(shift.diff)}
                     </span>
                   )}
