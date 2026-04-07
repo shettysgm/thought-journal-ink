@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, Brain, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,7 +47,25 @@ const STEPS = [
 
 export default function ThoughtRecord() {
   const navigate = useNavigate();
-  const { createEntry } = useEntries();
+  const { createEntry, loadEntries } = useEntries();
+
+  // Check if a thought record already exists today — redirect to edit it
+  useEffect(() => {
+    const check = async () => {
+      await loadEntries();
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+      const existing = useEntries.getState().entries.find(e => {
+        const d = new Date(e.createdAt);
+        return d >= startOfDay && d <= endOfDay && e.templateId === 'thought-record';
+      });
+      if (existing) {
+        navigate(`/unified?edit=${existing.id}`, { replace: true });
+      }
+    };
+    check();
+  }, [loadEntries, navigate]);
   const [step, setStep] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
   const [saving, setSaving] = useState(false);
