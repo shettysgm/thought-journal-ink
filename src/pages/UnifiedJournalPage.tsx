@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic, MicOff, Loader2, Check, Play, Pause, ImagePlus, Camera, Smile } from 'lucide-react';
 import stickerBtnIcon from '@/assets/stickers/sticker-btn-icon.png';
-import JournalSidePanel from '@/components/JournalSidePanel';
+
 import HeaderCustomizer, { GRID_PATTERNS } from '@/components/HeaderCustomizer';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -1337,21 +1337,6 @@ export default function UnifiedJournalPage() {
               )}
             </div>
 
-            {/* Right side panel - hidden on mobile, shown on sm+ */}
-            <div className="hidden sm:block w-48 lg:w-56 flex-shrink-0">
-              <div className="sticky top-20 bg-card rounded-lg shadow-sm border">
-                <JournalSidePanel
-                  imageBlobs={bannerImageBlobs}
-                  selectedSticker={bannerSticker}
-                  onImagesChange={(blobs) => {
-                    persistBannerState(blobs, bannerStickerRef.current);
-                  }}
-                  onStickerChange={(id) => {
-                    persistBannerState(id ? [] : bannerImageBlobsRef.current, id);
-                  }}
-                />
-              </div>
-            </div>
           </div>
 
           {/* Footer stats */}
