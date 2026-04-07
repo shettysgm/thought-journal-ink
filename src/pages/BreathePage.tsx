@@ -144,14 +144,14 @@ function BreathingExercise() {
 export default function BreathePage() {
   return (
     <div
-      className="min-h-screen bg-background flex flex-col items-center px-6"
+      className="min-h-screen bg-white dark:bg-background flex flex-col items-center px-5 pb-24"
       style={{
-        paddingTop: 'max(2rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom) + 5rem))',
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
       <div className="text-center mb-6">
-        <h1 className="text-xl font-semibold text-foreground mb-1">Calm Toolkit</h1>
+        <h1 className="text-lg font-semibold text-foreground mb-1">Calm Toolkit</h1>
         <p className="text-xs text-muted-foreground">Breathing & grounding exercises</p>
       </div>
 

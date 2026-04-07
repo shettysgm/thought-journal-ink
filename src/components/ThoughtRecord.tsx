@@ -337,7 +337,7 @@ export default function ThoughtRecord() {
 
   return (
     <div
-      className="min-h-screen bg-background px-5"
+      className="min-h-screen bg-white dark:bg-background px-5"
       style={{
         paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',

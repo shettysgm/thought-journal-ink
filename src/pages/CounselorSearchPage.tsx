@@ -48,17 +48,17 @@ export default function CounselorSearchPage() {
 
   return (
     <div
-      className="min-h-screen bg-background px-4 md:px-6 pt-14 pb-24"
+      className="min-h-screen bg-white dark:bg-background px-5 pb-24"
       style={{
-        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
-        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 5rem))',
+        paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-5">
         {/* Header */}
-        <header className="mt-2">
-            <h1 className="text-2xl font-bold text-foreground">Find a Counselor</h1>
-            <p className="text-sm text-muted-foreground">Trusted directories & crisis resources</p>
+        <header className="mt-1">
+            <h1 className="text-lg font-semibold text-foreground">Find a Counselor</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Trusted directories & crisis resources</p>
         </header>
 
         {/* Zip code input */}

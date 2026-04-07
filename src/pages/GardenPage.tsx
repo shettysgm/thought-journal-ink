@@ -214,10 +214,10 @@ export default function GardenPage() {
 
   return (
     <div
-      className="min-h-[100svh] px-5 pb-24"
+      className="min-h-[100svh] bg-white dark:bg-background px-5 pb-24"
       style={{
         paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
-        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))'
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
       <div className="max-w-lg mx-auto space-y-5">

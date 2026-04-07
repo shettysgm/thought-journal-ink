@@ -136,7 +136,7 @@ export default function ActivityPlanner() {
 
   return (
     <div
-      className="min-h-screen bg-background flex flex-col"
+      className="min-h-screen bg-white dark:bg-background flex flex-col"
       style={{
         paddingTop: 'max(3rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
         paddingBottom: 'max(2rem, calc(env(safe-area-inset-bottom, 0px) + 2rem))',
