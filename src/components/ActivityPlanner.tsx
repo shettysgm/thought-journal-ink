@@ -4,7 +4,9 @@ import { ArrowLeft, Check, Sparkles, Dumbbell, Users, Clock, CalendarDays, Calen
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useEntries } from '@/store/useEntries';
-import { format } from 'date-fns';
+import { useSettings } from '@/store/useSettings';
+import { scheduleActivityReminder } from '@/lib/notifications';
+import { format, addDays } from 'date-fns';
 
 const MOODS = [
   { value: 1, emoji: '😔', label: 'Low' },
@@ -116,6 +118,17 @@ export default function ActivityPlanner() {
     ].join('\n');
 
     await createEntry({ text, templateId: 'activity-plan', tags: ['activity-plan', catLabel.toLowerCase()] });
+
+    // Schedule a reminder notification on the target day
+    const { reminderTime } = useSettings.getState();
+    const [h, m] = reminderTime ? reminderTime.split(':').map(Number) : [9, 0];
+    const now = new Date();
+    let targetDate = now;
+    if (timing === 'tomorrow') targetDate = addDays(now, 1);
+    else if (timing === 'this-week') targetDate = addDays(now, 3); // mid-week nudge
+
+    await scheduleActivityReminder(selectedActivity, targetDate, h, m);
+
     navigate('/journal');
   };
 
