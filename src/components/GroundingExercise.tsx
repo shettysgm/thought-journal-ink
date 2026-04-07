@@ -20,6 +20,7 @@ const COMPLETIONS = [
 ];
 
 export default function GroundingExercise() {
+  const [started, setStarted] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [inputs, setInputs] = useState<string[][]>(STEPS.map(s => Array(s.count).fill('')));
   const [done, setDone] = useState(false);
@@ -38,6 +39,7 @@ export default function GroundingExercise() {
   }, [stepIndex]);
 
   const reset = useCallback(() => {
+    setStarted(false);
     setStepIndex(0);
     setInputs(STEPS.map(s => Array(s.count).fill('')));
     setDone(false);
@@ -50,6 +52,31 @@ export default function GroundingExercise() {
       return copy;
     });
   };
+
+  if (!started) {
+    return (
+      <div className="flex flex-col items-center text-center gap-5 px-6 py-8">
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
+        >
+          <Eye className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-base font-semibold text-foreground">5-4-3-2-1 Grounding</h2>
+        <div className="max-w-[280px] space-y-3">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            When anxiety pulls you out of the present, this technique anchors you back by engaging all five senses.
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            It interrupts the fight-or-flight response and redirects your brain toward what's real and safe around you — a clinically backed method for managing panic and overwhelm.
+          </p>
+        </div>
+        <Button onClick={() => setStarted(true)} className="rounded-full px-6 mt-2" size="sm">
+          Begin Exercise
+        </Button>
+      </div>
+    );
+  }
 
   if (done) {
     return (
