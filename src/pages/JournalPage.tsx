@@ -118,8 +118,6 @@ export default function JournalPage() {
           {TEMPLATES.slice(1).map((template) => (
             <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
               <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
-                {/* Gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${template.accent} opacity-50`} />
 
                 <div className="relative p-4 flex flex-col items-center text-center gap-3 min-h-[160px]">
                   {/* Icon */}
