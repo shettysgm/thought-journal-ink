@@ -251,6 +251,9 @@ export default function ThoughtRecord() {
                       <ChevronUp className="w-3 h-3" /> +{Math.abs(shift.diff)}
                     </span>
                   )}
+                  {shift.diff === 0 && (
+                    <span className="text-[10px] text-muted-foreground">no change</span>
+                  )}
                 </div>
               </div>
             );
