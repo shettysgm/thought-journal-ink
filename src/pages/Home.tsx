@@ -24,8 +24,11 @@ export default function Home() {
       >
         <div className="max-w-lg mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-foreground">Journal Inc</h1>
+          <header className="flex items-center justify-between mt-1">
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">Journal Inc</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Your daily companion</p>
+            </div>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setIntroSignal((s) => (s ?? 0) + 1)}>
                 <Info className="w-4 h-4" />
@@ -36,7 +39,7 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-          </div>
+          </header>
 
           {/* Prompt */}
           <DailyPrompt />
