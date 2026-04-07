@@ -97,7 +97,7 @@ export default function JournalPage() {
 
         {/* Featured card — first template gets a wide hero layout */}
         <Link to={`${TEMPLATES[0].path}?template=${TEMPLATES[0].id}`} className="block">
-          <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${TEMPLATES[0].accent} border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group`}>
+          <div className="relative rounded-2xl overflow-hidden bg-card border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group">
             <div className="flex items-center gap-4 p-5">
               <div className={`w-16 h-16 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
                 <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-12 h-12 object-contain" loading="lazy" />
