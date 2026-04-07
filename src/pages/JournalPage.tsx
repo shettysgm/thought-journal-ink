@@ -43,17 +43,6 @@ const TEMPLATES = [
     borderAccent: 'border-zinc-200 dark:border-zinc-700/40',
   },
   {
-    id: 'mood-checkin',
-    title: 'Mood Check-in',
-    subtitle: 'How are you really?',
-    description: 'Quick emotional pulse — rate your mood and add a note.',
-    path: '/unified',
-    image: templateMood,
-    gradient: 'from-slate-200 to-slate-300',
-    bgAccent: 'bg-slate-50 dark:bg-slate-900/30',
-    borderAccent: 'border-slate-200 dark:border-slate-700/40',
-  },
-  {
     id: 'late-night',
     title: 'Late Night Thoughts',
     subtitle: 'For the quiet hours',
