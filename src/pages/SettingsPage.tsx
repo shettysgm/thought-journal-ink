@@ -224,7 +224,7 @@ export default function SettingsPage() {
 
         <Card className="rounded-2xl border border-border/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
               <Shield className="w-5 h-5" />
               Privacy & Security
             </CardTitle>
@@ -234,7 +234,7 @@ export default function SettingsPage() {
             {/* Encryption */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base font-medium">Encrypt journal entries</Label>
+                <Label className="text-sm font-medium">Encrypt journal entries</Label>
                 <p className="text-sm text-muted-foreground">
                   Store your journal text encrypted on this device
                 </p>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
             {/* App Lock */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base font-medium flex items-center gap-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
                   <Lock className="w-4 h-4" />
                   App Lock
                 </Label>
@@ -280,7 +280,7 @@ export default function SettingsPage() {
             {/* AI Analysis Toggle */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base font-medium flex items-center gap-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
                   <Brain className="w-4 h-4" />
                   AI Analysis
                 </Label>
@@ -313,7 +313,7 @@ export default function SettingsPage() {
             {/* Auto-detect distortions */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base font-medium">Auto-detect distortions</Label>
+                <Label className="text-sm font-medium">Auto-detect distortions</Label>
                 <p className="text-sm text-muted-foreground">
                   Automatically identify cognitive distortions as you write
                 </p>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
         {/* Daily Reminder */}
         <Card className="rounded-2xl border border-border/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
               <Bell className="w-5 h-5" />
               Daily Reminder
             </CardTitle>
@@ -385,14 +385,14 @@ export default function SettingsPage() {
         {/* Data Management */}
         <Card className="rounded-2xl border border-border/50">
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
+            <CardTitle className="text-sm">Data Management</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             
             {/* Sync stats */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base font-medium">Export/Import statistics</Label>
+                <Label className="text-sm font-medium">Export/Import statistics</Label>
                 <p className="text-sm text-muted-foreground">
                   Save or restore your distortion patterns (no personal text)
                 </p>
