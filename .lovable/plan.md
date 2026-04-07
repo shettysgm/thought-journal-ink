@@ -1,48 +1,61 @@
 
 
-## Thought Record — How It Works
+## Behavioral Activation Planner
 
-A **Thought Record** is the core CBT worksheet. It walks users through a structured sequence of steps to examine and reframe a distressing thought. Here's the flow:
+### What it is
+Behavioral Activation (BA) is a core CBT technique for depression and low motivation. The idea: when you feel low, you withdraw from activities → mood drops further → you withdraw more. BA breaks this cycle by scheduling small, achievable activities tied to values like **pleasure**, **mastery**, or **connection**.
+
+### How it works in the app
 
 ```text
-┌─────────────────────────────┐
-│  1. Situation                │  "What happened?"
-│  2. Emotions                 │  Tap emoji chips + intensity slider (1-10)
-│  3. Automatic Thought        │  "What went through your mind?"
-│  4. Evidence FOR              │  "What supports this thought?"
-│  5. Evidence AGAINST          │  "What contradicts it?"
-│  6. Balanced Thought          │  "A more realistic view..."
-│  7. Re-rate Emotions          │  Same chips, new intensity
-└─────────────────────────────┘
-        → Summary card saved as journal entry
+┌──────────────────────────────────────┐
+│  1. How are you feeling?             │  Quick mood rating (1-5 faces)
+│  2. Pick a category                  │  Pleasure / Mastery / Connection
+│  3. Choose or write an activity      │  Pre-built suggestions + custom input
+│  4. When will you do it?             │  Today / Tomorrow / This week
+│  5. Set intention                    │  Confirm → saved as a plan
+└──────────────────────────────────────┘
+        → Later: mark as done + re-rate mood
 ```
 
-### User experience
-- Accessed as a **new journal template** ("Thought Record") on the Journal hub page, alongside Daily Reflection, Anxiety Dump, etc.
-- Opens a **step-by-step wizard** (similar to the Grounding exercise) — one question per screen with smooth transitions
-- Steps 2 and 7 use **tappable emotion chips** (😰 Anxious, 😢 Sad, 😠 Angry, etc.) with a small intensity slider
-- Text steps use the existing textarea component — short, focused prompts
-- On completion, shows a **summary card** comparing before/after emotion ratings, highlighting the shift
-- The full record is saved as a journal entry with `templateId: 'thought-record'`
+### UX flow
+- **Step-by-step wizard** (same pattern as Thought Record / Grounding) with framer-motion transitions
+- **Step 1**: Tap a face emoji for current mood (😔 😕 😐 🙂 😊)
+- **Step 2**: Three category cards — Pleasure (🎨 "Things you enjoy"), Mastery (💪 "Things that give accomplishment"), Connection (🤝 "Social activities")
+- **Step 3**: Show 4-5 suggestions per category (e.g. Pleasure: "Take a short walk", "Listen to music", "Cook something new") + a text input for custom activity
+- **Step 4**: Tap to pick timing — Today, Tomorrow, This Week
+- **Step 5**: Summary card showing the plan → "Set this intention" button
+- **Completion**: Saved as a journal entry with `templateId: 'activity-plan'`; later the user can revisit and mark it complete with a post-activity mood rating
+
+### Activity suggestions by category
+- **Pleasure**: Take a walk, Listen to music, Watch something funny, Draw or doodle, Have a favourite snack
+- **Mastery**: Tidy one small area, Reply to a message, Do a 5-min workout, Learn something new, Cook a meal
+- **Connection**: Text a friend, Call someone, Go to a café, Say hi to a neighbour, Share a meme
+
+### Where it lives
+- **New route**: `/activity-plan` with a dedicated `ActivityPlanPage.tsx`
+- **New template card** on the Journal hub page alongside existing templates
+- **Router**: Add lazy-loaded route
 
 ### Implementation
 
-1. **New component**: `src/components/ThoughtRecord.tsx`
-   - Multi-step wizard with `framer-motion` transitions
-   - State: `{ situation, emotions[], automaticThought, evidenceFor, evidenceAgainst, balancedThought, emotionsAfter[] }`
-   - Each emotion: `{ label, emoji, intensity: number }`
-   - Summary screen at end with before/after comparison
+1. **`src/components/ActivityPlanner.tsx`** — Multi-step wizard component
+   - State: `{ moodBefore, category, activity, timing, moodAfter? }`
+   - 5 steps with AnimatePresence transitions
+   - Summary screen at end
 
-2. **New template config** in `src/config/templates.ts`
-   - Add `'thought-record'` entry with appropriate prompts and styling
+2. **`src/pages/ActivityPlanPage.tsx`** — Thin page wrapper (same pattern as ThoughtRecordPage)
 
-3. **New template card** on `src/pages/JournalPage.tsx`
-   - Route to `/unified?template=thought-record` or a dedicated `/thought-record` page
+3. **`src/pages/JournalPage.tsx`** — Add "Activity Planner" template card to the grid
 
-4. **Save logic**: On completion, format the structured data into a readable text block and save via the existing `useEntries` store
+4. **`src/router.tsx`** — Add `/activity-plan` route
 
-5. **No new routes needed** if embedded in UnifiedJournalPage, or one new route if standalone (standalone is cleaner for the wizard UX)
+5. **`src/config/templates.ts`** — Add `'activity-plan'` template config
 
-### Why standalone page is better
-The existing `UnifiedJournalPage` is a free-form editor. A Thought Record is a guided, step-by-step worksheet — mixing them would be awkward. A dedicated `/thought-record` route with the wizard component keeps it clean.
+6. **Save logic** — On completion, format as readable text and save via `useEntries.createEntry()` with `templateId: 'activity-plan'`
+
+### Why this complements CBT
+- Thought Record addresses **thinking** patterns; BA addresses **behavior** patterns
+- Works especially well for users who feel stuck or unmotivated
+- The mood before/after comparison reinforces that action improves mood (same insight pattern as Thought Record)
 
