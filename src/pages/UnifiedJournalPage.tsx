@@ -297,11 +297,45 @@ export default function UnifiedJournalPage() {
           if (existingTemplateEntry) {
             // Reopen existing entry for editing instead of creating duplicate
             console.log('Found existing template entry for today, reopening:', existingTemplateEntry.id);
-            navigate(`/unified?edit=${existingTemplateEntry.id}`, { replace: true });
-            return;
-          }
-
-          // No existing entry — start a fresh one
+            const entry = await getEntry(existingTemplateEntry.id);
+            if (entry) {
+              setText(entry.text || '');
+              setLastSavedText(entry.text || '');
+              setEntryId(existingTemplateEntry.id);
+              setIsNewSession(false);
+              if (entry.templateId && TEMPLATE_CONFIG[entry.templateId]) {
+                setResolvedTemplateId(entry.templateId);
+              }
+              const nextHeaderColor = typeof (entry as any).headerColor === 'string'
+                ? (entry as any).headerColor : DEFAULT_HEADER_COLOR;
+              const nextHeaderPattern = typeof (entry as any).headerPattern === 'string'
+                ? (entry as any).headerPattern : DEFAULT_HEADER_PATTERN;
+              const nextHeaderStickers = Array.isArray((entry as any).headerStickers)
+                ? (entry as any).headerStickers : [];
+              setCustomHeaderColor(nextHeaderColor);
+              customHeaderColorRef.current = nextHeaderColor;
+              setCustomHeaderPattern(nextHeaderPattern);
+              customHeaderPatternRef.current = nextHeaderPattern;
+              setCustomHeaderStickers(nextHeaderStickers);
+              customHeaderStickersRef.current = nextHeaderStickers;
+              setBannerSticker((entry as any).bannerSticker || null);
+              const { getJournalEntry } = await import('@/lib/idb');
+              const raw = await getJournalEntry(existingTemplateEntry.id);
+              if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
+                setBannerImageBlobs((raw as any).bannerBlobs);
+              } else if (raw && (raw as any).bannerBlob) {
+                setBannerImageBlobs([(raw as any).bannerBlob]);
+              }
+              if (entry.reframes) {
+                const detectionsList: Detection[] = entry.reframes.map(r => ({
+                  span: r.span,
+                  type: r.socratic || 'Cognitive Distortion',
+                  reframe: r.suggestion
+                }));
+                setLiveDetections(detectionsList);
+              }
+            }
+          } else {
           setIsNewSession(true);
           setEntryId(null);
           setText('');
