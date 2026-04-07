@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Hand, Ear, Flower, Coffee, ChevronRight, RotateCcw, Check, PenLine } from 'lucide-react';
+import { Scan, Fingerprint, Headphones, Wind, Cherry, ChevronRight, RotateCcw, Check, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 
 const STEPS = [
-  { sense: 'See', count: 5, icon: Eye, prompt: 'Notice 5 things you can see' },
-  { sense: 'Touch', count: 4, icon: Hand, prompt: 'Notice 4 things you can touch' },
-  { sense: 'Hear', count: 3, icon: Ear, prompt: 'Notice 3 things you can hear' },
-  { sense: 'Smell', count: 2, icon: Flower, prompt: 'Notice 2 things you can smell' },
-  { sense: 'Taste', count: 1, icon: Coffee, prompt: 'Notice 1 thing you can taste' },
+  { sense: 'See', count: 5, icon: Scan, prompt: 'Notice 5 things you can see' },
+  { sense: 'Touch', count: 4, icon: Fingerprint, prompt: 'Notice 4 things you can touch' },
+  { sense: 'Hear', count: 3, icon: Headphones, prompt: 'Notice 3 things you can hear' },
+  { sense: 'Smell', count: 2, icon: Wind, prompt: 'Notice 2 things you can smell' },
+  { sense: 'Taste', count: 1, icon: Cherry, prompt: 'Notice 1 thing you can taste' },
 ] as const;
 
 const COMPLETIONS = [
@@ -80,7 +80,7 @@ export default function GroundingExercise() {
           className="w-16 h-16 rounded-full flex items-center justify-center"
           style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
         >
-          <Eye className="w-7 h-7 text-primary" />
+          <Scan className="w-7 h-7 text-primary" />
         </div>
         <h2 className="text-base font-semibold text-foreground">5-4-3-2-1 Grounding</h2>
         <div className="max-w-[280px] space-y-3">
