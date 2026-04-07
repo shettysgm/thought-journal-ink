@@ -200,7 +200,7 @@ export default function SettingsPage() {
 
         {/* Storage Usage */}
         {storageUsage && (
-          <Card className="shadow-soft">
+          <Card className="rounded-2xl border border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <HardDrive className="w-4 h-4" />
@@ -222,7 +222,7 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        <Card className="shadow-medium">
+        <Card className="rounded-2xl border border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
@@ -337,7 +337,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Daily Reminder */}
-        <Card className="shadow-medium">
+        <Card className="rounded-2xl border border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5" />
@@ -383,7 +383,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Data Management */}
-        <Card className="shadow-medium">
+        <Card className="rounded-2xl border border-border/50">
           <CardHeader>
             <CardTitle>Data Management</CardTitle>
           </CardHeader>
@@ -435,7 +435,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Privacy Notice */}
-        <Card className="shadow-medium border-primary/20">
+        <Card className="rounded-2xl border border-border/50">
           <CardContent className="p-6">
             <h3 className="font-semibold mb-2">🔒 Your Privacy Matters</h3>
             <div className="text-sm text-muted-foreground space-y-2">
