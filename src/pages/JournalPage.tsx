@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays, ArrowRight } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import templateFreeWrite from '@/assets/template-free-write.png';
 import templateVoice from '@/assets/template-voice.png';
 import templateGratitude from '@/assets/template-gratitude.png';
