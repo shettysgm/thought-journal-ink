@@ -97,7 +97,7 @@ export default function JournalPage() {
 
         {/* Featured card — first template gets a wide hero layout */}
         <Link to={`${TEMPLATES[0].path}?template=${TEMPLATES[0].id}`} className="block">
-          <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${TEMPLATES[0].accent} border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group`}>
+          <div className="relative rounded-2xl overflow-hidden bg-card border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group">
             <div className="flex items-center gap-4 p-5">
               <div className={`w-16 h-16 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
                 <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-12 h-12 object-contain" loading="lazy" />
@@ -118,8 +118,6 @@ export default function JournalPage() {
           {TEMPLATES.slice(1).map((template) => (
             <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
               <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
-                {/* Gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${template.accent} opacity-50`} />
 
                 <div className="relative p-4 flex flex-col items-center text-center gap-3 min-h-[160px]">
                   {/* Icon */}
