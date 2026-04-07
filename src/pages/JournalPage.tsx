@@ -75,6 +75,17 @@ const TEMPLATES = [
     bgAccent: 'bg-sky-50 dark:bg-sky-900/30',
     borderAccent: 'border-sky-200 dark:border-sky-700/40',
   },
+  {
+    id: 'activity-plan',
+    title: 'Activity Planner',
+    subtitle: 'Break the cycle',
+    description: 'Schedule a small, meaningful activity to boost your mood.',
+    path: '/activity-plan',
+    image: templateMood,
+    gradient: 'from-emerald-200 to-emerald-300',
+    bgAccent: 'bg-emerald-50 dark:bg-emerald-900/30',
+    borderAccent: 'border-emerald-200 dark:border-emerald-700/40',
+  },
 ];
 export default function JournalPage() {
   return (
