@@ -202,7 +202,7 @@ export default function SettingsPage() {
         {storageUsage && (
           <Card className="rounded-2xl border border-border/50">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2 text-sm">
                 <HardDrive className="w-4 h-4" />
                 Device Storage
               </CardTitle>
