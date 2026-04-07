@@ -120,15 +120,16 @@ export default function ActivityPlanner() {
 
     await createEntry({ text, templateId: 'activity-plan', tags: ['activity-plan', catLabel.toLowerCase()] });
 
-    // Schedule a reminder notification on the target day
-    const { reminderTime } = useSettings.getState();
-    const [h, m] = reminderTime ? reminderTime.split(':').map(Number) : [9, 0];
-    const now = new Date();
-    let targetDate = now;
-    if (timing === 'tomorrow') targetDate = addDays(now, 1);
-    else if (timing === 'this-week') targetDate = addDays(now, 3); // mid-week nudge
-
-    await scheduleActivityReminder(selectedActivity, targetDate, h, m);
+    // Schedule a reminder notification if opted in
+    if (remindMe) {
+      const { reminderTime } = useSettings.getState();
+      const [h, m] = reminderTime ? reminderTime.split(':').map(Number) : [9, 0];
+      const now = new Date();
+      let targetDate = now;
+      if (timing === 'tomorrow') targetDate = addDays(now, 1);
+      else if (timing === 'this-week') targetDate = addDays(now, 3);
+      await scheduleActivityReminder(selectedActivity, targetDate, h, m);
+    }
 
     navigate('/journal');
   };
