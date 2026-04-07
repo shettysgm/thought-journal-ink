@@ -336,16 +336,18 @@ export default function UnifiedJournalPage() {
               }
             }
           } else {
-          setIsNewSession(true);
-          setEntryId(null);
-          setText('');
-          setLastSavedText('');
-          setCustomHeaderColor(DEFAULT_HEADER_COLOR);
-          customHeaderColorRef.current = DEFAULT_HEADER_COLOR;
-          setCustomHeaderPattern(DEFAULT_HEADER_PATTERN);
-          customHeaderPatternRef.current = DEFAULT_HEADER_PATTERN;
-          setCustomHeaderStickers([]);
-          customHeaderStickersRef.current = [];
+            // No existing entry — start a fresh one
+            setIsNewSession(true);
+            setEntryId(null);
+            setText('');
+            setLastSavedText('');
+            setCustomHeaderColor(DEFAULT_HEADER_COLOR);
+            customHeaderColorRef.current = DEFAULT_HEADER_COLOR;
+            setCustomHeaderPattern(DEFAULT_HEADER_PATTERN);
+            customHeaderPatternRef.current = DEFAULT_HEADER_PATTERN;
+            setCustomHeaderStickers([]);
+            customHeaderStickersRef.current = [];
+          }
         } else {
           // No template — check if we should append to today's entry
           const currentEntries = useEntries.getState().entries;
