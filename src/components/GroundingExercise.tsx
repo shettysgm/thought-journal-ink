@@ -39,6 +39,7 @@ export default function GroundingExercise() {
   }, [stepIndex]);
 
   const reset = useCallback(() => {
+    setStarted(false);
     setStepIndex(0);
     setInputs(STEPS.map(s => Array(s.count).fill('')));
     setDone(false);
