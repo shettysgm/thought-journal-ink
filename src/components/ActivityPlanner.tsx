@@ -360,20 +360,11 @@ export default function ActivityPlanner() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom button — only show on steps that need it */}
+      {/* Bottom button — only show when needed */}
       <div className="px-5 pt-4">
-        {step === 3 ? (
+        {step === 3 && customActivity.trim().length > 0 ? (
           <Button
             onClick={goNext}
-            disabled={!canAdvance()}
-            className="w-full h-12 rounded-xl text-sm font-semibold"
-          >
-            Continue
-          </Button>
-        ) : step === 4 ? (
-          <Button
-            onClick={goNext}
-            disabled={!canAdvance()}
             className="w-full h-12 rounded-xl text-sm font-semibold"
           >
             Continue
