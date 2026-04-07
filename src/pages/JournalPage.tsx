@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, ArrowRight } from 'lucide-react';
 import templateFreeWrite from '@/assets/template-free-write.png';
 import templateVoice from '@/assets/template-voice.png';
 import templateGratitude from '@/assets/template-gratitude.png';
@@ -97,13 +97,16 @@ export default function JournalPage() {
           {TEMPLATES.map((template) => (
             <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
               <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card">
-                <div className="p-4 flex items-start gap-4">
+                <div className="p-4 flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
                     <img src={template.image} alt={template.title} className="w-10 h-10 object-contain" loading="lazy" />
                   </div>
-                  <div className="space-y-1">
+                  <div className="flex-1 min-w-0 space-y-1">
                     <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
                     <p className="text-sm text-foreground leading-relaxed">{template.subtitle}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <ArrowRight className="w-4 h-4 text-primary" />
                   </div>
                 </div>
               </div>
