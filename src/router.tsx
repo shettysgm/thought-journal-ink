@@ -16,6 +16,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const WhyCBTPage = lazy(() => import("./pages/WhyCBTPage"));
 const CounselorSearchPage = lazy(() => import("./pages/CounselorSearchPage"));
 const ThoughtRecordPage = lazy(() => import("./pages/ThoughtRecordPage"));
+const ActivityPlanPage = lazy(() => import("./pages/ActivityPlanPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -48,6 +49,7 @@ export default function Router() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/why-cbt" element={<WhyCBTPage />} />
             <Route path="/thought-record" element={<ThoughtRecordPage />} />
+            <Route path="/activity-plan" element={<ActivityPlanPage />} />
             <Route path="/handwriting" element={<Navigate to="/text" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -95,4 +95,15 @@ export const TEMPLATE_CONFIG: Record<string, TemplateConfig> = {
     placeholder: 'Start writing your thoughts...',
     prompts: [],
   },
+  'activity-plan': {
+    title: 'Activity Planner',
+    subtitle: 'Break the cycle',
+    emoji: '',
+    image: templateMood,
+    stickers: [],
+    gradient: 'from-emerald-200 to-emerald-300',
+    bgAccent: 'bg-emerald-50 dark:bg-emerald-950/30',
+    placeholder: 'Plan a meaningful activity...',
+    prompts: [],
+  },
 };
