@@ -46,18 +46,18 @@ export default function DailyPrompt() {
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-lg active:scale-[0.98] transition-all duration-200 group cursor-pointer"
+      className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card"
       onClick={handleClick}
     >
       <div className="flex items-center gap-4 p-4">
-        <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
-          <Lightbulb className="w-7 h-7 text-accent-strong" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
+          <Lightbulb className="w-8 h-8 text-accent-strong" strokeWidth={1.5} />
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-foreground">Today's Prompt</h3>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{prompt}</p>
+        <div className="flex-1 min-w-0 space-y-1">
+          <p className="text-xs font-medium text-primary uppercase tracking-wide">Today's Prompt</p>
+          <p className="text-sm text-foreground leading-relaxed line-clamp-2">{prompt}</p>
         </div>
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
           <ArrowRight className="w-4 h-4 text-primary" />
         </div>
       </div>
