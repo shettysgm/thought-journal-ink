@@ -39,7 +39,7 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-          </div>
+          </header>
 
           {/* Prompt */}
           <DailyPrompt />

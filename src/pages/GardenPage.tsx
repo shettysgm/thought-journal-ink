@@ -235,7 +235,7 @@ export default function GardenPage() {
             <Sprout className="w-3.5 h-3.5 text-primary" />
             <span>Lv {info.level}</span>
           </div>
-        </div>
+        </header>
 
         {/* ── Main plant display with weather ── */}
         <motion.div

@@ -170,6 +170,7 @@ export default function BreathePage() {
           <GroundingExercise />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
