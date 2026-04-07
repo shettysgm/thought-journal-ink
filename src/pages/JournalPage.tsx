@@ -1,91 +1,85 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays, ChevronRight } from 'lucide-react';
+import { CalendarDays, ArrowRight } from 'lucide-react';
 import templateFreeWrite from '@/assets/template-free-write.png';
 import templateVoice from '@/assets/template-voice.png';
 import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
-import journalHeaderBg from '@/assets/journal-header-bg.png';
 
 const TEMPLATES = [
   {
     id: 'daily-reflection',
     title: 'Daily Reflection',
     subtitle: 'How was your day, really?',
-    description: 'Pause, breathe, and reflect on the moments that shaped today.',
     path: '/unified',
     image: templateFreeWrite,
-    gradient: 'from-stone-200 to-stone-300',
-    bgAccent: 'bg-stone-50 dark:bg-stone-900/30',
-    borderAccent: 'border-stone-200 dark:border-stone-700/40',
+    accent: 'from-violet-100 to-purple-50',
+    iconBg: 'bg-violet-100 dark:bg-violet-900/40',
+    pill: 'text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/50',
   },
   {
     id: 'anxiety-dump',
     title: 'Anxiety Dump',
     subtitle: 'Let it all out',
-    description: 'Unload your racing thoughts — no filter, no judgment.',
     path: '/unified',
     image: templateVoice,
-    gradient: 'from-neutral-200 to-neutral-300',
-    bgAccent: 'bg-neutral-50 dark:bg-neutral-900/30',
-    borderAccent: 'border-neutral-200 dark:border-neutral-700/40',
+    accent: 'from-rose-100 to-pink-50',
+    iconBg: 'bg-rose-100 dark:bg-rose-900/40',
+    pill: 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50',
   },
   {
     id: 'gratitude',
     title: 'Gratitude',
     subtitle: '3 good things today',
-    description: 'Capture moments of joy — big or small — to shift your focus.',
     path: '/unified',
     image: templateGratitude,
-    gradient: 'from-zinc-200 to-zinc-300',
-    bgAccent: 'bg-zinc-50 dark:bg-zinc-900/30',
-    borderAccent: 'border-zinc-200 dark:border-zinc-700/40',
+    accent: 'from-amber-100 to-orange-50',
+    iconBg: 'bg-amber-100 dark:bg-amber-900/40',
+    pill: 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50',
   },
   {
     id: 'late-night',
     title: 'Late Night Thoughts',
     subtitle: 'For the quiet hours',
-    description: 'When the world sleeps but your mind doesn\'t — write here.',
     path: '/unified',
     image: templateWinddown,
-    gradient: 'from-stone-300 to-stone-400',
-    bgAccent: 'bg-stone-50 dark:bg-stone-900/30',
-    borderAccent: 'border-stone-200 dark:border-stone-700/40',
+    accent: 'from-indigo-100 to-slate-50',
+    iconBg: 'bg-indigo-100 dark:bg-indigo-900/40',
+    pill: 'text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50',
   },
   {
     id: 'thought-record',
     title: 'Thought Record',
     subtitle: 'CBT worksheet',
-    description: 'Examine a thought step-by-step and find a balanced perspective.',
     path: '/thought-record',
     image: templateCbt,
-    gradient: 'from-sky-200 to-sky-300',
-    bgAccent: 'bg-sky-50 dark:bg-sky-900/30',
-    borderAccent: 'border-sky-200 dark:border-sky-700/40',
+    accent: 'from-sky-100 to-blue-50',
+    iconBg: 'bg-sky-100 dark:bg-sky-900/40',
+    pill: 'text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/50',
   },
   {
     id: 'activity-plan',
     title: 'Activity Planner',
     subtitle: 'Break the cycle',
-    description: 'Schedule a small, meaningful activity to boost your mood.',
     path: '/activity-plan',
     image: templateMood,
-    gradient: 'from-emerald-200 to-emerald-300',
-    bgAccent: 'bg-emerald-50 dark:bg-emerald-900/30',
-    borderAccent: 'border-emerald-200 dark:border-emerald-700/40',
+    accent: 'from-emerald-100 to-teal-50',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
+    pill: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50',
   },
 ];
+
 export default function JournalPage() {
   return (
     <div
       className="min-h-screen bg-background px-5 pb-24"
       style={{
         paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
-        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))'
+        paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-lg mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-5">
         {/* Header */}
         <header className="flex items-center justify-between mt-1">
           <div>
@@ -101,47 +95,49 @@ export default function JournalPage() {
           </Link>
         </header>
 
-        {/* Template Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {TEMPLATES.map((template) => (
-            <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
-              <div
-                className={`
-                  relative rounded-2xl border overflow-hidden
-                  ${template.bgAccent} ${template.borderAccent}
-                  hover:shadow-lg active:scale-[0.97] transition-all duration-200
-                  cursor-pointer group h-full
-                `}
-              >
-                {/* Gradient accent bar */}
-                <div className={`h-1.5 w-full bg-gradient-to-r ${template.gradient}`} />
+        {/* Featured card — first template gets a wide hero layout */}
+        <Link to={`${TEMPLATES[0].path}?template=${TEMPLATES[0].id}`} className="block">
+          <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${TEMPLATES[0].accent} border border-border/40 hover:shadow-xl active:scale-[0.98] transition-all duration-200 group`}>
+            <div className="flex items-center gap-4 p-5">
+              <div className={`w-16 h-16 rounded-2xl ${TEMPLATES[0].iconBg} flex items-center justify-center shrink-0`}>
+                <img src={TEMPLATES[0].image} alt={TEMPLATES[0].title} className="w-12 h-12 object-contain" loading="lazy" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[15px] font-semibold text-foreground">{TEMPLATES[0].title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">{TEMPLATES[0].subtitle}</p>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
+                <ArrowRight className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+          </div>
+        </Link>
 
-                <div className="p-4 flex flex-col gap-2">
-                  {/* Illustrated icon */}
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+        {/* Grid — remaining templates */}
+        <div className="grid grid-cols-2 gap-3">
+          {TEMPLATES.slice(1).map((template) => (
+            <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
+              <div className="relative rounded-2xl border border-border/40 overflow-hidden hover:shadow-lg active:scale-[0.97] transition-all duration-200 group h-full bg-card">
+                {/* Gradient background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${template.accent} opacity-50`} />
+
+                <div className="relative p-4 flex flex-col items-center text-center gap-3 min-h-[160px]">
+                  {/* Icon */}
+                  <div className={`w-14 h-14 rounded-xl ${template.iconBg} flex items-center justify-center mt-1`}>
                     <img
                       src={template.image}
                       alt={template.title}
                       loading="lazy"
-                      width={512}
-                      height={512}
-                      className="w-14 h-14 object-contain"
+                      className="w-10 h-10 object-contain"
                     />
                   </div>
 
                   {/* Text */}
                   <div>
                     <h3 className="text-sm font-semibold text-foreground leading-tight">{template.title}</h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{template.subtitle}</p>
-                  </div>
-
-                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed line-clamp-2">
-                    {template.description}
-                  </p>
-
-                  {/* Arrow */}
-                  <div className="flex justify-end mt-auto">
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground/60 transition-colors" />
+                    <p className={`text-[10px] font-medium mt-1.5 px-2 py-0.5 rounded-full inline-block ${template.pill}`}>
+                      {template.subtitle}
+                    </p>
                   </div>
                 </div>
               </div>
