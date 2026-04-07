@@ -192,14 +192,9 @@ export default function CalendarPage() {
     >
       <div className="max-w-lg mx-auto space-y-5">
         {/* Header */}
-        <header className="flex items-center gap-3 mt-2">
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/journal')}>
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">Calendar</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Browse entries by date</p>
-          </div>
+        <header className="mt-1">
+          <h1 className="text-lg font-semibold text-foreground">Calendar</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Browse entries by date</p>
         </header>
 
         {/* Search */}
