@@ -293,28 +293,6 @@ export default function ActivityPlanner() {
                   })}
                 </div>
 
-                {/* Reminder toggle */}
-                {timing && (
-                  <button
-                    onClick={() => setRemindMe(r => !r)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left mt-2 ${
-                      remindMe
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:bg-muted'
-                    }`}
-                  >
-                    <Bell className={`w-5 h-5 ${remindMe ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">Remind me</span>
-                      <p className="text-[11px] text-muted-foreground">
-                        {timing === 'today' ? 'Get a nudge today' : timing === 'tomorrow' ? 'Get a nudge tomorrow morning' : 'Get a nudge mid-week'}
-                      </p>
-                    </div>
-                    <div className={`w-9 h-5 rounded-full transition-colors ${remindMe ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
-                      <div className={`w-4 h-4 rounded-full bg-white mt-0.5 transition-transform ${remindMe ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
-                    </div>
-                  </button>
-                )}
               </>
             )}
 
@@ -354,9 +332,12 @@ export default function ActivityPlanner() {
                     </div>
                   </div>
                   <div className="h-px bg-border" />
-                  <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setRemindMe(r => !r)}
+                    className="w-full flex items-center gap-3 text-left"
+                  >
                     <Bell className={`w-5 h-5 ${remindMe ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-xs text-muted-foreground">Reminder</p>
                       <p className="text-sm font-medium text-foreground">
                         {remindMe
@@ -364,7 +345,10 @@ export default function ActivityPlanner() {
                           : 'Off'}
                       </p>
                     </div>
-                  </div>
+                    <div className={`w-9 h-5 rounded-full transition-colors shrink-0 ${remindMe ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+                      <div className={`w-4 h-4 rounded-full bg-white mt-0.5 transition-transform ${remindMe ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+                    </div>
+                  </button>
                 </div>
               </>
             )}
