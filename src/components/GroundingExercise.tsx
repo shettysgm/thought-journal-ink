@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Hand, Ear, Flower, Coffee, ChevronRight, RotateCcw, Check, PenLine } from 'lucide-react';
+import { Scan, Fingerprint, Headphones, Wind, Cherry, ChevronRight, RotateCcw, Check, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
