@@ -216,18 +216,47 @@ export default function UnifiedJournalPage() {
   }, [reframeDialogOpen]);
 
   // Load existing entry if editing
+  // Reset refs that gate one-time logic whenever route params change
   useEffect(() => {
+    hasRunInitialDetection.current = false;
+    isNavigatingRef.current = false;
+    hasTrackedSessionRef.current = false;
+  }, [editEntryId, templateIdParam, promptText]);
+
+  useEffect(() => {
+    let cancelled = false;
     const initialize = async () => {
       setIsInitializing(true);
+      // Reset all mutable state for a clean slate
+      setText('');
+      setLastSavedText('');
+      setEntryId(editEntryId ?? null);
+      setLiveDetections([]);
+      setAudioSegments([]);
+      setBannerImageBlobs([]);
+      setBannerSticker(null);
+      setCustomHeaderColor(DEFAULT_HEADER_COLOR);
+      setCustomHeaderPattern(DEFAULT_HEADER_PATTERN);
+      setCustomHeaderStickers([]);
+      setSaveStatus('saved');
+      setIsNewSession(true);
+      bannerImageBlobsRef.current = [];
+      bannerStickerRef.current = null;
+      customHeaderColorRef.current = DEFAULT_HEADER_COLOR;
+      customHeaderPatternRef.current = DEFAULT_HEADER_PATTERN;
+      customHeaderStickersRef.current = [];
+
       try {
         // Load all entries first
         await loadEntries();
+        if (cancelled) return;
       
         if (editEntryId) {
           // Loading specific entry for editing
           setIsNewSession(false);
           try {
             const entry = await getEntry(editEntryId);
+            if (cancelled) return;
             if (entry) {
               setText(entry.text || '');
               setLastSavedText(entry.text || '');
@@ -255,6 +284,7 @@ export default function UnifiedJournalPage() {
               // Load banner blob from IDB
               const { getJournalEntry } = await import('@/lib/idb');
               const raw = await getJournalEntry(editEntryId);
+              if (cancelled) return;
               if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
                 setBannerImageBlobs((raw as any).bannerBlobs);
               } else if (raw && (raw as any).bannerBlob) {
@@ -277,11 +307,13 @@ export default function UnifiedJournalPage() {
             }
           } catch (error) {
             console.error('Error loading entry:', error);
-            toast({
-              title: 'Load Failed',
-              description: 'Could not load the entry.',
-              variant: 'destructive'
-            });
+            if (!cancelled) {
+              toast({
+                title: 'Load Failed',
+                description: 'Could not load the entry.',
+                variant: 'destructive'
+              });
+            }
           }
         } else if (templateId) {
           // Template selected — check if today already has an entry with this template
@@ -298,6 +330,7 @@ export default function UnifiedJournalPage() {
             // Reopen existing entry for editing instead of creating duplicate
             console.log('Found existing template entry for today, reopening:', existingTemplateEntry.id);
             const entry = await getEntry(existingTemplateEntry.id);
+            if (cancelled) return;
             if (entry) {
               setText(entry.text || '');
               setLastSavedText(entry.text || '');
@@ -321,6 +354,7 @@ export default function UnifiedJournalPage() {
               setBannerSticker((entry as any).bannerSticker || null);
               const { getJournalEntry } = await import('@/lib/idb');
               const raw = await getJournalEntry(existingTemplateEntry.id);
+              if (cancelled) return;
               if (raw && (raw as any).bannerBlobs && Array.isArray((raw as any).bannerBlobs)) {
                 setBannerImageBlobs((raw as any).bannerBlobs);
               } else if (raw && (raw as any).bannerBlob) {
@@ -385,12 +419,13 @@ export default function UnifiedJournalPage() {
           }
         }
       } finally {
-        setIsInitializing(false);
+        if (!cancelled) setIsInitializing(false);
       }
     };
     
     initialize();
-  }, [editEntryId, getEntry, toast, loadEntries]);
+    return () => { cancelled = true; };
+  }, [editEntryId, templateIdParam, promptText, getEntry, toast, loadEntries]);
 
   useEffect(() => {
     if (!entryId) return;
