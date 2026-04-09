@@ -22,7 +22,7 @@ export default function Home() {
           paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
         }}
       >
-        <div className="max-w-lg mx-auto space-y-6">
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-6">
           {/* Header */}
           <header className="flex items-center justify-between mt-1">
             <div>

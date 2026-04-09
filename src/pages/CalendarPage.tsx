@@ -177,7 +177,7 @@ export default function CalendarPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-background px-5" style={{ paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))' }}>
-        <div className="max-w-lg mx-auto text-center">Loading entries...</div>
+        <div className="max-w-lg md:max-w-2xl mx-auto text-center">Loading entries...</div>
       </div>
     );
   }
@@ -190,7 +190,7 @@ export default function CalendarPage() {
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-lg mx-auto space-y-5">
+      <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
         {/* Header */}
         <header className="mt-1">
           <h1 className="text-lg font-semibold text-foreground">Calendar</h1>

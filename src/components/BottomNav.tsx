@@ -18,7 +18,7 @@ export default function BottomNav() {
         paddingBottom: 'max(env(safe-area-inset-bottom), 0.25rem)'
       }}
     >
-      <div className="flex items-center justify-around max-w-lg mx-auto px-2 pt-2 pb-1">
+      <div className="flex items-center justify-around max-w-lg md:max-w-2xl mx-auto px-2 pt-2 pb-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;

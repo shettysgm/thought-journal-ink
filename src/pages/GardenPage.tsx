@@ -220,7 +220,7 @@ export default function GardenPage() {
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-lg mx-auto space-y-5">
+      <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
 
         {/* Header */}
         <header className="flex items-center justify-between mt-1">
