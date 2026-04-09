@@ -1,15 +1,19 @@
-// Use the exact backend URL specified
+// Route AI calls through the Supabase Edge Function proxy
+// This avoids CORS issues in native iOS/iPad WebView
 const getBackendUrl = () => {
-  // Allow environment override if needed
-  if (typeof window !== 'undefined' && (window as any).ENV?.VITE_BACKEND_URL) {
-    return (window as any).ENV.VITE_BACKEND_URL;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (supabaseUrl) {
+    return `${supabaseUrl}/functions/v1`;
   }
-  // Use the exact URL specified
+  // Fallback to direct Vertex AI (works in browser, not in native WebView)
   return "https://vertexthought-755984933994.us-central1.run.app";
 };
 
 const getEndpoint = () => {
-  // Use the correct API endpoint path
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (supabaseUrl) {
+    return "/detect-distortions";
+  }
   return "/api/generate";
 };
 
