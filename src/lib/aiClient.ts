@@ -72,9 +72,17 @@ Journal entry:
 ${text}`;
 
     
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    // Add Supabase anon key when calling through the edge function proxy
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    if (anonKey) {
+      headers["apikey"] = anonKey;
+      headers["Authorization"] = `Bearer ${anonKey}`;
+    }
+
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ 
         prompt: enhancedPrompt,
         gcpProject: "apt-gear-425423-i9",
