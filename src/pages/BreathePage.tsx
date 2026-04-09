@@ -150,7 +150,7 @@ export default function BreathePage() {
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-lg mx-auto space-y-5">
+      <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
         <header className="mt-1">
           <h1 className="text-lg font-semibold text-foreground">Calm Toolkit</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Breathing & grounding exercises</p>
