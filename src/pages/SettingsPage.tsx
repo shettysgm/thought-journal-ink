@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { useEntries } from '@/store/useEntries';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SettingsPage() {
   const { 
