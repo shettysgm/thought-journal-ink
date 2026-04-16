@@ -454,6 +454,32 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Account */}
+        <Card className="rounded-2xl border border-border/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <User className="w-5 h-5" />
+              Account
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {user && (
+              <div className="space-y-1">
+                <p className="text-sm font-medium">{user.email}</p>
+                <p className="text-xs text-muted-foreground">Signed in</p>
+              </div>
+            )}
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="w-full gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Privacy Notice */}
         <Card className="rounded-2xl border border-border/50">
           <CardContent className="p-6">
