@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell, LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';

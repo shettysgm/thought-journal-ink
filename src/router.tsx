@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import AuthPage from "./pages/AuthPage";
 import MobileLayout from "./components/MobileLayout";
 import { Loader2 } from "lucide-react";
 
