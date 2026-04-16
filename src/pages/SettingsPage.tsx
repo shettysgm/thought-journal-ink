@@ -16,6 +16,8 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const { 
     encryptionEnabled, 
     autoDetectDistortions, 
@@ -45,6 +47,23 @@ export default function SettingsPage() {
   const [isSettingLock, setIsSettingLock] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [storageUsage, setStorageUsage] = useState<{ used: number; quota: number } | null>(null);
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: 'Sign out failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Signed out',
+        description: 'You have been signed out successfully.',
+      });
+      navigate('/auth');
+    }
+  };
 
   const loadStorageUsage = useCallback(async () => {
     if ('storage' in navigator && 'estimate' in navigator.storage) {
