@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell, LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, Download, Upload, Eye, EyeOff, Brain, Lock, FileDown, HardDrive, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -13,11 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { useEntries } from '@/store/useEntries';
 import { Progress } from '@/components/ui/progress';
-import { useAuth } from '@/hooks/useAuth';
+
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  
+  
   const { 
     encryptionEnabled, 
     autoDetectDistortions, 
@@ -47,23 +47,6 @@ export default function SettingsPage() {
   const [isSettingLock, setIsSettingLock] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [storageUsage, setStorageUsage] = useState<{ used: number; quota: number } | null>(null);
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast({
-        title: 'Sign out failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Signed out',
-        description: 'You have been signed out successfully.',
-      });
-      navigate('/auth');
-    }
-  };
 
   const loadStorageUsage = useCallback(async () => {
     if ('storage' in navigator && 'estimate' in navigator.storage) {
@@ -454,31 +437,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Account */}
-        <Card className="rounded-2xl border border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <User className="w-5 h-5" />
-              Account
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {user && (
-              <div className="space-y-1">
-                <p className="text-sm font-medium">{user.email}</p>
-                <p className="text-xs text-muted-foreground">Signed in</p>
-              </div>
-            )}
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="w-full gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* Privacy Notice */}
         <Card className="rounded-2xl border border-border/50">
