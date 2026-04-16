@@ -1,7 +1,9 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
 import MobileLayout from "./components/MobileLayout";
+import { AuthGuard } from "./components/AuthGuard";
 import { Loader2 } from "lucide-react";
 
 // Lazy load non-critical routes
@@ -35,21 +37,22 @@ export default function Router() {
       <MobileLayout>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/text" element={<UnifiedJournalPage />} />
-            <Route path="/voice" element={<UnifiedJournalPage />} />
-            <Route path="/unified" element={<UnifiedJournalPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/breathe" element={<BreathePage />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/quiz" element={<QuizPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/counselors" element={<CounselorSearchPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<AuthGuard><Home /></AuthGuard>} />
+            <Route path="/text" element={<AuthGuard><UnifiedJournalPage /></AuthGuard>} />
+            <Route path="/voice" element={<AuthGuard><UnifiedJournalPage /></AuthGuard>} />
+            <Route path="/unified" element={<AuthGuard><UnifiedJournalPage /></AuthGuard>} />
+            <Route path="/journal" element={<AuthGuard><JournalPage /></AuthGuard>} />
+            <Route path="/breathe" element={<AuthGuard><BreathePage /></AuthGuard>} />
+            <Route path="/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
+            <Route path="/quiz" element={<AuthGuard><QuizPage /></AuthGuard>} />
+            <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+            <Route path="/counselors" element={<AuthGuard><CounselorSearchPage /></AuthGuard>} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
-            <Route path="/why-cbt" element={<WhyCBTPage />} />
-            <Route path="/thought-record" element={<ThoughtRecordPage />} />
-            <Route path="/activity-plan" element={<ActivityPlanPage />} />
+            <Route path="/why-cbt" element={<AuthGuard><WhyCBTPage /></AuthGuard>} />
+            <Route path="/thought-record" element={<AuthGuard><ThoughtRecordPage /></AuthGuard>} />
+            <Route path="/activity-plan" element={<AuthGuard><ActivityPlanPage /></AuthGuard>} />
             <Route path="/handwriting" element={<Navigate to="/text" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
