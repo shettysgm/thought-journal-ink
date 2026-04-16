@@ -48,13 +48,6 @@ export default function SettingsPage() {
   const [exporting, setExporting] = useState(false);
   const [storageUsage, setStorageUsage] = useState<{ used: number; quota: number } | null>(null);
 
-        title: 'Signed out',
-        description: 'You have been signed out successfully.',
-      });
-      navigate('/auth');
-    }
-  };
-
   const loadStorageUsage = useCallback(async () => {
     if ('storage' in navigator && 'estimate' in navigator.storage) {
       try {
