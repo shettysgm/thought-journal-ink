@@ -16,7 +16,7 @@ import { Progress } from '@/components/ui/progress';
 
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
+  
   
   const { 
     encryptionEnabled, 
