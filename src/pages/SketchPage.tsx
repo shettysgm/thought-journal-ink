@@ -627,6 +627,22 @@ export default function SketchPage() {
             >
               <Eraser className="w-4 h-4" />
             </button>
+            <button
+              type="button"
+              onClick={handleAddPicture}
+              className="w-10 h-10 rounded-full border border-border/60 text-foreground flex items-center justify-center"
+              aria-label="Add picture"
+              title="Add picture"
+            >
+              <ImagePlus className="w-4 h-4" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePictureSelected}
+              className="hidden"
+            />
           </div>
 
           <div className="flex items-center gap-1">
