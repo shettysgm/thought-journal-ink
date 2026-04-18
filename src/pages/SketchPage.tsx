@@ -543,6 +543,115 @@ export default function SketchPage() {
     y: prev.y + (next.y - prev.y) * factor,
   });
 
+  // Mirror a point across the canvas based on the active symmetry mode.
+  // Returns ALL mirrored copies (not including the original).
+  const mirrorPoint = (p: { x: number; y: number }): { x: number; y: number }[] => {
+    const canvas = canvasRef.current;
+    if (!canvas || symmetry === 'off') return [];
+    const dpr = window.devicePixelRatio || 1;
+    const cx = canvas.width / dpr / 2;
+    const cy = canvas.height / dpr / 2;
+    if (symmetry === 'vertical') {
+      return [{ x: 2 * cx - p.x, y: p.y }];
+    }
+    if (symmetry === 'horizontal') {
+      return [{ x: p.x, y: 2 * cy - p.y }];
+    }
+    // Mandala: rotate around center for N slices
+    const out: { x: number; y: number }[] = [];
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    for (let i = 1; i < mandalaSlices; i++) {
+      const a = (i * Math.PI * 2) / mandalaSlices;
+      const cos = Math.cos(a);
+      const sin = Math.sin(a);
+      out.push({ x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos });
+    }
+    return out;
+  };
+
+  // Detect whether a freehand stroke looks like a circle, line, or rectangle.
+  // Returns a polished replacement point list, or null to keep the freehand stroke.
+  const detectShape = (pts: { x: number; y: number }[]): { x: number; y: number }[] | null => {
+    if (pts.length < 8) return null;
+
+    // Bounding box
+    let minX = pts[0].x, maxX = pts[0].x, minY = pts[0].y, maxY = pts[0].y;
+    for (const p of pts) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
+    const w = maxX - minX;
+    const h = maxY - minY;
+    if (w < 20 && h < 20) return null;
+
+    const start = pts[0];
+    const end = pts[pts.length - 1];
+    const closed = Math.hypot(start.x - end.x, start.y - end.y) < Math.max(w, h) * 0.25;
+
+    // 1) Straight line: small box on one axis
+    if (!closed && (w < 16 || h < 16)) {
+      return [start, end];
+    }
+
+    if (closed) {
+      // Test for circle: average distance from centroid is roughly constant
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      const dists = pts.map((p) => Math.hypot(p.x - cx, p.y - cy));
+      const meanR = dists.reduce((a, b) => a + b, 0) / dists.length;
+      const variance = dists.reduce((a, b) => a + (b - meanR) ** 2, 0) / dists.length;
+      const stdev = Math.sqrt(variance);
+      const aspect = Math.min(w, h) / Math.max(w, h);
+
+      // Circle: low variance AND nearly square bounding box
+      if (stdev / meanR < 0.22 && aspect > 0.75) {
+        const out: { x: number; y: number }[] = [];
+        const r = (w + h) / 4;
+        const steps = 64;
+        for (let i = 0; i <= steps; i++) {
+          const a = (i / steps) * Math.PI * 2;
+          out.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
+        }
+        return out;
+      }
+
+      // Rectangle: closed loop that isn't circular → snap to bounding rectangle
+      return [
+        { x: minX, y: minY },
+        { x: maxX, y: minY },
+        { x: maxX, y: maxY },
+        { x: minX, y: maxY },
+        { x: minX, y: minY },
+      ];
+    }
+
+    return null;
+  };
+
+  // Render a single segment of the in-progress stroke from point a → b at given coords
+  const renderLiveSegment = (
+    ctx: CanvasRenderingContext2D,
+    cur: Stroke,
+    a: { x: number; y: number },
+    b: { x: number; y: number }
+  ) => {
+    ctx.save();
+    ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
+    ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = cur.color;
+    ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+    ctx.restore();
+  };
+
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drawingRef.current || !currentRef.current) return;
     e.preventDefault();
@@ -555,41 +664,69 @@ export default function SketchPage() {
     }
     pts.push(pos);
 
-    // For complex brushes (watercolor/spray/pencil), redraw the whole current
-    // stroke for smoother appearance. For pen/marker, draw incrementally.
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
     const cur = currentRef.current;
-    if (cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker') {
-      if (pts.length >= 2) {
-        ctx.save();
-        ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
-        ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
-        ctx.strokeStyle = cur.color;
-        ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
-        ctx.beginPath();
-        const a = pts[pts.length - 2];
-        const b = pts[pts.length - 1];
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
-        ctx.restore();
+    const isSimpleBrush = cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker';
+
+    if (isSimpleBrush && pts.length >= 2) {
+      const a = pts[pts.length - 2];
+      const b = pts[pts.length - 1];
+      renderLiveSegment(ctx, cur, a, b);
+      // Symmetry: also draw mirrored segment(s) live
+      if (symmetry !== 'off') {
+        const ma = mirrorPoint(a);
+        const mb = mirrorPoint(b);
+        for (let i = 0; i < ma.length; i++) {
+          renderLiveSegment(ctx, cur, ma[i], mb[i]);
+        }
       }
     } else {
       // Repaint the entire base + strokes to render textured brushes correctly
       redraw();
       drawStroke(ctx, cur);
+      if (symmetry !== 'off') {
+        const mirrored = pts.map((p) => mirrorPoint(p));
+        const copies = mirrored[0]?.length ?? 0;
+        for (let c = 0; c < copies; c++) {
+          drawStroke(ctx, { ...cur, points: mirrored.map((arr) => arr[c]) });
+        }
+      }
     }
   };
 
   const onPointerUp = () => {
     if (!drawingRef.current) return;
     drawingRef.current = false;
-    if (currentRef.current && currentRef.current.points.length > 0) {
-      strokesRef.current.push(currentRef.current);
+    const cur = currentRef.current;
+    if (cur && cur.points.length > 0) {
+      // Smart Shape: try to recognize circle / line / rect and replace points
+      if (smartShape && !cur.isEraser) {
+        const snapped = detectShape(cur.points);
+        if (snapped) {
+          cur.points = snapped;
+          // Repaint base + redraw the snapped stroke cleanly
+          redraw();
+          const ctx = canvasRef.current?.getContext('2d');
+          if (ctx) drawStroke(ctx, cur);
+        }
+      }
+      // Push the primary stroke
+      strokesRef.current.push(cur);
+      // Symmetry: persist mirrored copies as additional strokes so they survive redraws
+      if (symmetry !== 'off') {
+        const mirrored = cur.points.map((p) => mirrorPoint(p));
+        const copies = mirrored[0]?.length ?? 0;
+        for (let c = 0; c < copies; c++) {
+          strokesRef.current.push({ ...cur, points: mirrored.map((arr) => arr[c]) });
+        }
+        // Re-render so mirrored strokes from textured brushes appear baked-in
+        const ctx = canvasRef.current?.getContext('2d');
+        if (ctx) {
+          redraw();
+        }
+      }
       setHasContent(true);
     }
     currentRef.current = null;
