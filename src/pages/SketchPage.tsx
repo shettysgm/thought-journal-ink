@@ -757,6 +757,19 @@ export default function SketchPage() {
             className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
             style={{ touchAction: 'none', pointerEvents: placement ? 'none' : 'auto' }}
           />
+          {/* Lined-paper overlay rendered ABOVE the canvas so it's visible
+              even when an opaque preloaded sketch covers the wrapper bg. */}
+          {paper === 'lined' && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING}px)`,
+                opacity: 0.45,
+                mixBlendMode: 'multiply',
+              }}
+              aria-hidden
+            />
+          )}
           {!hasContent && !placement && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
