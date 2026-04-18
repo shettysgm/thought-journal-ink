@@ -466,7 +466,7 @@ export default function SketchPage() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            className="absolute inset-0 w-full h-full cursor-crosshair touch-none select-none"
+            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
             style={{ touchAction: 'none' }}
           />
           {!hasContent && (
