@@ -48,7 +48,9 @@ export default function SketchPage() {
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
-  const [isEraser, setIsEraser] = useState(false);
+  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill'>('draw');
+  const isEraser = tool === 'eraser';
+  const isFill = tool === 'fill';
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
