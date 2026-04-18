@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 import templateFreeWrite from '@/assets/template-free-write.png';
 import templateVoice from '@/assets/template-voice.png';
 import templateGratitude from '@/assets/template-gratitude.png';
@@ -15,8 +16,6 @@ const TEMPLATES = [
     subtitle: 'How was your day, really?',
     path: '/unified',
     image: templateFreeWrite,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
   {
     id: 'anxiety-dump',
@@ -24,8 +23,6 @@ const TEMPLATES = [
     subtitle: 'Let it all out',
     path: '/unified',
     image: templateVoice,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
   {
     id: 'gratitude',
@@ -33,8 +30,6 @@ const TEMPLATES = [
     subtitle: '3 good things today',
     path: '/unified',
     image: templateGratitude,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
   {
     id: 'late-night',
@@ -42,8 +37,6 @@ const TEMPLATES = [
     subtitle: 'For the quiet hours',
     path: '/unified',
     image: templateWinddown,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
   {
     id: 'thought-record',
@@ -51,8 +44,6 @@ const TEMPLATES = [
     subtitle: 'CBT worksheet',
     path: '/thought-record',
     image: templateCbt,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
   {
     id: 'activity-plan',
@@ -60,8 +51,6 @@ const TEMPLATES = [
     subtitle: 'Break the cycle',
     path: '/activity-plan',
     image: templateMood,
-    iconBg: 'bg-transparent',
-    pill: 'text-muted-foreground bg-muted',
   },
 ];
 
@@ -90,7 +79,7 @@ export default function JournalPage() {
           </Link>
         </header>
 
-        {/* Template cards — standardized app style */}
+        {/* Template cards — themed to match Settings/Home */}
         <div className="space-y-3">
           {TEMPLATES.map((template, i) => (
             <motion.div
@@ -99,19 +88,30 @@ export default function JournalPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Link to={`${template.path}?template=${template.id}`} className="block">
-                <div className="cursor-pointer rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-medium transition-all duration-200">
+              <Link to={`${template.path}?template=${template.id}`} className="block group">
+                <Card className="rounded-2xl border border-border/50 shadow-soft hover:shadow-medium hover:border-primary/30 transition-all duration-200">
                   <div className="p-4 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
-                      <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <img
+                        src={template.image}
+                        alt={template.title}
+                        className="w-10 h-10 object-contain"
+                        loading="lazy"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
-                      <p className="text-sm text-foreground/80 mt-0.5 leading-snug">{template.subtitle}</p>
+                      <p className="text-sm font-semibold text-foreground leading-tight">
+                        {template.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                        {template.subtitle}
+                      </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <ArrowRight className="w-4 h-4 text-primary group-hover:text-primary-foreground" />
+                    </div>
                   </div>
-                </div>
+                </Card>
               </Link>
             </motion.div>
           ))}
