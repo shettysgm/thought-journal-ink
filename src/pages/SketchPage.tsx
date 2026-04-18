@@ -1076,8 +1076,8 @@ export default function SketchPage() {
       {/* Toolbar */}
       <div className="px-3 pt-3 shrink-0">
 
-        <div className="rounded-2xl border border-border/60 bg-white shadow-soft p-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
+        <div className="rounded-2xl border border-border/60 bg-white shadow-soft p-2 flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap">
             <button
               type="button"
               onClick={() => { setTool('draw'); setShowPalette((s) => !s); }}
