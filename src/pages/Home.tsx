@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Settings, Pen, Info, Mic } from "lucide-react";
+import { Settings, Pen, Info, Mic, Pencil, Tablet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import StreakReminder from "@/components/StreakReminder";
@@ -59,6 +59,20 @@ export default function Home() {
               <Pen className="w-4 h-4" />
               <span>Write or record</span>
               <Mic className="w-4 h-4 opacity-70" />
+            </button>
+          </Link>
+
+          {/* Draw CTA — best on iPad */}
+          <Link to="/sketch" className="block">
+            <button className="w-full flex items-center justify-between gap-3 h-[50px] px-4 rounded-2xl border border-border bg-white text-foreground text-[15px] font-semibold shadow-soft hover:bg-muted/40 transition-colors">
+              <span className="flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-primary" />
+                Draw
+              </span>
+              <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+                <Tablet className="w-3.5 h-3.5" />
+                Better on iPad
+              </span>
             </button>
           </Link>
 
