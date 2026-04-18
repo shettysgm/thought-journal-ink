@@ -43,8 +43,14 @@ export default function SketchPage() {
   const drawingRef = useRef(false);
   const strokesRef = useRef<Stroke[]>([]);
   const currentRef = useRef<Stroke | null>(null);
-  // Pre-existing sketch image (today's saved drawing) painted as the base layer
+  // Pre-existing sketch image (today's saved drawing) painted as the base layer.
+  // Kept as an HTMLImageElement only for the very first preload paint; once any
+  // edit happens, baseSnapshotRef becomes the source of truth.
   const baseImageRef = useRef<HTMLImageElement | null>(null);
+  // Synchronous baked snapshot of the canvas (used as base layer after fills/undo).
+  // Storing ImageData (not an async Image) eliminates race conditions where an
+  // async snapshot.onload overwrites state set by a later undo.
+  const baseSnapshotRef = useRef<ImageData | null>(null);
   // Undo history: ImageData snapshots taken BEFORE each action
   const undoStackRef = useRef<ImageData[]>([]);
   const MAX_UNDO = 20;
@@ -85,13 +91,20 @@ export default function SketchPage() {
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
 
-    // Paint preloaded sketch (today's saved drawing) as the base layer
-    if (baseImageRef.current) {
+    // Prefer the synchronous baked snapshot (post-fill / post-undo state).
+    // Fallback to the preloaded HTMLImageElement only on the very first paint
+    // before any edit has happened.
+    if (baseSnapshotRef.current) {
+      ctx.putImageData(baseSnapshotRef.current, 0, 0);
+      ctx.restore();
+    } else if (baseImageRef.current) {
+      ctx.restore();
       const cssW = canvas.width / dpr;
       const cssH = canvas.height / dpr;
       ctx.drawImage(baseImageRef.current, 0, 0, cssW, cssH);
+    } else {
+      ctx.restore();
     }
 
     for (const stroke of strokesRef.current) {
@@ -260,16 +273,16 @@ export default function SketchPage() {
 
     ctx.putImageData(imageData, 0, 0);
 
-    // Bake the filled result into baseImageRef so future redraws preserve it.
-    // Composite current canvas (which now has the fill applied) into a snapshot image.
-    const snapshot = new Image();
-    snapshot.onload = () => {
-      baseImageRef.current = snapshot;
-      // Strokes are already baked into the snapshot, so reset the stroke list
+    // Bake the filled result synchronously so undo races can't overwrite it.
+    // The fill (and any prior strokes painted onto the canvas) is now part of
+    // the base layer; clear the per-stroke list since they're already baked.
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, w, h);
       strokesRef.current = [];
       setHasContent(true);
-    };
-    snapshot.src = canvas.toDataURL('image/png');
+    } catch (e) {
+      console.warn('[Sketch] failed to bake fill snapshot', e);
+    }
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -337,33 +350,24 @@ export default function SketchPage() {
     const snap = undoStackRef.current.pop();
     if (!snap) return;
 
-    // Restore the snapshot directly to canvas pixels.
+    // Restore the snapshot directly to canvas pixels, AND make it the new base
+    // synchronously. This eliminates the race where an in-flight async snapshot
+    // (from a prior fill) could overwrite the restored state on the next redraw.
     ctx.putImageData(snap, 0, 0);
-
-    // Bake the restored canvas into baseImageRef so future redraws preserve it.
-    // Reset stroke list (any in-flight stroke is already discarded by the snapshot).
-    const snapshot = new Image();
-    snapshot.onload = () => {
-      baseImageRef.current = snapshot;
-      strokesRef.current = [];
-      const empty = undoStackRef.current.length === 0;
-      // Best-effort: we can't easily detect a fully blank canvas, so leave hasContent true
-      // unless the user clears explicitly. Toggling lets the buttons reflect remaining undos.
-      setHasContent(true);
-      // If the stack is empty AND there was no preloaded existing sketch, allow clearing.
-      if (empty && !loadedExisting) {
-        // Nothing else to undo
-      }
-    };
-    snapshot.src = canvas.toDataURL('image/png');
+    baseSnapshotRef.current = snap;
+    // Any pending preloaded image is now superseded by the snapshot.
+    baseImageRef.current = null;
+    strokesRef.current = [];
+    setHasContent(true);
   };
 
   const handleClear = () => {
-    if (strokesRef.current.length === 0 && !baseImageRef.current) return;
+    if (strokesRef.current.length === 0 && !baseImageRef.current && !baseSnapshotRef.current) return;
     if (!confirm('Clear the whole sketch?')) return;
     pushUndo();
     strokesRef.current = [];
     baseImageRef.current = null;
+    baseSnapshotRef.current = null;
     setHasContent(false);
     redraw();
   };
