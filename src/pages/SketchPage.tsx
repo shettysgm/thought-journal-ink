@@ -64,6 +64,12 @@ export default function SketchPage() {
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadedExisting, setLoadedExisting] = useState(false);
+  // Paper style: 'plain' shows a solid soft-tint background; 'lined' overlays
+  // ruled horizontal lines (rendered via CSS on the wrapper, AND baked under
+  // the sketch when saving so the saved PNG matches what the user saw).
+  const [paper, setPaper] = useState<'plain' | 'lined'>('plain');
+  const LINE_SPACING = 32; // CSS px between ruled lines
+  const LINE_COLOR = 'hsl(210 30% 82%)'; // soft blue-grey, paper-like
 
   // Floating picture being placed (drag/zoom before commit). When non-null,
   // the canvas ignores pointer events and an overlay <img> is shown.
@@ -603,6 +609,23 @@ export default function SketchPage() {
       const ctx = out.getContext('2d')!;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, out.width, out.height);
+
+      // If the user picked lined paper, bake the ruled lines under the sketch
+      // so the saved PNG matches what they saw while drawing.
+      if (paper === 'lined') {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.save();
+        ctx.strokeStyle = LINE_COLOR;
+        ctx.lineWidth = 1;
+        for (let y = LINE_SPACING * dpr; y < out.height; y += LINE_SPACING * dpr) {
+          ctx.beginPath();
+          ctx.moveTo(0, y + 0.5);
+          ctx.lineTo(out.width, y + 0.5);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       ctx.drawImage(canvas, 0, 0);
 
       const blob: Blob = await new Promise((resolve, reject) =>
@@ -717,7 +740,13 @@ export default function SketchPage() {
         <div
           ref={wrapRef}
           className="relative w-full h-full rounded-2xl border border-border/60 bg-[hsl(174_55%_98%)] shadow-soft overflow-hidden"
-          style={{ touchAction: 'none' }}
+          style={{
+            touchAction: 'none',
+            backgroundImage:
+              paper === 'lined'
+                ? `repeating-linear-gradient(to bottom, transparent 0, transparent ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING}px)`
+                : undefined,
+          }}
         >
           <canvas
             ref={canvasRef}
@@ -858,6 +887,33 @@ export default function SketchPage() {
               onChange={handlePictureSelected}
               className="hidden"
             />
+            {/* Paper style toggle: Plain / Lined */}
+            <div
+              className="ml-1 inline-flex rounded-full border border-border/60 p-0.5 bg-white"
+              role="group"
+              aria-label="Paper style"
+            >
+              <button
+                type="button"
+                onClick={() => setPaper('plain')}
+                className={`h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                  paper === 'plain' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-pressed={paper === 'plain'}
+              >
+                Plain
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaper('lined')}
+                className={`h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                  paper === 'lined' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-pressed={paper === 'lined'}
+              >
+                Lined
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-1">
