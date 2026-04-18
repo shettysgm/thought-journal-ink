@@ -91,11 +91,11 @@ export default function JournalPage() {
               <Link to={`${template.path}?template=${template.id}`} className="block group">
                 <Card className="rounded-2xl border border-border/50 shadow-soft hover:shadow-medium hover:border-primary/30 transition-all duration-200">
                   <div className="p-4 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <div className="w-20 h-20 flex items-center justify-center shrink-0">
                       <img
                         src={template.image}
                         alt={template.title}
-                        className="w-10 h-10 object-contain"
+                        className="w-20 h-20 object-contain"
                         loading="lazy"
                       />
                     </div>
