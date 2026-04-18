@@ -72,6 +72,7 @@ export default function CalendarPage() {
       try {
         const { getJournalEntry } = await import('@/lib/idb');
         const blobs: Record<string, Blob[]> = {};
+        const drawings: Record<string, Blob> = {};
         for (const entry of state.entries) {
           const raw = await getJournalEntry(entry.id) as any;
           if (raw?.bannerBlobs && Array.isArray(raw.bannerBlobs)) {
@@ -79,8 +80,12 @@ export default function CalendarPage() {
           } else if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
             blobs[entry.id] = [raw.bannerBlob];
           }
+          if (raw?.drawingBlob instanceof Blob) {
+            drawings[entry.id] = raw.drawingBlob;
+          }
         }
         setBannerBlobs(blobs);
+        setDrawingBlobs(drawings);
       } catch (e) {
         console.error('Failed to load banner blobs:', e);
       }
