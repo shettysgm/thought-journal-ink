@@ -8,6 +8,7 @@ import templateGratitude from '@/assets/template-gratitude.png';
 import templateMood from '@/assets/template-mood.png';
 import templateCbt from '@/assets/template-cbt.png';
 import templateWinddown from '@/assets/template-winddown.png';
+import templateSketch from '@/assets/template-sketch.png';
 
 const TEMPLATES = [
   {
@@ -23,6 +24,13 @@ const TEMPLATES = [
     subtitle: 'Let it all out',
     path: '/unified',
     image: templateVoice,
+  },
+  {
+    id: 'sketch',
+    title: 'Write & Sketch',
+    subtitle: 'Draw, doodle, or handwrite',
+    path: '/sketch',
+    image: templateSketch,
   },
   {
     id: 'gratitude',

@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, TouchEvent } from 'react';
-import { X, Feather, Brain, Shield, Sparkles, ChevronRight, CloudUpload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Feather, Brain, Shield, Sparkles, ChevronRight, Type, Mic, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useSettings } from '@/store/useSettings';
 import quillIcon from '@/assets/quill-icon-new.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
 import expressIcon from '@/assets/express-ways-icon.png';
-import backupIcon from '@/assets/backup-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -45,15 +46,25 @@ const slides = [
     bgColor: "bg-therapeutic-warmth/20"
   },
   {
-    icon: CloudUpload,
-    title: "Back Up Your Journal",
-    description: "Export your entries anytime from Settings. Your data, your control.",
+    icon: Pencil,
+    title: "Choose Your Style",
+    description: "How do you like to capture your thoughts?",
     color: "text-primary",
     bgColor: "bg-primary/10"
   }
 ];
 
+type JournalingStyle = 'type' | 'voice' | 'sketch';
+
+const STYLE_OPTIONS: { id: JournalingStyle; label: string; description: string; icon: typeof Type; route: string }[] = [
+  { id: 'type', label: 'Type', description: 'Write with your keyboard', icon: Type, route: '/unified' },
+  { id: 'voice', label: 'Voice', description: 'Speak — we transcribe', icon: Mic, route: '/unified?template=daily-reflection' },
+  { id: 'sketch', label: 'Sketch', description: 'Draw, doodle, or handwrite', icon: Pencil, route: '/sketch' },
+];
+
 export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: MobileIntroOverlayProps) {
+  const navigate = useNavigate();
+  const { updateSettings } = useSettings();
   // Check localStorage immediately on mount to determine initial visibility
   const [isVisible, setIsVisible] = useState(() => {
     if (alwaysShow) return true;
@@ -61,6 +72,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     return !hasSeenIntro;
   });
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedStyle, setSelectedStyle] = useState<JournalingStyle | null>(null);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const slideRef = useRef<HTMLDivElement>(null);
@@ -70,6 +82,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     if (openSignal !== undefined && openSignal > 0) {
       setIsVisible(true);
       setCurrentSlide(0); // Reset to first slide
+      setSelectedStyle(null);
     }
   }, [openSignal]);
 
@@ -81,11 +94,20 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     setCurrentSlide(0);
   };
 
+  const handleFinish = () => {
+    const target = STYLE_OPTIONS.find(o => o.id === selectedStyle);
+    if (selectedStyle) {
+      updateSettings({ journalingStyle: selectedStyle });
+    }
+    handleDismiss();
+    if (target) navigate(target.route);
+  };
+
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      handleDismiss();
+      handleFinish();
     }
   };
 
@@ -180,12 +202,8 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                     />
                   </div>
                 ) : currentSlide === 4 ? (
-                  <div className="w-56 h-48 md:w-64 md:h-56 flex items-center justify-center">
-                    <img 
-                      src={backupIcon}
-                      alt="Back Up Your Journal" 
-                      className="w-full h-full object-contain animate-fade-in-scale" 
-                    />
+                  <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
+                    <slide.icon className={`w-10 h-10 ${slide.color}`} />
                   </div>
                 ) : (
                   <div className={`w-20 h-20 rounded-2xl ${slide.bgColor} flex items-center justify-center`}>
@@ -202,6 +220,45 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                 <p className="text-lg text-muted-foreground max-w-sm mx-auto">
                   {slide.description}
                 </p>
+
+                {/* Style picker on the final slide */}
+                {currentSlide === 4 && (
+                  <div className="pt-2 grid grid-cols-1 gap-2">
+                    {STYLE_OPTIONS.map((opt) => {
+                      const Icon = opt.icon;
+                      const active = selectedStyle === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setSelectedStyle(opt.id)}
+                          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedStyle(opt.id); }}
+                          className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition-all touch-manipulation text-left ${
+                            active
+                              ? 'border-primary bg-primary/5 shadow-soft'
+                              : 'border-border/60 bg-white hover:border-primary/30'
+                          }`}
+                          aria-pressed={active}
+                        >
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                            active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
+                          }`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-base font-semibold text-foreground leading-tight">{opt.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
+                          </div>
+                          {active && (
+                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                              <span className="block w-2 h-2 rounded-full bg-primary-foreground" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -250,7 +307,8 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
             <Button 
               onClick={handleNext}
               onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleNext(); }}
-              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer relative z-[70]"
+              disabled={currentSlide === slides.length - 1 && !selectedStyle}
+              className="w-full h-14 text-lg bg-primary hover:bg-primary/90 shadow-medium gap-2 touch-manipulation cursor-pointer relative z-[70] disabled:opacity-50"
               type="button"
             >
               {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
