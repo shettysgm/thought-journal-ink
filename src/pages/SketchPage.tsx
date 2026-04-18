@@ -408,8 +408,13 @@ export default function SketchPage() {
     }
 
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+
+    // If a placement is already in progress, cancel it first (revoke URL).
+    if (placement) {
+      URL.revokeObjectURL(placement.src);
+      setPlacement(null);
+    }
 
     const url = URL.createObjectURL(file);
     try {
@@ -420,38 +425,162 @@ export default function SketchPage() {
         i.src = url;
       });
 
-      // Snapshot before mutating so undo works.
-      pushUndo();
-
-      // Fit the image inside the canvas (CSS pixel space) preserving aspect ratio,
-      // sized to ~80% of the smaller axis so it leaves room to draw around it.
+      // Initial scale: fit ~60% of the smaller axis so there's room to drag/zoom.
       const dpr = window.devicePixelRatio || 1;
       const cssW = canvas.width / dpr;
       const cssH = canvas.height / dpr;
-      const maxW = cssW * 0.8;
-      const maxH = cssH * 0.8;
-      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
-      const drawW = img.width * scale;
-      const drawH = img.height * scale;
-      const dx = (cssW - drawW) / 2;
-      const dy = (cssH - drawH) / 2;
+      const fit = Math.min((cssW * 0.6) / img.width, (cssH * 0.6) / img.height, 1);
+      const drawW = img.width * fit;
+      const drawH = img.height * fit;
+      const x = (cssW - drawW) / 2;
+      const y = (cssH - drawH) / 2;
 
-      ctx.drawImage(img, dx, dy, drawW, drawH);
-
-      // Bake into the synchronous base snapshot so future redraws preserve it.
-      try {
-        baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        strokesRef.current = [];
-        setHasContent(true);
-      } catch (err) {
-        console.warn('[Sketch] failed to bake picture snapshot', err);
-      }
+      setPlacement({ src: url, img, x, y, scale: fit });
+      toast({
+        title: 'Position your picture',
+        description: 'Drag to move, pinch or use +/− to resize, then tap ✓ to place.',
+      });
     } catch (err) {
       console.error('[Sketch] failed to load picture', err);
-      toast({ title: "Couldn't add picture", description: 'Please try a different image.', variant: 'destructive' });
-    } finally {
       URL.revokeObjectURL(url);
+      toast({ title: "Couldn't add picture", description: 'Please try a different image.', variant: 'destructive' });
     }
+  };
+
+  // Commit the floating picture onto the canvas at its current position/scale.
+  const commitPlacement = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx || !placement) return;
+
+    pushUndo();
+    const { img, x, y, scale } = placement;
+    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+    // Bake into synchronous base snapshot so future redraws / undo work.
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      strokesRef.current = [];
+      setHasContent(true);
+    } catch (err) {
+      console.warn('[Sketch] failed to bake picture snapshot', err);
+    }
+
+    URL.revokeObjectURL(placement.src);
+    setPlacement(null);
+  };
+
+  const cancelPlacement = () => {
+    if (!placement) return;
+    URL.revokeObjectURL(placement.src);
+    setPlacement(null);
+  };
+
+  // Min/max scale guards for zoom buttons + pinch.
+  const SCALE_MIN = 0.05;
+  const SCALE_MAX = 8;
+  const clampScale = (s: number) => Math.min(SCALE_MAX, Math.max(SCALE_MIN, s));
+
+  // Zoom around the center of the placed image (keeps it visually anchored).
+  const zoomPlacement = (factor: number) => {
+    setPlacement((p) => {
+      if (!p) return p;
+      const newScale = clampScale(p.scale * factor);
+      const oldW = p.img.width * p.scale;
+      const oldH = p.img.height * p.scale;
+      const newW = p.img.width * newScale;
+      const newH = p.img.height * newScale;
+      return {
+        ...p,
+        scale: newScale,
+        x: p.x + (oldW - newW) / 2,
+        y: p.y + (oldH - newH) / 2,
+      };
+    });
+  };
+
+  // Drag / pinch handlers for the floating picture overlay.
+  const onPlacementPointerDown = (e: React.PointerEvent<HTMLImageElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    if (!placement) return;
+
+    // If a second pointer arrives, switch into pinch-zoom mode.
+    if (dragRef.current && !pinchRef.current) {
+      const pointers = new Map<number, { x: number; y: number }>();
+      pointers.set(dragRef.current.pointerId, { x: dragRef.current.startX, y: dragRef.current.startY });
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const [a, b] = Array.from(pointers.values());
+      const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      pinchRef.current = { pointers, startDist: dist, startScale: placement.scale };
+      dragRef.current = null;
+      return;
+    }
+
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: placement.x,
+      origY: placement.y,
+    };
+  };
+
+  const onPlacementPointerMove = (e: React.PointerEvent<HTMLImageElement>) => {
+    if (!placement) return;
+
+    if (pinchRef.current) {
+      e.preventDefault();
+      const p = pinchRef.current;
+      if (!p.pointers.has(e.pointerId)) return;
+      p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const pts = Array.from(p.pointers.values());
+      if (pts.length < 2) return;
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+      const factor = dist / p.startDist;
+      const newScale = clampScale(p.startScale * factor);
+      setPlacement((cur) => {
+        if (!cur) return cur;
+        const oldW = cur.img.width * cur.scale;
+        const oldH = cur.img.height * cur.scale;
+        const newW = cur.img.width * newScale;
+        const newH = cur.img.height * newScale;
+        return {
+          ...cur,
+          scale: newScale,
+          x: cur.x + (oldW - newW) / 2,
+          y: cur.y + (oldH - newH) / 2,
+        };
+      });
+      return;
+    }
+
+    if (dragRef.current && dragRef.current.pointerId === e.pointerId) {
+      e.preventDefault();
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      setPlacement((cur) => (cur ? { ...cur, x: dragRef.current!.origX + dx, y: dragRef.current!.origY + dy } : cur));
+    }
+  };
+
+  const onPlacementPointerUp = (e: React.PointerEvent<HTMLImageElement>) => {
+    if (pinchRef.current) {
+      pinchRef.current.pointers.delete(e.pointerId);
+      if (pinchRef.current.pointers.size < 2) pinchRef.current = null;
+      return;
+    }
+    if (dragRef.current && dragRef.current.pointerId === e.pointerId) {
+      dragRef.current = null;
+    }
+  };
+
+  // Mouse-wheel zoom while placing (desktop).
+  const onPlacementWheel = (e: React.WheelEvent<HTMLImageElement>) => {
+    if (!placement) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    zoomPlacement(factor);
   };
 
   const handleSave = async () => {
