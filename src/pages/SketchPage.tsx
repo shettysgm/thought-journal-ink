@@ -739,7 +739,7 @@ export default function SketchPage() {
       <div className="flex-1 min-h-0 px-3">
         <div
           ref={wrapRef}
-          className="relative w-full h-full rounded-2xl border border-border/60 bg-[hsl(174_55%_98%)] shadow-soft overflow-hidden"
+          className="relative w-full h-full rounded-2xl border border-border/60 bg-white shadow-soft overflow-hidden"
           style={{
             touchAction: 'none',
             backgroundImage:
