@@ -704,7 +704,7 @@ export default function SketchPage() {
         <Button
           size="sm"
           onClick={handleSave}
-          disabled={!hasContent || saving}
+          disabled={!hasContent || saving || !!placement}
           className="rounded-full gap-1.5"
         >
           <Check className="w-4 h-4" />
@@ -726,15 +726,83 @@ export default function SketchPage() {
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
             className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
-            style={{ touchAction: 'none' }}
+            style={{ touchAction: 'none', pointerEvents: placement ? 'none' : 'auto' }}
           />
-          {!hasContent && (
+          {!hasContent && !placement && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
                 <Pencil className="w-10 h-10 mx-auto mb-2 opacity-60" />
                 <p className="text-sm">Tap and drag to draw</p>
               </div>
             </div>
+          )}
+
+          {/* Floating placement overlay: drag to move, pinch / wheel / +- to zoom */}
+          {placement && (
+            <>
+              <img
+                src={placement.src}
+                alt="Placing"
+                draggable={false}
+                onPointerDown={onPlacementPointerDown}
+                onPointerMove={onPlacementPointerMove}
+                onPointerUp={onPlacementPointerUp}
+                onPointerCancel={onPlacementPointerUp}
+                onWheel={onPlacementWheel}
+                style={{
+                  position: 'absolute',
+                  left: placement.x,
+                  top: placement.y,
+                  width: placement.img.width * placement.scale,
+                  height: placement.img.height * placement.scale,
+                  touchAction: 'none',
+                  cursor: 'move',
+                  userSelect: 'none',
+                  // Soft outline so the user can see the bounds while placing.
+                  outline: '2px dashed hsl(var(--primary))',
+                  outlineOffset: '2px',
+                  borderRadius: 4,
+                  background: 'rgba(255,255,255,0.0)',
+                }}
+              />
+              {/* Floating action bar */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-3 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur shadow-soft border border-border/60 px-1.5 py-1">
+                <button
+                  type="button"
+                  onClick={() => zoomPlacement(1 / 1.15)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Zoom out"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => zoomPlacement(1.15)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Zoom in"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+                <span className="w-px h-6 bg-border mx-1" aria-hidden />
+                <button
+                  type="button"
+                  onClick={cancelPlacement}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Cancel picture"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={commitPlacement}
+                  className="h-9 px-3 rounded-full bg-primary text-primary-foreground flex items-center gap-1 text-sm font-medium"
+                  aria-label="Place picture"
+                >
+                  <Check className="w-4 h-4" />
+                  Place
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
