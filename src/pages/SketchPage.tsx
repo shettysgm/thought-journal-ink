@@ -558,7 +558,7 @@ export default function SketchPage() {
           </div>
         </div>
 
-        {showPalette && !isEraser && (
+        {showPalette && tool !== 'eraser' && (
           <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 flex items-center justify-around">
             {COLORS.map((c) => (
               <button
