@@ -43,6 +43,8 @@ export default function SketchPage() {
   const drawingRef = useRef(false);
   const strokesRef = useRef<Stroke[]>([]);
   const currentRef = useRef<Stroke | null>(null);
+  // Pre-existing sketch image (today's saved drawing) painted as the base layer
+  const baseImageRef = useRef<HTMLImageElement | null>(null);
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
@@ -50,6 +52,7 @@ export default function SketchPage() {
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadedExisting, setLoadedExisting] = useState(false);
 
   // Resize canvas to fit container, redraw on resize
   const fitCanvas = useCallback(() => {
@@ -79,6 +82,13 @@ export default function SketchPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
 
+    // Paint preloaded sketch (today's saved drawing) as the base layer
+    if (baseImageRef.current) {
+      const cssW = canvas.width / dpr;
+      const cssH = canvas.height / dpr;
+      ctx.drawImage(baseImageRef.current, 0, 0, cssW, cssH);
+    }
+
     for (const stroke of strokesRef.current) {
       drawStroke(ctx, stroke);
     }
@@ -105,6 +115,46 @@ export default function SketchPage() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [fitCanvas]);
+
+  // Preload today's existing sketch (if any) into the canvas as a base layer
+  useEffect(() => {
+    if (loadedExisting) return;
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    (async () => {
+      const today = new Date();
+      const existing = entries.find(e =>
+        e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
+      );
+      if (!existing) return;
+      try {
+        const { getJournalEntry } = await import('@/lib/idb');
+        const raw = await getJournalEntry(existing.id) as any;
+        const blob: Blob | undefined = raw?.drawingBlob;
+        if (!blob || !(blob instanceof Blob)) return;
+        objectUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          if (cancelled) return;
+          baseImageRef.current = img;
+          setHasContent(true);
+          setLoadedExisting(true);
+          redraw();
+          toast({
+            title: "Today's sketch loaded",
+            description: 'Continue editing — saving will replace it.',
+          });
+        };
+        img.src = objectUrl;
+      } catch (err) {
+        console.warn('[Sketch] failed to preload existing sketch', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [entries, loadedExisting, redraw, toast]);
 
   const getPos = (e: PointerEvent | React.PointerEvent): { x: number; y: number } => {
     const canvas = canvasRef.current!;
@@ -161,15 +211,17 @@ export default function SketchPage() {
   };
 
   const handleUndo = () => {
+    if (strokesRef.current.length === 0) return;
     strokesRef.current.pop();
-    setHasContent(strokesRef.current.length > 0);
+    setHasContent(strokesRef.current.length > 0 || !!baseImageRef.current);
     redraw();
   };
 
   const handleClear = () => {
-    if (strokesRef.current.length === 0) return;
+    if (strokesRef.current.length === 0 && !baseImageRef.current) return;
     if (!confirm('Clear the whole sketch?')) return;
     strokesRef.current = [];
+    baseImageRef.current = null;
     setHasContent(false);
     redraw();
   };
@@ -178,15 +230,12 @@ export default function SketchPage() {
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
 
-    // Check for an existing sketch today; confirm replacement
+    // Find an existing sketch for today (we'll overwrite it silently — user
+    // is already editing it, no need to re-confirm).
     const today = new Date();
     const existingTodaySketch = entries.find(e =>
       e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
     );
-    if (existingTodaySketch) {
-      const ok = confirm("You already have a sketch for today. Replace it with this one?");
-      if (!ok) return;
-    }
 
     setSaving(true);
     try {
