@@ -91,13 +91,20 @@ export default function SketchPage() {
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
 
-    // Paint preloaded sketch (today's saved drawing) as the base layer
-    if (baseImageRef.current) {
+    // Prefer the synchronous baked snapshot (post-fill / post-undo state).
+    // Fallback to the preloaded HTMLImageElement only on the very first paint
+    // before any edit has happened.
+    if (baseSnapshotRef.current) {
+      ctx.putImageData(baseSnapshotRef.current, 0, 0);
+      ctx.restore();
+    } else if (baseImageRef.current) {
+      ctx.restore();
       const cssW = canvas.width / dpr;
       const cssH = canvas.height / dpr;
       ctx.drawImage(baseImageRef.current, 0, 0, cssW, cssH);
+    } else {
+      ctx.restore();
     }
 
     for (const stroke of strokesRef.current) {
