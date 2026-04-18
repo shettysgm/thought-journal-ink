@@ -1260,6 +1260,72 @@ export default function SketchPage() {
             ))}
           </div>
         )}
+
+        {showBrushes && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 space-y-3">
+            <div className="flex items-center justify-around">
+              {([
+                { id: 'pen', label: 'Pen', icon: <Pencil className="w-4 h-4" /> },
+                { id: 'pencil', label: 'Pencil', icon: <Pencil className="w-4 h-4" /> },
+                { id: 'marker', label: 'Marker', icon: <Brush className="w-4 h-4" /> },
+                { id: 'watercolor', label: 'Water', icon: <Droplet className="w-4 h-4" /> },
+                { id: 'spray', label: 'Spray', icon: <SprayCan className="w-4 h-4" /> },
+              ] as { id: BrushType; label: string; icon: JSX.Element }[]).map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => { setBrush(b.id); setShowBrushes(false); }}
+                  className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
+                    brush === b.id ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                  }`}
+                  aria-label={`${b.label} brush`}
+                  aria-pressed={brush === b.id}
+                >
+                  {b.icon}
+                  <span className="text-[10px] font-medium">{b.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 px-1">
+              <span className="text-xs text-muted-foreground w-14 shrink-0">Opacity</span>
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={Math.round(opacity * 100)}
+                onChange={(e) => setOpacity(Number(e.target.value) / 100)}
+                className="flex-1 accent-primary"
+                aria-label="Brush opacity"
+              />
+              <span className="text-xs tabular-nums text-foreground w-9 text-right">{Math.round(opacity * 100)}%</span>
+            </div>
+          </div>
+        )}
+
+        {showStamps && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 flex items-center justify-around">
+            {([
+              { id: 'heart', label: 'Heart', icon: <Heart className="w-5 h-5" /> },
+              { id: 'star', label: 'Star', icon: <Star className="w-5 h-5" /> },
+              { id: 'arrow', label: 'Arrow', icon: <ArrowUpRight className="w-5 h-5" /> },
+              { id: 'bubble', label: 'Bubble', icon: <MessageCircle className="w-5 h-5" /> },
+            ] as { id: StampType; label: string; icon: JSX.Element }[]).map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => { setStamp(s.id); setShowStamps(false); setTool('stamp'); }}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                  stamp === s.id ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-label={`${s.label} stamp`}
+                aria-pressed={stamp === s.id}
+              >
+                {s.icon}
+                <span className="text-[10px] font-medium">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
