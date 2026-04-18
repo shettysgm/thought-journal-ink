@@ -43,6 +43,8 @@ export default function SketchPage() {
   const drawingRef = useRef(false);
   const strokesRef = useRef<Stroke[]>([]);
   const currentRef = useRef<Stroke | null>(null);
+  // Pre-existing sketch image (today's saved drawing) painted as the base layer
+  const baseImageRef = useRef<HTMLImageElement | null>(null);
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
@@ -50,6 +52,7 @@ export default function SketchPage() {
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadedExisting, setLoadedExisting] = useState(false);
 
   // Resize canvas to fit container, redraw on resize
   const fitCanvas = useCallback(() => {
