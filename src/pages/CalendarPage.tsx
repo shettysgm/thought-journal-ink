@@ -40,6 +40,7 @@ export default function CalendarPage() {
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [bannerBlobs, setBannerBlobs] = useState<Record<string, Blob[]>>({});
+  const [drawingBlobs, setDrawingBlobs] = useState<Record<string, Blob>>({});
   const [exporting, setExporting] = useState(false);
   
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -71,6 +72,7 @@ export default function CalendarPage() {
       try {
         const { getJournalEntry } = await import('@/lib/idb');
         const blobs: Record<string, Blob[]> = {};
+        const drawings: Record<string, Blob> = {};
         for (const entry of state.entries) {
           const raw = await getJournalEntry(entry.id) as any;
           if (raw?.bannerBlobs && Array.isArray(raw.bannerBlobs)) {
@@ -78,8 +80,12 @@ export default function CalendarPage() {
           } else if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
             blobs[entry.id] = [raw.bannerBlob];
           }
+          if (raw?.drawingBlob instanceof Blob) {
+            drawings[entry.id] = raw.drawingBlob;
+          }
         }
         setBannerBlobs(blobs);
+        setDrawingBlobs(drawings);
       } catch (e) {
         console.error('Failed to load banner blobs:', e);
       }
@@ -342,6 +348,8 @@ export default function CalendarPage() {
               const customHeaderSticker = headerStickerIds.length > 0
                 ? ALL_STICKERS.find(s => s.id === headerStickerIds[0])
                 : null;
+              const drawingBlob = drawingBlobs[entry.id];
+              const isSketch = entry.templateId === 'sketch' || !!entry.hasDrawing;
               return (
                 <Card
                   key={entry.id}
@@ -350,7 +358,7 @@ export default function CalendarPage() {
                     getBorderClassName(entry.cardBorder)
                   )}
                   style={getPatternStyle(entry.cardBackground)}
-                  onClick={() => navigate(`/unified?edit=${entry.id}`)}
+                  onClick={() => { if (!isSketch) navigate(`/unified?edit=${entry.id}`); }}
                 >
                   {/* Template header - matches editor style */}
                   {entryTemplate && (
@@ -402,6 +410,11 @@ export default function CalendarPage() {
                     </div>
                   )}
                   <CardContent className="p-4">
+                    {drawingBlob && (
+                      <div className="w-full mb-3 overflow-hidden rounded-lg bg-white border border-border/40">
+                        <BlobImage blob={drawingBlob} alt="Sketch" className="w-full h-auto max-h-80 object-contain" />
+                      </div>
+                    )}
                     {entry.text && (
                       <div className="bg-muted/30 rounded-lg p-3 mb-3">
                         <TextWithStickers
