@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
@@ -48,7 +48,9 @@ export default function SketchPage() {
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
-  const [isEraser, setIsEraser] = useState(false);
+  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill'>('draw');
+  const isEraser = tool === 'eraser';
+  const isFill = tool === 'fill';
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -162,11 +164,107 @@ export default function SketchPage() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
+  // Flood-fill at canvas position using current color, with anti-alias tolerance.
+  const floodFill = (cssX: number, cssY: number, hexColor: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const startX = Math.floor(cssX * dpr);
+    const startY = Math.floor(cssY * dpr);
+    const w = canvas.width;
+    const h = canvas.height;
+    if (startX < 0 || startY < 0 || startX >= w || startY >= h) return;
+
+    let imageData: ImageData;
+    try {
+      imageData = ctx.getImageData(0, 0, w, h);
+    } catch {
+      return; // tainted canvas (shouldn't happen — same-origin only)
+    }
+    const data = imageData.data;
+
+    const idx = (x: number, y: number) => (y * w + x) * 4;
+    const startIdx = idx(startX, startY);
+    const sr = data[startIdx];
+    const sg = data[startIdx + 1];
+    const sb = data[startIdx + 2];
+    const sa = data[startIdx + 3];
+
+    // Parse hex → rgb
+    const hex = hexColor.replace('#', '');
+    const fr = parseInt(hex.substring(0, 2), 16);
+    const fg = parseInt(hex.substring(2, 4), 16);
+    const fb = parseInt(hex.substring(4, 6), 16);
+    const fa = 255;
+
+    // Skip if already same color
+    if (sr === fr && sg === fg && sb === fb && sa === fa) return;
+
+    const tolerance = 32; // anti-alias tolerance
+    const matches = (i: number) =>
+      Math.abs(data[i] - sr) <= tolerance &&
+      Math.abs(data[i + 1] - sg) <= tolerance &&
+      Math.abs(data[i + 2] - sb) <= tolerance &&
+      Math.abs(data[i + 3] - sa) <= tolerance;
+
+    // Iterative scanline flood fill
+    const stack: Array<[number, number]> = [[startX, startY]];
+    while (stack.length) {
+      const [x, y] = stack.pop()!;
+      let nx = x;
+      while (nx >= 0 && matches(idx(nx, y))) nx--;
+      nx++;
+      let spanUp = false;
+      let spanDown = false;
+      while (nx < w && matches(idx(nx, y))) {
+        const i = idx(nx, y);
+        data[i] = fr;
+        data[i + 1] = fg;
+        data[i + 2] = fb;
+        data[i + 3] = fa;
+        if (!spanUp && y > 0 && matches(idx(nx, y - 1))) {
+          stack.push([nx, y - 1]);
+          spanUp = true;
+        } else if (spanUp && y > 0 && !matches(idx(nx, y - 1))) {
+          spanUp = false;
+        }
+        if (!spanDown && y < h - 1 && matches(idx(nx, y + 1))) {
+          stack.push([nx, y + 1]);
+          spanDown = true;
+        } else if (spanDown && y < h - 1 && !matches(idx(nx, y + 1))) {
+          spanDown = false;
+        }
+        nx++;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // Bake the filled result into baseImageRef so future redraws preserve it.
+    // Composite current canvas (which now has the fill applied) into a snapshot image.
+    const snapshot = new Image();
+    snapshot.onload = () => {
+      baseImageRef.current = snapshot;
+      // Strokes are already baked into the snapshot, so reset the stroke list
+      strokesRef.current = [];
+      setHasContent(true);
+    };
+    snapshot.src = canvas.toDataURL('image/png');
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    drawingRef.current = true;
     const pos = getPos(e);
+
+    if (isFill) {
+      floodFill(pos.x, pos.y, color);
+      return;
+    }
+
+    drawingRef.current = true;
     currentRef.current = {
       color,
       size,
@@ -368,7 +466,7 @@ export default function SketchPage() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            className="absolute inset-0 w-full h-full cursor-crosshair touch-none select-none"
+            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
             style={{ touchAction: 'none' }}
           />
           {!hasContent && (
@@ -389,16 +487,27 @@ export default function SketchPage() {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => { setIsEraser(false); setShowPalette((s) => !s); }}
+              onClick={() => { setTool('draw'); setShowPalette((s) => !s); }}
               className="w-10 h-10 rounded-full border border-border/60 flex items-center justify-center"
               aria-label="Pick color"
-              style={{ background: isEraser ? 'transparent' : color }}
+              style={{ background: tool === 'draw' || tool === 'fill' ? color : 'transparent' }}
             >
-              {isEraser ? <Palette className="w-4 h-4 text-foreground" /> : null}
+              {tool === 'eraser' ? <Palette className="w-4 h-4 text-foreground" /> : null}
             </button>
             <button
               type="button"
-              onClick={() => setIsEraser((v) => !v)}
+              onClick={() => setTool(tool === 'fill' ? 'draw' : 'fill')}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                isFill ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Fill area with color"
+              title="Fill"
+            >
+              <PaintBucket className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setTool(tool === 'eraser' ? 'draw' : 'eraser')}
               className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
                 isEraser ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
               }`}
@@ -449,7 +558,7 @@ export default function SketchPage() {
           </div>
         </div>
 
-        {showPalette && !isEraser && (
+        {showPalette && tool !== 'eraser' && (
           <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 flex items-center justify-around">
             {COLORS.map((c) => (
               <button
