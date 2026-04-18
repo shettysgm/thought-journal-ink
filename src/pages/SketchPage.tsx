@@ -211,15 +211,17 @@ export default function SketchPage() {
   };
 
   const handleUndo = () => {
+    if (strokesRef.current.length === 0) return;
     strokesRef.current.pop();
-    setHasContent(strokesRef.current.length > 0);
+    setHasContent(strokesRef.current.length > 0 || !!baseImageRef.current);
     redraw();
   };
 
   const handleClear = () => {
-    if (strokesRef.current.length === 0) return;
+    if (strokesRef.current.length === 0 && !baseImageRef.current) return;
     if (!confirm('Clear the whole sketch?')) return;
     strokesRef.current = [];
+    baseImageRef.current = null;
     setHasContent(false);
     redraw();
   };
