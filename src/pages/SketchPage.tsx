@@ -116,6 +116,46 @@ export default function SketchPage() {
     return () => window.removeEventListener('resize', onResize);
   }, [fitCanvas]);
 
+  // Preload today's existing sketch (if any) into the canvas as a base layer
+  useEffect(() => {
+    if (loadedExisting) return;
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    (async () => {
+      const today = new Date();
+      const existing = entries.find(e =>
+        e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
+      );
+      if (!existing) return;
+      try {
+        const { getJournalEntry } = await import('@/lib/idb');
+        const raw = await getJournalEntry(existing.id) as any;
+        const blob: Blob | undefined = raw?.drawingBlob;
+        if (!blob || !(blob instanceof Blob)) return;
+        objectUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          if (cancelled) return;
+          baseImageRef.current = img;
+          setHasContent(true);
+          setLoadedExisting(true);
+          redraw();
+          toast({
+            title: "Today's sketch loaded",
+            description: 'Continue editing — saving will replace it.',
+          });
+        };
+        img.src = objectUrl;
+      } catch (err) {
+        console.warn('[Sketch] failed to preload existing sketch', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [entries, loadedExisting, redraw, toast]);
+
   const getPos = (e: PointerEvent | React.PointerEvent): { x: number; y: number } => {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
