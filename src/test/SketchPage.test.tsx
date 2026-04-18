@@ -60,10 +60,8 @@ beforeEach(() => {
     set lineCap(_v: any) {}, set lineJoin(_v: any) {}, set lineWidth(_v: any) {},
     set globalCompositeOperation(_v: any) {}, set strokeStyle(_v: any) {}, set fillStyle(_v: any) {}, set font(_v: any) {},
   };
-  // @ts-expect-error - jsdom stub
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => fakeCtx);
-  // @ts-expect-error
-  HTMLCanvasElement.prototype.toBlob = function (cb: any) { cb(new Blob(['x'], { type: 'image/png' })); };
+  (HTMLCanvasElement.prototype as any).getContext = vi.fn(() => fakeCtx);
+  (HTMLCanvasElement.prototype as any).toBlob = function (cb: any) { cb(new Blob(['x'], { type: 'image/png' })); };
 
   if (!(global as any).URL.createObjectURL) {
     (global as any).URL.createObjectURL = vi.fn(() => 'blob:fake');
