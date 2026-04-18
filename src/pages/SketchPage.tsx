@@ -64,6 +64,12 @@ export default function SketchPage() {
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadedExisting, setLoadedExisting] = useState(false);
+  // Paper style: 'plain' shows a solid soft-tint background; 'lined' overlays
+  // ruled horizontal lines (rendered via CSS on the wrapper, AND baked under
+  // the sketch when saving so the saved PNG matches what the user saw).
+  const [paper, setPaper] = useState<'plain' | 'lined'>('plain');
+  const LINE_SPACING = 32; // CSS px between ruled lines
+  const LINE_COLOR = 'hsl(210 30% 82%)'; // soft blue-grey, paper-like
 
   // Floating picture being placed (drag/zoom before commit). When non-null,
   // the canvas ignores pointer events and an overlay <img> is shown.
