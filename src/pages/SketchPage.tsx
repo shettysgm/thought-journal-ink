@@ -350,33 +350,24 @@ export default function SketchPage() {
     const snap = undoStackRef.current.pop();
     if (!snap) return;
 
-    // Restore the snapshot directly to canvas pixels.
+    // Restore the snapshot directly to canvas pixels, AND make it the new base
+    // synchronously. This eliminates the race where an in-flight async snapshot
+    // (from a prior fill) could overwrite the restored state on the next redraw.
     ctx.putImageData(snap, 0, 0);
-
-    // Bake the restored canvas into baseImageRef so future redraws preserve it.
-    // Reset stroke list (any in-flight stroke is already discarded by the snapshot).
-    const snapshot = new Image();
-    snapshot.onload = () => {
-      baseImageRef.current = snapshot;
-      strokesRef.current = [];
-      const empty = undoStackRef.current.length === 0;
-      // Best-effort: we can't easily detect a fully blank canvas, so leave hasContent true
-      // unless the user clears explicitly. Toggling lets the buttons reflect remaining undos.
-      setHasContent(true);
-      // If the stack is empty AND there was no preloaded existing sketch, allow clearing.
-      if (empty && !loadedExisting) {
-        // Nothing else to undo
-      }
-    };
-    snapshot.src = canvas.toDataURL('image/png');
+    baseSnapshotRef.current = snap;
+    // Any pending preloaded image is now superseded by the snapshot.
+    baseImageRef.current = null;
+    strokesRef.current = [];
+    setHasContent(true);
   };
 
   const handleClear = () => {
-    if (strokesRef.current.length === 0 && !baseImageRef.current) return;
+    if (strokesRef.current.length === 0 && !baseImageRef.current && !baseSnapshotRef.current) return;
     if (!confirm('Clear the whole sketch?')) return;
     pushUndo();
     strokesRef.current = [];
     baseImageRef.current = null;
+    baseSnapshotRef.current = null;
     setHasContent(false);
     redraw();
   };
