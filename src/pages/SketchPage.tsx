@@ -1136,6 +1136,63 @@ export default function SketchPage() {
               aria-hidden
             />
           )}
+          {/* Perspective grid overlay (1-point or 2-point) — pure SVG guides */}
+          {perspective !== 'off' && (
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              aria-hidden
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              {/* Horizon line */}
+              <line x1="0" y1="50" x2="100" y2="50" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.5" />
+              {perspective === '1pt' && Array.from({ length: 24 }).map((_, i) => {
+                const angle = (i / 24) * Math.PI * 2;
+                const x2 = 50 + Math.cos(angle) * 200;
+                const y2 = 50 + Math.sin(angle) * 200;
+                return <line key={i} x1="50" y1="50" x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.35" />;
+              })}
+              {perspective === '2pt' && (
+                <>
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const t = i / 15;
+                    const y = t * 100;
+                    return <line key={`l${i}`} x1="-20" y1="50" x2="100" y2={y} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.3" />;
+                  })}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const t = i / 15;
+                    const y = t * 100;
+                    return <line key={`r${i}`} x1="120" y1="50" x2="0" y2={y} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.3" />;
+                  })}
+                  {/* Vanishing-point markers */}
+                  <circle cx="-20" cy="50" r="0.6" fill="hsl(var(--primary))" />
+                  <circle cx="120" cy="50" r="0.6" fill="hsl(var(--primary))" />
+                </>
+              )}
+            </svg>
+          )}
+          {/* Symmetry guide lines */}
+          {symmetry !== 'off' && (
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              aria-hidden
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              {(symmetry === 'vertical' || symmetry === 'mandala') && (
+                <line x1="50" y1="0" x2="50" y2="100" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.55" />
+              )}
+              {(symmetry === 'horizontal' || symmetry === 'mandala') && (
+                <line x1="0" y1="50" x2="100" y2="50" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.55" />
+              )}
+              {symmetry === 'mandala' && Array.from({ length: mandalaSlices }).map((_, i) => {
+                const a = (i / mandalaSlices) * Math.PI * 2;
+                const x2 = 50 + Math.cos(a) * 80;
+                const y2 = 50 + Math.sin(a) * 80;
+                return <line key={i} x1="50" y1="50" x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth="0.08" opacity="0.35" />;
+              })}
+            </svg>
+          )}
           {!hasContent && !placement && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
