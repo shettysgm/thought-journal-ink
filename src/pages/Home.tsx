@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Settings, Pen, Info, Mic, Pencil, Tablet } from "lucide-react";
+import { Settings, Pen, Info, Mic, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import StreakReminder from "@/components/StreakReminder";
@@ -69,8 +69,7 @@ export default function Home() {
                 <Pencil className="w-4 h-4 text-primary" />
                 Sketch
               </span>
-              <span className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-                <Tablet className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wide">
                 Better on iPad
               </span>
             </button>
