@@ -151,17 +151,78 @@ export default function SketchPage() {
 
   const drawStroke = (ctx: CanvasRenderingContext2D, stroke: Stroke) => {
     if (stroke.points.length === 0) return;
+    ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = stroke.size;
     ctx.globalCompositeOperation = stroke.isEraser ? 'destination-out' : 'source-over';
     ctx.strokeStyle = stroke.color;
-    ctx.beginPath();
-    const [first, ...rest] = stroke.points;
-    ctx.moveTo(first.x, first.y);
-    for (const p of rest) ctx.lineTo(p.x, p.y);
-    ctx.stroke();
+    ctx.fillStyle = stroke.color;
+    ctx.globalAlpha = stroke.isEraser ? 1 : stroke.opacity;
+
+    if (stroke.isEraser || stroke.brush === 'pen') {
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    } else if (stroke.brush === 'marker') {
+      // Marker: thicker, square cap, slightly translucent
+      ctx.lineCap = 'square';
+      ctx.globalAlpha = stroke.opacity * 0.7;
+      ctx.lineWidth = stroke.size * 1.6;
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    } else if (stroke.brush === 'pencil') {
+      // Pencil: thin grainy strokes via small dots offset
+      ctx.globalAlpha = stroke.opacity * 0.55;
+      ctx.lineWidth = Math.max(1, stroke.size * 0.6);
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      // Grain dots
+      for (const p of stroke.points) {
+        if (Math.random() < 0.35) {
+          ctx.globalAlpha = stroke.opacity * 0.25;
+          ctx.beginPath();
+          ctx.arc(p.x + (Math.random() - 0.5) * stroke.size, p.y + (Math.random() - 0.5) * stroke.size, 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (stroke.brush === 'watercolor') {
+      // Watercolor: layered translucent strokes
+      for (let layer = 0; layer < 3; layer++) {
+        ctx.globalAlpha = stroke.opacity * 0.18;
+        ctx.lineWidth = stroke.size * (1 + layer * 0.5);
+        ctx.beginPath();
+        const [first, ...rest] = stroke.points;
+        ctx.moveTo(first.x, first.y);
+        for (const p of rest) ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+    } else if (stroke.brush === 'spray') {
+      // Spray: random dots around each point
+      ctx.globalAlpha = stroke.opacity;
+      const radius = stroke.size * 1.5;
+      for (const p of stroke.points) {
+        for (let i = 0; i < 8; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * radius;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(angle) * dist, p.y + Math.sin(angle) * dist, 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    ctx.restore();
     ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
   };
 
   useEffect(() => {
