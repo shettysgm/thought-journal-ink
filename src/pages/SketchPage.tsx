@@ -1538,6 +1538,104 @@ export default function SketchPage() {
             ))}
           </div>
         )}
+
+        {showHelpers && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 space-y-3">
+            {/* Smart Shape toggle */}
+            <button
+              type="button"
+              onClick={() => setSmartShape((s) => !s)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-colors ${
+                smartShape ? 'bg-primary/10 border-primary/40 text-primary' : 'border-border/60 text-foreground hover:bg-muted'
+              }`}
+              aria-pressed={smartShape}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Shapes className="w-4 h-4" />
+                Smart Shape
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {smartShape ? 'On — auto-snap circles, lines, rects' : 'Off'}
+              </span>
+            </button>
+
+            {/* Perspective grid selector */}
+            <div>
+              <div className="flex items-center justify-between px-1 mb-1.5">
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Grid3x3 className="w-4 h-4" />
+                  Perspective Grid
+                </span>
+              </div>
+              <div className="inline-flex w-full rounded-full border border-border/60 p-0.5 bg-white">
+                {([
+                  { id: 'off', label: 'Off' },
+                  { id: '1pt', label: '1-Point' },
+                  { id: '2pt', label: '2-Point' },
+                ] as { id: typeof perspective; label: string }[]).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPerspective(p.id)}
+                    className={`flex-1 h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                      perspective === p.id ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                    }`}
+                    aria-pressed={perspective === p.id}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Symmetry mode selector */}
+            <div>
+              <div className="flex items-center justify-between px-1 mb-1.5">
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <FlipHorizontal2 className="w-4 h-4" />
+                  Symmetry
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {([
+                  { id: 'off', label: 'Off' },
+                  { id: 'vertical', label: 'Vert' },
+                  { id: 'horizontal', label: 'Horiz' },
+                  { id: 'mandala', label: 'Mandala' },
+                ] as { id: typeof symmetry; label: string }[]).map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSymmetry(s.id)}
+                    className={`h-9 px-2 rounded-full text-xs font-medium border transition-colors ${
+                      symmetry === s.id
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'border-border/60 text-foreground hover:bg-muted'
+                    }`}
+                    aria-pressed={symmetry === s.id}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              {symmetry === 'mandala' && (
+                <div className="flex items-center gap-3 px-1 mt-2">
+                  <span className="text-xs text-muted-foreground w-14 shrink-0">Slices</span>
+                  <input
+                    type="range"
+                    min={3}
+                    max={16}
+                    value={mandalaSlices}
+                    onChange={(e) => setMandalaSlices(Number(e.target.value))}
+                    className="flex-1 accent-primary"
+                    aria-label="Mandala slices"
+                  />
+                  <span className="text-xs tabular-nums text-foreground w-9 text-right">{mandalaSlices}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
