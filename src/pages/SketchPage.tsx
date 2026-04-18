@@ -584,7 +584,7 @@ export default function SketchPage() {
             <button
               type="button"
               onClick={handleUndo}
-              disabled={!hasContent}
+              disabled={undoStackRef.current.length === 0}
               className="w-10 h-10 rounded-full border border-border/60 flex items-center justify-center disabled:opacity-40"
               aria-label="Undo"
             >
