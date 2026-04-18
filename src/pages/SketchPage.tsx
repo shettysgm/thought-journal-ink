@@ -978,7 +978,7 @@ export default function SketchPage() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
+            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill || isStamp ? 'cursor-cell' : isEyedropper ? 'cursor-copy' : 'cursor-crosshair'}`}
             style={{ touchAction: 'none', pointerEvents: placement ? 'none' : 'auto' }}
           />
           {/* Lined-paper overlay rendered ABOVE the canvas so it's visible
