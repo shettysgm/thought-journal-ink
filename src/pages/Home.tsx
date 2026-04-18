@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Settings, Pen, Info, Mic, Pencil, Tablet } from "lucide-react";
+import { Settings, Pen, Info, Mic, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileIntroOverlay from "@/components/MobileIntroOverlay";
 import StreakReminder from "@/components/StreakReminder";
