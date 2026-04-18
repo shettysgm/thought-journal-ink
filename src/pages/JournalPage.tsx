@@ -108,12 +108,12 @@ export default function JournalPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-semibold text-foreground leading-tight">
                           {template.title}
                         </p>
                         {template.id === 'sketch' && (
-                          <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                          <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
                             Better on iPad
                           </span>
                         )}
