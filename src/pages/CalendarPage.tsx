@@ -410,6 +410,11 @@ export default function CalendarPage() {
                     </div>
                   )}
                   <CardContent className="p-4">
+                    {drawingBlob && (
+                      <div className="w-full mb-3 overflow-hidden rounded-lg bg-white border border-border/40">
+                        <BlobImage blob={drawingBlob} alt="Sketch" className="w-full h-auto max-h-80 object-contain" />
+                      </div>
+                    )}
                     {entry.text && (
                       <div className="bg-muted/30 rounded-lg p-3 mb-3">
                         <TextWithStickers
