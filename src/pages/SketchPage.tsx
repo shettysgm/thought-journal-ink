@@ -1100,13 +1100,63 @@ export default function SketchPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTool(tool === 'eraser' ? 'draw' : 'eraser')}
+              onClick={() => { setTool(tool === 'eraser' ? 'draw' : 'eraser'); setShowBrushes(false); setShowStamps(false); }}
               className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
                 isEraser ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
               }`}
               aria-label="Eraser"
             >
               <Eraser className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool('draw'); setShowBrushes((s) => !s); setShowStamps(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                showBrushes ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Brush type"
+              title="Brush type"
+            >
+              {brush === 'marker' ? <Brush className="w-4 h-4" /> :
+               brush === 'spray' ? <SprayCan className="w-4 h-4" /> :
+               brush === 'watercolor' ? <Droplet className="w-4 h-4" /> :
+               <Pencil className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool(isEyedropper ? 'draw' : 'eyedropper'); setShowBrushes(false); setShowStamps(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                isEyedropper ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Eyedropper - pick color from canvas"
+              title="Eyedropper"
+            >
+              <Pipette className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool(isStamp ? 'draw' : 'stamp'); setShowStamps((s) => !s); setShowBrushes(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                isStamp ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Shape stamps"
+              title="Shape stamps"
+            >
+              {stamp === 'star' ? <Star className="w-4 h-4" /> :
+               stamp === 'arrow' ? <ArrowUpRight className="w-4 h-4" /> :
+               stamp === 'bubble' ? <MessageCircle className="w-4 h-4" /> :
+               <Heart className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setStabilize((s) => !s)}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                stabilize ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Stabilize strokes"
+              title={stabilize ? 'Stabilization on' : 'Stabilization off'}
+            >
+              <Sparkles className="w-4 h-4" />
             </button>
             <button
               type="button"
