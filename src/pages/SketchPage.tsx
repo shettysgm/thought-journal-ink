@@ -164,11 +164,107 @@ export default function SketchPage() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
+  // Flood-fill at canvas position using current color, with anti-alias tolerance.
+  const floodFill = (cssX: number, cssY: number, hexColor: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const startX = Math.floor(cssX * dpr);
+    const startY = Math.floor(cssY * dpr);
+    const w = canvas.width;
+    const h = canvas.height;
+    if (startX < 0 || startY < 0 || startX >= w || startY >= h) return;
+
+    let imageData: ImageData;
+    try {
+      imageData = ctx.getImageData(0, 0, w, h);
+    } catch {
+      return; // tainted canvas (shouldn't happen — same-origin only)
+    }
+    const data = imageData.data;
+
+    const idx = (x: number, y: number) => (y * w + x) * 4;
+    const startIdx = idx(startX, startY);
+    const sr = data[startIdx];
+    const sg = data[startIdx + 1];
+    const sb = data[startIdx + 2];
+    const sa = data[startIdx + 3];
+
+    // Parse hex → rgb
+    const hex = hexColor.replace('#', '');
+    const fr = parseInt(hex.substring(0, 2), 16);
+    const fg = parseInt(hex.substring(2, 4), 16);
+    const fb = parseInt(hex.substring(4, 6), 16);
+    const fa = 255;
+
+    // Skip if already same color
+    if (sr === fr && sg === fg && sb === fb && sa === fa) return;
+
+    const tolerance = 32; // anti-alias tolerance
+    const matches = (i: number) =>
+      Math.abs(data[i] - sr) <= tolerance &&
+      Math.abs(data[i + 1] - sg) <= tolerance &&
+      Math.abs(data[i + 2] - sb) <= tolerance &&
+      Math.abs(data[i + 3] - sa) <= tolerance;
+
+    // Iterative scanline flood fill
+    const stack: Array<[number, number]> = [[startX, startY]];
+    while (stack.length) {
+      const [x, y] = stack.pop()!;
+      let nx = x;
+      while (nx >= 0 && matches(idx(nx, y))) nx--;
+      nx++;
+      let spanUp = false;
+      let spanDown = false;
+      while (nx < w && matches(idx(nx, y))) {
+        const i = idx(nx, y);
+        data[i] = fr;
+        data[i + 1] = fg;
+        data[i + 2] = fb;
+        data[i + 3] = fa;
+        if (!spanUp && y > 0 && matches(idx(nx, y - 1))) {
+          stack.push([nx, y - 1]);
+          spanUp = true;
+        } else if (spanUp && y > 0 && !matches(idx(nx, y - 1))) {
+          spanUp = false;
+        }
+        if (!spanDown && y < h - 1 && matches(idx(nx, y + 1))) {
+          stack.push([nx, y + 1]);
+          spanDown = true;
+        } else if (spanDown && y < h - 1 && !matches(idx(nx, y + 1))) {
+          spanDown = false;
+        }
+        nx++;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // Bake the filled result into baseImageRef so future redraws preserve it.
+    // Composite current canvas (which now has the fill applied) into a snapshot image.
+    const snapshot = new Image();
+    snapshot.onload = () => {
+      baseImageRef.current = snapshot;
+      // Strokes are already baked into the snapshot, so reset the stroke list
+      strokesRef.current = [];
+      setHasContent(true);
+    };
+    snapshot.src = canvas.toDataURL('image/png');
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    drawingRef.current = true;
     const pos = getPos(e);
+
+    if (isFill) {
+      floodFill(pos.x, pos.y, color);
+      return;
+    }
+
+    drawingRef.current = true;
     currentRef.current = {
       color,
       size,
