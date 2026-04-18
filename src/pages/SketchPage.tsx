@@ -66,9 +66,14 @@ export default function SketchPage() {
   const [brush, setBrush] = useState<BrushType>('pen');
   const [opacity, setOpacity] = useState(1);
   const [stabilize, setStabilize] = useState(false);
+  const [smartShape, setSmartShape] = useState(false);
+  const [perspective, setPerspective] = useState<'off' | '1pt' | '2pt'>('off');
+  const [symmetry, setSymmetry] = useState<'off' | 'vertical' | 'horizontal' | 'mandala'>('off');
+  const [mandalaSlices, setMandalaSlices] = useState(8);
   const [stamp, setStamp] = useState<StampType>('heart');
   const [showBrushes, setShowBrushes] = useState(false);
   const [showStamps, setShowStamps] = useState(false);
+  const [showHelpers, setShowHelpers] = useState(false);
   const isEraser = tool === 'eraser';
   const isFill = tool === 'fill';
   const isEyedropper = tool === 'eyedropper';
