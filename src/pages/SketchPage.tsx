@@ -723,7 +723,13 @@ export default function SketchPage() {
         <div
           ref={wrapRef}
           className="relative w-full h-full rounded-2xl border border-border/60 bg-[hsl(174_55%_98%)] shadow-soft overflow-hidden"
-          style={{ touchAction: 'none' }}
+          style={{
+            touchAction: 'none',
+            backgroundImage:
+              paper === 'lined'
+                ? `repeating-linear-gradient(to bottom, transparent 0, transparent ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING - 1}px, ${LINE_COLOR} ${LINE_SPACING}px)`
+                : undefined,
+          }}
         >
           <canvas
             ref={canvasRef}
