@@ -139,8 +139,7 @@ describe('SketchPage - add picture and zoom flow', () => {
 
     // Stub Image so onload fires synchronously
     const OriginalImage = global.Image;
-    // @ts-expect-error
-    global.Image = class {
+    (global as any).Image = class {
       width = 200; height = 200;
       onload: (() => void) | null = null;
       set src(_v: string) { setTimeout(() => this.onload && this.onload(), 0); }
