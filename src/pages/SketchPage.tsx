@@ -45,6 +45,9 @@ export default function SketchPage() {
   const currentRef = useRef<Stroke | null>(null);
   // Pre-existing sketch image (today's saved drawing) painted as the base layer
   const baseImageRef = useRef<HTMLImageElement | null>(null);
+  // Undo history: ImageData snapshots taken BEFORE each action
+  const undoStackRef = useRef<ImageData[]>([]);
+  const MAX_UNDO = 20;
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
@@ -164,6 +167,21 @@ export default function SketchPage() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
+  // Snapshot the current canvas pixels before each destructive action so undo can restore.
+  const pushUndo = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    try {
+      const snap = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStackRef.current.push(snap);
+      if (undoStackRef.current.length > MAX_UNDO) undoStackRef.current.shift();
+    } catch (e) {
+      console.warn('[Sketch] failed to snapshot for undo', e);
+    }
+  };
+
   // Flood-fill at canvas position using current color, with anti-alias tolerance.
   const floodFill = (cssX: number, cssY: number, hexColor: string) => {
     const canvas = canvasRef.current;
@@ -260,10 +278,13 @@ export default function SketchPage() {
     const pos = getPos(e);
 
     if (isFill) {
+      pushUndo();
       floodFill(pos.x, pos.y, color);
       return;
     }
 
+    // Snapshot before each stroke so undo restores the prior state
+    pushUndo();
     drawingRef.current = true;
     currentRef.current = {
       color,
@@ -309,15 +330,38 @@ export default function SketchPage() {
   };
 
   const handleUndo = () => {
-    if (strokesRef.current.length === 0) return;
-    strokesRef.current.pop();
-    setHasContent(strokesRef.current.length > 0 || !!baseImageRef.current);
-    redraw();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const snap = undoStackRef.current.pop();
+    if (!snap) return;
+
+    // Restore the snapshot directly to canvas pixels.
+    ctx.putImageData(snap, 0, 0);
+
+    // Bake the restored canvas into baseImageRef so future redraws preserve it.
+    // Reset stroke list (any in-flight stroke is already discarded by the snapshot).
+    const snapshot = new Image();
+    snapshot.onload = () => {
+      baseImageRef.current = snapshot;
+      strokesRef.current = [];
+      const empty = undoStackRef.current.length === 0;
+      // Best-effort: we can't easily detect a fully blank canvas, so leave hasContent true
+      // unless the user clears explicitly. Toggling lets the buttons reflect remaining undos.
+      setHasContent(true);
+      // If the stack is empty AND there was no preloaded existing sketch, allow clearing.
+      if (empty && !loadedExisting) {
+        // Nothing else to undo
+      }
+    };
+    snapshot.src = canvas.toDataURL('image/png');
   };
 
   const handleClear = () => {
     if (strokesRef.current.length === 0 && !baseImageRef.current) return;
     if (!confirm('Clear the whole sketch?')) return;
+    pushUndo();
     strokesRef.current = [];
     baseImageRef.current = null;
     setHasContent(false);
@@ -540,7 +584,7 @@ export default function SketchPage() {
             <button
               type="button"
               onClick={handleUndo}
-              disabled={!hasContent}
+              disabled={undoStackRef.current.length === 0}
               className="w-10 h-10 rounded-full border border-border/60 flex items-center justify-center disabled:opacity-40"
               aria-label="Undo"
             >
