@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X, Pipette, Sparkles, Heart, Star, ArrowUpRight, MessageCircle, Brush, SprayCan, Droplet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
@@ -19,10 +19,15 @@ const COLORS = [
 
 const STROKE_SIZES = [2, 4, 8, 14];
 
+type BrushType = 'pen' | 'pencil' | 'marker' | 'watercolor' | 'spray';
+type StampType = 'heart' | 'star' | 'arrow' | 'bubble';
+
 type Stroke = {
   color: string;
   size: number;
   isEraser: boolean;
+  brush: BrushType;
+  opacity: number;
   points: { x: number; y: number }[];
 };
 
@@ -57,9 +62,17 @@ export default function SketchPage() {
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
-  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill'>('draw');
+  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill' | 'eyedropper' | 'stamp'>('draw');
+  const [brush, setBrush] = useState<BrushType>('pen');
+  const [opacity, setOpacity] = useState(1);
+  const [stabilize, setStabilize] = useState(false);
+  const [stamp, setStamp] = useState<StampType>('heart');
+  const [showBrushes, setShowBrushes] = useState(false);
+  const [showStamps, setShowStamps] = useState(false);
   const isEraser = tool === 'eraser';
   const isFill = tool === 'fill';
+  const isEyedropper = tool === 'eyedropper';
+  const isStamp = tool === 'stamp';
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -138,17 +151,78 @@ export default function SketchPage() {
 
   const drawStroke = (ctx: CanvasRenderingContext2D, stroke: Stroke) => {
     if (stroke.points.length === 0) return;
+    ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = stroke.size;
     ctx.globalCompositeOperation = stroke.isEraser ? 'destination-out' : 'source-over';
     ctx.strokeStyle = stroke.color;
-    ctx.beginPath();
-    const [first, ...rest] = stroke.points;
-    ctx.moveTo(first.x, first.y);
-    for (const p of rest) ctx.lineTo(p.x, p.y);
-    ctx.stroke();
+    ctx.fillStyle = stroke.color;
+    ctx.globalAlpha = stroke.isEraser ? 1 : stroke.opacity;
+
+    if (stroke.isEraser || stroke.brush === 'pen') {
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    } else if (stroke.brush === 'marker') {
+      // Marker: thicker, square cap, slightly translucent
+      ctx.lineCap = 'square';
+      ctx.globalAlpha = stroke.opacity * 0.7;
+      ctx.lineWidth = stroke.size * 1.6;
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    } else if (stroke.brush === 'pencil') {
+      // Pencil: thin grainy strokes via small dots offset
+      ctx.globalAlpha = stroke.opacity * 0.55;
+      ctx.lineWidth = Math.max(1, stroke.size * 0.6);
+      ctx.beginPath();
+      const [first, ...rest] = stroke.points;
+      ctx.moveTo(first.x, first.y);
+      for (const p of rest) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      // Grain dots
+      for (const p of stroke.points) {
+        if (Math.random() < 0.35) {
+          ctx.globalAlpha = stroke.opacity * 0.25;
+          ctx.beginPath();
+          ctx.arc(p.x + (Math.random() - 0.5) * stroke.size, p.y + (Math.random() - 0.5) * stroke.size, 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (stroke.brush === 'watercolor') {
+      // Watercolor: layered translucent strokes
+      for (let layer = 0; layer < 3; layer++) {
+        ctx.globalAlpha = stroke.opacity * 0.18;
+        ctx.lineWidth = stroke.size * (1 + layer * 0.5);
+        ctx.beginPath();
+        const [first, ...rest] = stroke.points;
+        ctx.moveTo(first.x, first.y);
+        for (const p of rest) ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+    } else if (stroke.brush === 'spray') {
+      // Spray: random dots around each point
+      ctx.globalAlpha = stroke.opacity;
+      const radius = stroke.size * 1.5;
+      for (const p of stroke.points) {
+        for (let i = 0; i < 8; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * radius;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(angle) * dist, p.y + Math.sin(angle) * dist, 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    ctx.restore();
     ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
   };
 
   useEffect(() => {
@@ -309,10 +383,135 @@ export default function SketchPage() {
     }
   };
 
+  // Pick color at canvas pixel position (eyedropper)
+  const pickColorAt = (cssX: number, cssY: number): string | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const x = Math.floor(cssX * dpr);
+    const y = Math.floor(cssY * dpr);
+    try {
+      const px = ctx.getImageData(x, y, 1, 1).data;
+      // If transparent, treat as white
+      if (px[3] === 0) return '#ffffff';
+      const toHex = (n: number) => n.toString(16).padStart(2, '0');
+      return `#${toHex(px[0])}${toHex(px[1])}${toHex(px[2])}`;
+    } catch {
+      return null;
+    }
+  };
+
+  // Draw a vector stamp shape at given position
+  const drawStamp = (ctx: CanvasRenderingContext2D, kind: StampType, cx: number, cy: number, s: number, hex: string) => {
+    ctx.save();
+    ctx.fillStyle = hex;
+    ctx.strokeStyle = hex;
+    ctx.lineWidth = Math.max(2, s / 8);
+    ctx.lineJoin = 'round';
+    const r = s;
+    ctx.beginPath();
+    if (kind === 'heart') {
+      const top = cy - r * 0.3;
+      ctx.moveTo(cx, cy + r * 0.7);
+      ctx.bezierCurveTo(cx + r, cy + r * 0.2, cx + r, top - r * 0.4, cx, top);
+      ctx.bezierCurveTo(cx - r, top - r * 0.4, cx - r, cy + r * 0.2, cx, cy + r * 0.7);
+      ctx.fill();
+    } else if (kind === 'star') {
+      const spikes = 5;
+      const outer = r;
+      const inner = r * 0.45;
+      let rot = -Math.PI / 2;
+      const step = Math.PI / spikes;
+      ctx.moveTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+      for (let i = 0; i < spikes; i++) {
+        rot += step;
+        ctx.lineTo(cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner);
+        rot += step;
+        ctx.lineTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+      }
+      ctx.closePath();
+      ctx.fill();
+    } else if (kind === 'arrow') {
+      // Arrow pointing up-right
+      const len = r * 1.4;
+      ctx.lineWidth = Math.max(3, s / 4);
+      ctx.lineCap = 'round';
+      ctx.moveTo(cx - len / 2, cy + len / 2);
+      ctx.lineTo(cx + len / 2, cy - len / 2);
+      ctx.stroke();
+      // Head
+      ctx.beginPath();
+      ctx.moveTo(cx + len / 2, cy - len / 2);
+      ctx.lineTo(cx + len / 2 - r * 0.5, cy - len / 2 + r * 0.1);
+      ctx.moveTo(cx + len / 2, cy - len / 2);
+      ctx.lineTo(cx + len / 2 - r * 0.1, cy - len / 2 + r * 0.5);
+      ctx.stroke();
+    } else if (kind === 'bubble') {
+      // Speech bubble
+      const w = r * 1.8;
+      const h = r * 1.3;
+      const rad = r * 0.4;
+      ctx.moveTo(cx - w / 2 + rad, cy - h / 2);
+      ctx.lineTo(cx + w / 2 - rad, cy - h / 2);
+      ctx.quadraticCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy - h / 2 + rad);
+      ctx.lineTo(cx + w / 2, cy + h / 2 - rad);
+      ctx.quadraticCurveTo(cx + w / 2, cy + h / 2, cx + w / 2 - rad, cy + h / 2);
+      ctx.lineTo(cx - w / 4, cy + h / 2);
+      ctx.lineTo(cx - w / 3, cy + h / 2 + r * 0.4);
+      ctx.lineTo(cx - w / 6, cy + h / 2);
+      ctx.lineTo(cx - w / 2 + rad, cy + h / 2);
+      ctx.quadraticCurveTo(cx - w / 2, cy + h / 2, cx - w / 2, cy + h / 2 - rad);
+      ctx.lineTo(cx - w / 2, cy - h / 2 + rad);
+      ctx.quadraticCurveTo(cx - w / 2, cy - h / 2, cx - w / 2 + rad, cy - h / 2);
+      ctx.closePath();
+      ctx.lineWidth = Math.max(2, s / 6);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  const bakeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      strokesRef.current = [];
+      setHasContent(true);
+    } catch (e) {
+      console.warn('[Sketch] failed to bake', e);
+    }
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     (e.target as Element).setPointerCapture?.(e.pointerId);
     const pos = getPos(e);
+
+    if (isEyedropper) {
+      const hex = pickColorAt(pos.x, pos.y);
+      if (hex) {
+        setColor(hex);
+        toast({ title: 'Color picked', description: hex.toUpperCase() });
+      }
+      setTool('draw');
+      return;
+    }
+
+    if (isStamp) {
+      pushUndo();
+      const ctx = canvasRef.current?.getContext('2d');
+      if (ctx) {
+        ctx.globalAlpha = opacity;
+        drawStamp(ctx, stamp, pos.x, pos.y, Math.max(20, size * 6), color);
+        ctx.globalAlpha = 1;
+        bakeCanvas();
+      }
+      return;
+    }
 
     if (isFill) {
       pushUndo();
@@ -327,32 +526,57 @@ export default function SketchPage() {
       color,
       size,
       isEraser,
+      brush,
+      opacity,
       points: [pos],
     };
   };
 
+  // Exponential smoothing for stabilization (pulls cursor toward previous point)
+  const smoothPoint = (prev: { x: number; y: number }, next: { x: number; y: number }, factor: number) => ({
+    x: prev.x + (next.x - prev.x) * factor,
+    y: prev.y + (next.y - prev.y) * factor,
+  });
+
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drawingRef.current || !currentRef.current) return;
     e.preventDefault();
-    const pos = getPos(e);
-    currentRef.current.points.push(pos);
+    let pos = getPos(e);
+    const pts = currentRef.current.points;
+
+    // Stabilization: blend new point toward last
+    if (stabilize && pts.length > 0) {
+      pos = smoothPoint(pts[pts.length - 1], pos, 0.35);
+    }
+    pts.push(pos);
+
+    // For complex brushes (watercolor/spray/pencil), redraw the whole current
+    // stroke for smoother appearance. For pen/marker, draw incrementally.
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
-    // Draw incrementally for performance
-    const pts = currentRef.current.points;
-    if (pts.length >= 2) {
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = currentRef.current.size;
-      ctx.globalCompositeOperation = currentRef.current.isEraser ? 'destination-out' : 'source-over';
-      ctx.strokeStyle = currentRef.current.color;
-      ctx.beginPath();
-      const a = pts[pts.length - 2];
-      const b = pts[pts.length - 1];
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-      ctx.globalCompositeOperation = 'source-over';
+
+    const cur = currentRef.current;
+    if (cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker') {
+      if (pts.length >= 2) {
+        ctx.save();
+        ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
+        ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = cur.color;
+        ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
+        ctx.beginPath();
+        const a = pts[pts.length - 2];
+        const b = pts[pts.length - 1];
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    } else {
+      // Repaint the entire base + strokes to render textured brushes correctly
+      redraw();
+      drawStroke(ctx, cur);
     }
   };
 
@@ -754,7 +978,7 @@ export default function SketchPage() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
+            className={`absolute inset-0 w-full h-full touch-none select-none ${isFill || isStamp ? 'cursor-cell' : isEyedropper ? 'cursor-copy' : 'cursor-crosshair'}`}
             style={{ touchAction: 'none', pointerEvents: placement ? 'none' : 'auto' }}
           />
           {/* Lined-paper overlay rendered ABOVE the canvas so it's visible
@@ -852,8 +1076,8 @@ export default function SketchPage() {
       {/* Toolbar */}
       <div className="px-3 pt-3 shrink-0">
 
-        <div className="rounded-2xl border border-border/60 bg-white shadow-soft p-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
+        <div className="rounded-2xl border border-border/60 bg-white shadow-soft p-2 flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap">
             <button
               type="button"
               onClick={() => { setTool('draw'); setShowPalette((s) => !s); }}
@@ -876,13 +1100,63 @@ export default function SketchPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTool(tool === 'eraser' ? 'draw' : 'eraser')}
+              onClick={() => { setTool(tool === 'eraser' ? 'draw' : 'eraser'); setShowBrushes(false); setShowStamps(false); }}
               className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
                 isEraser ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
               }`}
               aria-label="Eraser"
             >
               <Eraser className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool('draw'); setShowBrushes((s) => !s); setShowStamps(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                showBrushes ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Brush type"
+              title="Brush type"
+            >
+              {brush === 'marker' ? <Brush className="w-4 h-4" /> :
+               brush === 'spray' ? <SprayCan className="w-4 h-4" /> :
+               brush === 'watercolor' ? <Droplet className="w-4 h-4" /> :
+               <Pencil className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool(isEyedropper ? 'draw' : 'eyedropper'); setShowBrushes(false); setShowStamps(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                isEyedropper ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Eyedropper - pick color from canvas"
+              title="Eyedropper"
+            >
+              <Pipette className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTool(isStamp ? 'draw' : 'stamp'); setShowStamps((s) => !s); setShowBrushes(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                isStamp ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Shape stamps"
+              title="Shape stamps"
+            >
+              {stamp === 'star' ? <Star className="w-4 h-4" /> :
+               stamp === 'arrow' ? <ArrowUpRight className="w-4 h-4" /> :
+               stamp === 'bubble' ? <MessageCircle className="w-4 h-4" /> :
+               <Heart className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setStabilize((s) => !s)}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                stabilize ? 'bg-primary text-primary-foreground border-primary' : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Stabilize strokes"
+              title={stabilize ? 'Stabilization on' : 'Stabilization off'}
+            >
+              <Sparkles className="w-4 h-4" />
             </button>
             <button
               type="button"
@@ -983,6 +1257,72 @@ export default function SketchPage() {
                 style={{ background: c }}
                 aria-label={`Color ${c}`}
               />
+            ))}
+          </div>
+        )}
+
+        {showBrushes && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 space-y-3">
+            <div className="flex items-center justify-around">
+              {([
+                { id: 'pen', label: 'Pen', icon: <Pencil className="w-4 h-4" /> },
+                { id: 'pencil', label: 'Pencil', icon: <Pencil className="w-4 h-4" /> },
+                { id: 'marker', label: 'Marker', icon: <Brush className="w-4 h-4" /> },
+                { id: 'watercolor', label: 'Water', icon: <Droplet className="w-4 h-4" /> },
+                { id: 'spray', label: 'Spray', icon: <SprayCan className="w-4 h-4" /> },
+              ] as { id: BrushType; label: string; icon: JSX.Element }[]).map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => { setBrush(b.id); setShowBrushes(false); }}
+                  className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
+                    brush === b.id ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                  }`}
+                  aria-label={`${b.label} brush`}
+                  aria-pressed={brush === b.id}
+                >
+                  {b.icon}
+                  <span className="text-[10px] font-medium">{b.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 px-1">
+              <span className="text-xs text-muted-foreground w-14 shrink-0">Opacity</span>
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={Math.round(opacity * 100)}
+                onChange={(e) => setOpacity(Number(e.target.value) / 100)}
+                className="flex-1 accent-primary"
+                aria-label="Brush opacity"
+              />
+              <span className="text-xs tabular-nums text-foreground w-9 text-right">{Math.round(opacity * 100)}%</span>
+            </div>
+          </div>
+        )}
+
+        {showStamps && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 flex items-center justify-around">
+            {([
+              { id: 'heart', label: 'Heart', icon: <Heart className="w-5 h-5" /> },
+              { id: 'star', label: 'Star', icon: <Star className="w-5 h-5" /> },
+              { id: 'arrow', label: 'Arrow', icon: <ArrowUpRight className="w-5 h-5" /> },
+              { id: 'bubble', label: 'Bubble', icon: <MessageCircle className="w-5 h-5" /> },
+            ] as { id: StampType; label: string; icon: JSX.Element }[]).map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => { setStamp(s.id); setShowStamps(false); setTool('stamp'); }}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                  stamp === s.id ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-label={`${s.label} stamp`}
+                aria-pressed={stamp === s.id}
+              >
+                {s.icon}
+                <span className="text-[10px] font-medium">{s.label}</span>
+              </button>
             ))}
           </div>
         )}
