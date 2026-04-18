@@ -28,6 +28,8 @@ export default function SketchPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { createEntry } = useEntries();
+  const [phoneNoticeAck, setPhoneNoticeAck] = useState(false);
+  const [phone] = useState(() => isPhone());
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
