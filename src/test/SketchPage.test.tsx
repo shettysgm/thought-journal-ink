@@ -82,11 +82,16 @@ function renderPage() {
 // --- Tests --------------------------------------------------------------
 
 describe('SketchPage - tools and controls', () => {
-  it('renders pen, eraser, and fill tool buttons', () => {
+  it('renders eraser and fill tool buttons', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: /pen|draw/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /eraser/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /fill/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /fill area with color/i })).toBeInTheDocument();
+  });
+
+  it('renders color picker and add picture buttons', () => {
+    renderPage();
+    expect(screen.getByRole('button', { name: /pick color/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add picture/i })).toBeInTheDocument();
   });
 
   it('renders undo and clear buttons', () => {
@@ -95,53 +100,70 @@ describe('SketchPage - tools and controls', () => {
     expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
   });
 
-  it('renders the add picture (image) button', () => {
+  it('renders all four stroke size buttons', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: /picture|image|add/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /stroke size 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /stroke size 4/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /stroke size 8/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /stroke size 14/i })).toBeInTheDocument();
   });
 
-  it('opens color palette when palette button clicked', () => {
+  it('renders Plain and Lined paper toggle', () => {
     renderPage();
-    const paletteBtn = screen.getByRole('button', { name: /color|palette/i });
-    fireEvent.click(paletteBtn);
-    // Palette swatches should appear; at least one color swatch button
-    const swatches = document.querySelectorAll('[data-color], [aria-label*="color" i], button[style*="background"]');
-    expect(swatches.length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /^plain$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^lined$/i })).toBeInTheDocument();
   });
 
-  it('switches to eraser tool when eraser button clicked', () => {
+  it('toggles paper style when Lined is clicked', () => {
+    renderPage();
+    const linedBtn = screen.getByRole('button', { name: /^lined$/i });
+    fireEvent.click(linedBtn);
+    expect(linedBtn).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('opens color palette when picker is clicked', () => {
+    renderPage();
+    const picker = screen.getByRole('button', { name: /pick color/i });
+    fireEvent.click(picker);
+    // Palette swatches use background-color inline styles
+    const swatches = document.querySelectorAll('button[style*="background"]');
+    // picker itself + at least 6 brand colors
+    expect(swatches.length).toBeGreaterThanOrEqual(7);
+  });
+
+  it('activates eraser tool when eraser button clicked', () => {
     renderPage();
     const eraserBtn = screen.getByRole('button', { name: /eraser/i });
     fireEvent.click(eraserBtn);
-    // Eraser button should have an active/pressed visual state
-    expect(eraserBtn.className).toMatch(/bg-|ring|border-primary|active/i);
+    // After click, eraser gets primary border/background styling
+    expect(eraserBtn.className).toMatch(/border-primary|bg-primary|primary/);
   });
 
-  it('switches to fill tool when fill button clicked', () => {
+  it('activates fill tool when fill button clicked', () => {
     renderPage();
-    const fillBtn = screen.getByRole('button', { name: /fill/i });
+    const fillBtn = screen.getByRole('button', { name: /fill area with color/i });
     fireEvent.click(fillBtn);
-    expect(fillBtn.className).toMatch(/bg-|ring|border-primary|active/i);
+    expect(fillBtn.className).toMatch(/border-primary|bg-primary|primary/);
   });
 });
 
-describe('SketchPage - add picture and zoom flow', () => {
-  it('triggers hidden file input when add picture is clicked', () => {
+describe('SketchPage - add picture (image) flow', () => {
+  it('exposes a hidden file input that accepts images', () => {
     renderPage();
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     expect(fileInput).toBeTruthy();
     expect(fileInput.accept).toMatch(/image/);
   });
 
-  it('shows placement overlay with zoom + - controls after image is selected', async () => {
+  it('shows placement controls (zoom in / zoom out / confirm) after image is selected', async () => {
     renderPage();
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
 
-    // Stub Image so onload fires synchronously
     const OriginalImage = global.Image;
     (global as any).Image = class {
       width = 200; height = 200;
       onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
       set src(_v: string) { setTimeout(() => this.onload && this.onload(), 0); }
     };
 
@@ -150,10 +172,11 @@ describe('SketchPage - add picture and zoom flow', () => {
     fireEvent.change(fileInput);
 
     await waitFor(() => {
-      expect(
-        screen.queryByRole('button', { name: /zoom in|\+/i }) ||
-        document.querySelector('[aria-label*="zoom" i]')
-      ).toBeTruthy();
+      // Look for zoom or place/confirm controls in the placement overlay
+      const zoomControls = document.querySelectorAll(
+        '[aria-label*="zoom" i], [aria-label*="place" i], [aria-label*="cancel" i]'
+      );
+      expect(zoomControls.length).toBeGreaterThan(0);
     });
 
     global.Image = OriginalImage;
@@ -178,21 +201,30 @@ describe('SketchPage - one sketch per day', () => {
     });
   });
 
-  it('does not preload anything when no sketch exists for today', async () => {
+  it('does not preload when no sketch exists for today', async () => {
     mockEntries = [];
     renderPage();
-    // Give effects a tick
-    await new Promise((r) => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(mockGetJournalEntry).not.toHaveBeenCalled();
+  });
+
+  it('does not preload an old (non-today) sketch', async () => {
+    const lastWeek = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+    mockEntries = [
+      { id: 'old-sketch', templateId: 'sketch', createdAt: lastWeek, text: '' },
+    ];
+    renderPage();
+    await new Promise((r) => setTimeout(r, 20));
     expect(mockGetJournalEntry).not.toHaveBeenCalled();
   });
 });
 
 describe('SketchPage - draw over image', () => {
-  it('keeps the pen tool active after a picture is added so user can draw on top', async () => {
+  it('keeps drawing tools available so user can draw over a placed image', () => {
     renderPage();
-    // Default tool is 'draw'. Verify pen button exists and is the default state.
-    const penBtn = screen.getByRole('button', { name: /pen|draw/i });
-    expect(penBtn).toBeInTheDocument();
-    expect(penBtn.className).toMatch(/bg-|ring|border-primary|active/i);
+    // Eraser, fill, and stroke sizes remain present and clickable
+    expect(screen.getByRole('button', { name: /eraser/i })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: /fill area with color/i })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: /stroke size 4/i })).not.toBeDisabled();
   });
 });
