@@ -246,7 +246,14 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
                             <Icon className="w-5 h-5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-base font-semibold text-foreground leading-tight">{opt.label}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-base font-semibold text-foreground leading-tight">{opt.label}</p>
+                              {opt.id === 'sketch' && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wide">
+                                  Better on iPad
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
                           </div>
                           {active && (
