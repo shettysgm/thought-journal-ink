@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import templateFreeWrite from '@/assets/template-free-write.png';
 import templateVoice from '@/assets/template-voice.png';
 import templateGratitude from '@/assets/template-gratitude.png';
@@ -91,21 +92,28 @@ export default function JournalPage() {
 
         {/* Template cards — standardized app style */}
         <div className="space-y-3">
-          {TEMPLATES.map((template) => (
-            <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
-              <div className="cursor-pointer rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-medium transition-all duration-200">
-                <div className="p-4 flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
-                    <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
+          {TEMPLATES.map((template, i) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Link to={`${template.path}?template=${template.id}`} className="block">
+                <div className="cursor-pointer rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-medium transition-all duration-200">
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
+                      <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
+                      <p className="text-sm text-foreground/80 mt-0.5 leading-snug">{template.subtitle}</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
-                    <p className="text-sm text-foreground/80 mt-0.5 leading-snug">{template.subtitle}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>
