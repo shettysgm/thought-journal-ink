@@ -383,10 +383,135 @@ export default function SketchPage() {
     }
   };
 
+  // Pick color at canvas pixel position (eyedropper)
+  const pickColorAt = (cssX: number, cssY: number): string | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const x = Math.floor(cssX * dpr);
+    const y = Math.floor(cssY * dpr);
+    try {
+      const px = ctx.getImageData(x, y, 1, 1).data;
+      // If transparent, treat as white
+      if (px[3] === 0) return '#ffffff';
+      const toHex = (n: number) => n.toString(16).padStart(2, '0');
+      return `#${toHex(px[0])}${toHex(px[1])}${toHex(px[2])}`;
+    } catch {
+      return null;
+    }
+  };
+
+  // Draw a vector stamp shape at given position
+  const drawStamp = (ctx: CanvasRenderingContext2D, kind: StampType, cx: number, cy: number, s: number, hex: string) => {
+    ctx.save();
+    ctx.fillStyle = hex;
+    ctx.strokeStyle = hex;
+    ctx.lineWidth = Math.max(2, s / 8);
+    ctx.lineJoin = 'round';
+    const r = s;
+    ctx.beginPath();
+    if (kind === 'heart') {
+      const top = cy - r * 0.3;
+      ctx.moveTo(cx, cy + r * 0.7);
+      ctx.bezierCurveTo(cx + r, cy + r * 0.2, cx + r, top - r * 0.4, cx, top);
+      ctx.bezierCurveTo(cx - r, top - r * 0.4, cx - r, cy + r * 0.2, cx, cy + r * 0.7);
+      ctx.fill();
+    } else if (kind === 'star') {
+      const spikes = 5;
+      const outer = r;
+      const inner = r * 0.45;
+      let rot = -Math.PI / 2;
+      const step = Math.PI / spikes;
+      ctx.moveTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+      for (let i = 0; i < spikes; i++) {
+        rot += step;
+        ctx.lineTo(cx + Math.cos(rot) * inner, cy + Math.sin(rot) * inner);
+        rot += step;
+        ctx.lineTo(cx + Math.cos(rot) * outer, cy + Math.sin(rot) * outer);
+      }
+      ctx.closePath();
+      ctx.fill();
+    } else if (kind === 'arrow') {
+      // Arrow pointing up-right
+      const len = r * 1.4;
+      ctx.lineWidth = Math.max(3, s / 4);
+      ctx.lineCap = 'round';
+      ctx.moveTo(cx - len / 2, cy + len / 2);
+      ctx.lineTo(cx + len / 2, cy - len / 2);
+      ctx.stroke();
+      // Head
+      ctx.beginPath();
+      ctx.moveTo(cx + len / 2, cy - len / 2);
+      ctx.lineTo(cx + len / 2 - r * 0.5, cy - len / 2 + r * 0.1);
+      ctx.moveTo(cx + len / 2, cy - len / 2);
+      ctx.lineTo(cx + len / 2 - r * 0.1, cy - len / 2 + r * 0.5);
+      ctx.stroke();
+    } else if (kind === 'bubble') {
+      // Speech bubble
+      const w = r * 1.8;
+      const h = r * 1.3;
+      const rad = r * 0.4;
+      ctx.moveTo(cx - w / 2 + rad, cy - h / 2);
+      ctx.lineTo(cx + w / 2 - rad, cy - h / 2);
+      ctx.quadraticCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy - h / 2 + rad);
+      ctx.lineTo(cx + w / 2, cy + h / 2 - rad);
+      ctx.quadraticCurveTo(cx + w / 2, cy + h / 2, cx + w / 2 - rad, cy + h / 2);
+      ctx.lineTo(cx - w / 4, cy + h / 2);
+      ctx.lineTo(cx - w / 3, cy + h / 2 + r * 0.4);
+      ctx.lineTo(cx - w / 6, cy + h / 2);
+      ctx.lineTo(cx - w / 2 + rad, cy + h / 2);
+      ctx.quadraticCurveTo(cx - w / 2, cy + h / 2, cx - w / 2, cy + h / 2 - rad);
+      ctx.lineTo(cx - w / 2, cy - h / 2 + rad);
+      ctx.quadraticCurveTo(cx - w / 2, cy - h / 2, cx - w / 2 + rad, cy - h / 2);
+      ctx.closePath();
+      ctx.lineWidth = Math.max(2, s / 6);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  const bakeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      strokesRef.current = [];
+      setHasContent(true);
+    } catch (e) {
+      console.warn('[Sketch] failed to bake', e);
+    }
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     (e.target as Element).setPointerCapture?.(e.pointerId);
     const pos = getPos(e);
+
+    if (isEyedropper) {
+      const hex = pickColorAt(pos.x, pos.y);
+      if (hex) {
+        setColor(hex);
+        toast({ title: 'Color picked', description: hex.toUpperCase() });
+      }
+      setTool('draw');
+      return;
+    }
+
+    if (isStamp) {
+      pushUndo();
+      const ctx = canvasRef.current?.getContext('2d');
+      if (ctx) {
+        ctx.globalAlpha = opacity;
+        drawStamp(ctx, stamp, pos.x, pos.y, Math.max(20, size * 6), color);
+        ctx.globalAlpha = 1;
+        bakeCanvas();
+      }
+      return;
+    }
 
     if (isFill) {
       pushUndo();
@@ -401,32 +526,57 @@ export default function SketchPage() {
       color,
       size,
       isEraser,
+      brush,
+      opacity,
       points: [pos],
     };
   };
 
+  // Exponential smoothing for stabilization (pulls cursor toward previous point)
+  const smoothPoint = (prev: { x: number; y: number }, next: { x: number; y: number }, factor: number) => ({
+    x: prev.x + (next.x - prev.x) * factor,
+    y: prev.y + (next.y - prev.y) * factor,
+  });
+
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drawingRef.current || !currentRef.current) return;
     e.preventDefault();
-    const pos = getPos(e);
-    currentRef.current.points.push(pos);
+    let pos = getPos(e);
+    const pts = currentRef.current.points;
+
+    // Stabilization: blend new point toward last
+    if (stabilize && pts.length > 0) {
+      pos = smoothPoint(pts[pts.length - 1], pos, 0.35);
+    }
+    pts.push(pos);
+
+    // For complex brushes (watercolor/spray/pencil), redraw the whole current
+    // stroke for smoother appearance. For pen/marker, draw incrementally.
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
-    // Draw incrementally for performance
-    const pts = currentRef.current.points;
-    if (pts.length >= 2) {
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = currentRef.current.size;
-      ctx.globalCompositeOperation = currentRef.current.isEraser ? 'destination-out' : 'source-over';
-      ctx.strokeStyle = currentRef.current.color;
-      ctx.beginPath();
-      const a = pts[pts.length - 2];
-      const b = pts[pts.length - 1];
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-      ctx.globalCompositeOperation = 'source-over';
+
+    const cur = currentRef.current;
+    if (cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker') {
+      if (pts.length >= 2) {
+        ctx.save();
+        ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
+        ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = cur.color;
+        ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
+        ctx.beginPath();
+        const a = pts[pts.length - 2];
+        const b = pts[pts.length - 1];
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    } else {
+      // Repaint the entire base + strokes to render textured brushes correctly
+      redraw();
+      drawStroke(ctx, cur);
     }
   };
 
