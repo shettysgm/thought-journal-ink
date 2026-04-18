@@ -114,7 +114,7 @@ export default function JournalPage() {
                         </p>
                         {template.id === 'sketch' && (
                           <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                            iPad
+                            Better on iPad
                           </span>
                         )}
                       </div>
