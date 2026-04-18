@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X, Pipette, Sparkles, Heart, Star, ArrowUpRight, MessageCircle, Brush, SprayCan, Droplet } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X, Pipette, Sparkles, Heart, Star, ArrowUpRight, MessageCircle, Brush, SprayCan, Droplet, Shapes, Grid3x3, FlipHorizontal2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
