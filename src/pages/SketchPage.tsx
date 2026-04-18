@@ -62,9 +62,17 @@ export default function SketchPage() {
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
-  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill'>('draw');
+  const [tool, setTool] = useState<'draw' | 'eraser' | 'fill' | 'eyedropper' | 'stamp'>('draw');
+  const [brush, setBrush] = useState<BrushType>('pen');
+  const [opacity, setOpacity] = useState(1);
+  const [stabilize, setStabilize] = useState(false);
+  const [stamp, setStamp] = useState<StampType>('heart');
+  const [showBrushes, setShowBrushes] = useState(false);
+  const [showStamps, setShowStamps] = useState(false);
   const isEraser = tool === 'eraser';
   const isFill = tool === 'fill';
+  const isEyedropper = tool === 'eyedropper';
+  const isStamp = tool === 'stamp';
   const [showPalette, setShowPalette] = useState(false);
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
