@@ -82,6 +82,13 @@ export default function SketchPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
 
+    // Paint preloaded sketch (today's saved drawing) as the base layer
+    if (baseImageRef.current) {
+      const cssW = canvas.width / dpr;
+      const cssH = canvas.height / dpr;
+      ctx.drawImage(baseImageRef.current, 0, 0, cssW, cssH);
+    }
+
     for (const stroke of strokesRef.current) {
       drawStroke(ctx, stroke);
     }
