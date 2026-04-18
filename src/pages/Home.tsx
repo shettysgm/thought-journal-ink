@@ -53,16 +53,8 @@ export default function Home() {
           {/* Streak warning (conditional) */}
           <StreakReminder />
 
-          {/* CTA pair — primary write + soft sketch */}
+          {/* CTA pair — sketch first, then write */}
           <div className="space-y-2 pt-1">
-            <Link to="/unified" className="block">
-              <button className="w-full flex items-center justify-center gap-2 h-[52px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
-                <Pen className="w-4 h-4" />
-                <span>Write or record</span>
-                <Mic className="w-4 h-4 opacity-70" />
-              </button>
-            </Link>
-
             <Link to="/sketch" className="block">
               <button className="w-full flex items-center justify-between gap-3 h-[46px] px-4 rounded-2xl bg-primary/5 border border-primary/15 text-foreground text-[14px] font-medium hover:bg-primary/10 transition-colors">
                 <span className="flex items-center gap-2">
@@ -72,6 +64,14 @@ export default function Home() {
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold uppercase tracking-wide">
                   Better on iPad
                 </span>
+              </button>
+            </Link>
+
+            <Link to="/unified" className="block">
+              <button className="w-full flex items-center justify-center gap-2 h-[52px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
+                <Pen className="w-4 h-4" />
+                <span>Write or record</span>
+                <Mic className="w-4 h-4 opacity-70" />
               </button>
             </Link>
           </div>
