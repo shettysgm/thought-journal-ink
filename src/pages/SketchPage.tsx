@@ -372,7 +372,70 @@ export default function SketchPage() {
     redraw();
   };
 
-  const handleSave = async () => {
+  // Hidden file input — triggered by the "Add Picture" toolbar button.
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAddPicture = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePictureSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Reset the input so picking the same file twice still fires onChange
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Unsupported file', description: 'Please pick an image file.', variant: 'destructive' });
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.onerror = () => reject(new Error('image load failed'));
+        i.src = url;
+      });
+
+      // Snapshot before mutating so undo works.
+      pushUndo();
+
+      // Fit the image inside the canvas (CSS pixel space) preserving aspect ratio,
+      // sized to ~80% of the smaller axis so it leaves room to draw around it.
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = canvas.width / dpr;
+      const cssH = canvas.height / dpr;
+      const maxW = cssW * 0.8;
+      const maxH = cssH * 0.8;
+      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const dx = (cssW - drawW) / 2;
+      const dy = (cssH - drawH) / 2;
+
+      ctx.drawImage(img, dx, dy, drawW, drawH);
+
+      // Bake into the synchronous base snapshot so future redraws preserve it.
+      try {
+        baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        strokesRef.current = [];
+        setHasContent(true);
+      } catch (err) {
+        console.warn('[Sketch] failed to bake picture snapshot', err);
+      }
+    } catch (err) {
+      console.error('[Sketch] failed to load picture', err);
+      toast({ title: "Couldn't add picture", description: 'Please try a different image.', variant: 'destructive' });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
 
