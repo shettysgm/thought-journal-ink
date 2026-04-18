@@ -65,6 +65,24 @@ export default function SketchPage() {
   const [saving, setSaving] = useState(false);
   const [loadedExisting, setLoadedExisting] = useState(false);
 
+  // Floating picture being placed (drag/zoom before commit). When non-null,
+  // the canvas ignores pointer events and an overlay <img> is shown.
+  type Placement = {
+    src: string;          // object URL (revoked on commit/cancel)
+    img: HTMLImageElement; // already-decoded image, used at commit time
+    x: number;            // CSS px, top-left within the canvas wrapper
+    y: number;
+    scale: number;        // multiplier on naturalWidth/Height
+  };
+  const [placement, setPlacement] = useState<Placement | null>(null);
+  // Refs used while dragging/pinching the overlay
+  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const pinchRef = useRef<{
+    pointers: Map<number, { x: number; y: number }>;
+    startDist: number;
+    startScale: number;
+  } | null>(null);
+
   // Resize canvas to fit container, redraw on resize
   const fitCanvas = useCallback(() => {
     const canvas = canvasRef.current;
