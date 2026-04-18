@@ -167,6 +167,21 @@ export default function SketchPage() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
+  // Snapshot the current canvas pixels before each destructive action so undo can restore.
+  const pushUndo = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    try {
+      const snap = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStackRef.current.push(snap);
+      if (undoStackRef.current.length > MAX_UNDO) undoStackRef.current.shift();
+    } catch (e) {
+      console.warn('[Sketch] failed to snapshot for undo', e);
+    }
+  };
+
   // Flood-fill at canvas position using current color, with anti-alias tolerance.
   const floodFill = (cssX: number, cssY: number, hexColor: string) => {
     const canvas = canvasRef.current;
