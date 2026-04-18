@@ -115,14 +115,13 @@ export default function CalendarPage() {
 
   const datesWithEntries = useMemo(() => {
     const dates = new Set<string>();
-    entries.filter(e => !e.hasDrawing).forEach(e => {
+    entries.forEach(e => {
       dates.add(format(startOfDay(new Date(e.createdAt)), 'yyyy-MM-dd'));
     });
     return dates;
   }, [entries]);
 
   const filteredEntries = entries
-    .filter(entry => !entry.hasDrawing)
     .filter(entry => {
       if (selectedDate) return isSameDay(new Date(entry.createdAt), selectedDate);
       const threeDaysAgo = startOfDay(subDays(new Date(), 2));
