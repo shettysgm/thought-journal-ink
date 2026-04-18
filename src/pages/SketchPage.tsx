@@ -887,6 +887,33 @@ export default function SketchPage() {
               onChange={handlePictureSelected}
               className="hidden"
             />
+            {/* Paper style toggle: Plain / Lined */}
+            <div
+              className="ml-1 inline-flex rounded-full border border-border/60 p-0.5 bg-white"
+              role="group"
+              aria-label="Paper style"
+            >
+              <button
+                type="button"
+                onClick={() => setPaper('plain')}
+                className={`h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                  paper === 'plain' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-pressed={paper === 'plain'}
+              >
+                Plain
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaper('lined')}
+                className={`h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                  paper === 'lined' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                }`}
+                aria-pressed={paper === 'lined'}
+              >
+                Lined
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-1">
