@@ -159,7 +159,6 @@ export default function CalendarPage() {
     const to = new Date(startOfDay(deleteTo));
     to.setHours(23, 59, 59, 999);
     const toDelete = entries.filter(e => {
-      if (e.hasDrawing) return false;
       const d = new Date(e.createdAt);
       return d >= from && d <= to;
     });
