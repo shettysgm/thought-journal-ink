@@ -16,17 +16,17 @@ export default function Home() {
     <>
       <MobileIntroOverlay openSignal={introSignal} />
       <div
-        className="min-h-[100svh] bg-white dark:bg-background px-5 pb-24"
+        className="min-h-[100svh] bg-[hsl(174_30%_99%)] dark:bg-background px-5 pb-24"
         style={{
           paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
           paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
         }}
       >
-        <div className="max-w-lg md:max-w-2xl mx-auto space-y-6">
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
           {/* Header */}
           <header className="flex items-center justify-between mt-1">
             <div>
-              <h1 className="text-lg font-semibold text-foreground">Journal Inc</h1>
+              <h1 className="text-lg font-semibold text-foreground tracking-tight">Journal Inc</h1>
               <p className="text-xs text-muted-foreground mt-0.5">Your daily companion</p>
             </div>
             <div className="flex items-center gap-1">
@@ -53,27 +53,28 @@ export default function Home() {
           {/* Streak warning (conditional) */}
           <StreakReminder />
 
-          {/* CTA */}
-          <Link to="/unified" className="block">
-            <button className="w-full flex items-center justify-center gap-2 h-[50px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
-              <Pen className="w-4 h-4" />
-              <span>Write or record</span>
-              <Mic className="w-4 h-4 opacity-70" />
-            </button>
-          </Link>
+          {/* CTA pair — primary write + soft sketch */}
+          <div className="space-y-2 pt-1">
+            <Link to="/unified" className="block">
+              <button className="w-full flex items-center justify-center gap-2 h-[52px] rounded-2xl bg-primary text-primary-foreground text-[15px] font-semibold shadow-medium hover:opacity-90 transition-opacity">
+                <Pen className="w-4 h-4" />
+                <span>Write or record</span>
+                <Mic className="w-4 h-4 opacity-70" />
+              </button>
+            </Link>
 
-          {/* Sketch CTA — best on iPad */}
-          <Link to="/sketch" className="block">
-            <button className="w-full flex items-center justify-between gap-3 h-[50px] px-4 rounded-2xl border border-border bg-white text-foreground text-[15px] font-semibold shadow-soft hover:bg-muted/40 transition-colors">
-              <span className="flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-primary" />
-                Sketch
-              </span>
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wide">
-                Better on iPad
-              </span>
-            </button>
-          </Link>
+            <Link to="/sketch" className="block">
+              <button className="w-full flex items-center justify-between gap-3 h-[46px] px-4 rounded-2xl bg-primary/5 border border-primary/15 text-foreground text-[14px] font-medium hover:bg-primary/10 transition-colors">
+                <span className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4 text-primary" />
+                  Sketch
+                </span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold uppercase tracking-wide">
+                  Better on iPad
+                </span>
+              </button>
+            </Link>
+          </div>
 
           {/* Challenges — compact */}
           <DailyChallenges />
