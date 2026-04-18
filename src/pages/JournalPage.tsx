@@ -65,9 +65,6 @@ const TEMPLATES = [
 ];
 
 export default function JournalPage() {
-  const gridTemplates = TEMPLATES.slice(1);
-  const lastIsAlone = gridTemplates.length % 2 === 1;
-
   return (
     <div
       className="min-h-screen bg-white dark:bg-background px-5 pb-24"
@@ -76,8 +73,8 @@ export default function JournalPage() {
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
-      <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
-        {/* Header */}
+      <div className="max-w-lg md:max-w-2xl mx-auto space-y-6">
+        {/* Header — matches Home/Settings */}
         <header className="flex items-center justify-between mt-1">
           <div>
             <h1 className="text-lg font-semibold text-foreground">Journal</h1>
@@ -92,22 +89,20 @@ export default function JournalPage() {
           </Link>
         </header>
 
-        {/* All cards — horizontal layout */}
+        {/* Template cards — standardized app style */}
         <div className="space-y-3">
           {TEMPLATES.map((template) => (
             <Link key={template.id} to={`${template.path}?template=${template.id}`} className="block">
-              <div className="cursor-pointer rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-md bg-card">
+              <div className="cursor-pointer rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-medium transition-all duration-200">
                 <div className="p-4 flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-accent/15 flex items-center justify-center shrink-0">
                     <img src={template.image} alt={template.title} className="w-12 h-12 object-contain" loading="lazy" />
                   </div>
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-primary uppercase tracking-wide">{template.title}</p>
-                    <p className="text-sm text-foreground leading-relaxed">{template.subtitle}</p>
+                    <p className="text-sm text-foreground/80 mt-0.5 leading-snug">{template.subtitle}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <ArrowRight className="w-4 h-4 text-primary" />
-                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </div>
               </div>
             </Link>
