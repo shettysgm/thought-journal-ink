@@ -609,6 +609,23 @@ export default function SketchPage() {
       const ctx = out.getContext('2d')!;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, out.width, out.height);
+
+      // If the user picked lined paper, bake the ruled lines under the sketch
+      // so the saved PNG matches what they saw while drawing.
+      if (paper === 'lined') {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.save();
+        ctx.strokeStyle = LINE_COLOR;
+        ctx.lineWidth = 1;
+        for (let y = LINE_SPACING * dpr; y < out.height; y += LINE_SPACING * dpr) {
+          ctx.beginPath();
+          ctx.moveTo(0, y + 0.5);
+          ctx.lineTo(out.width, y + 0.5);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       ctx.drawImage(canvas, 0, 0);
 
       const blob: Blob = await new Promise((resolve, reject) =>
