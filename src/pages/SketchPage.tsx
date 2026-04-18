@@ -230,15 +230,12 @@ export default function SketchPage() {
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
 
-    // Check for an existing sketch today; confirm replacement
+    // Find an existing sketch for today (we'll overwrite it silently — user
+    // is already editing it, no need to re-confirm).
     const today = new Date();
     const existingTodaySketch = entries.find(e =>
       e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
     );
-    if (existingTodaySketch) {
-      const ok = confirm("You already have a sketch for today. Replace it with this one?");
-      if (!ok) return;
-    }
 
     setSaving(true);
     try {
