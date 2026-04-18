@@ -273,16 +273,16 @@ export default function SketchPage() {
 
     ctx.putImageData(imageData, 0, 0);
 
-    // Bake the filled result into baseImageRef so future redraws preserve it.
-    // Composite current canvas (which now has the fill applied) into a snapshot image.
-    const snapshot = new Image();
-    snapshot.onload = () => {
-      baseImageRef.current = snapshot;
-      // Strokes are already baked into the snapshot, so reset the stroke list
+    // Bake the filled result synchronously so undo races can't overwrite it.
+    // The fill (and any prior strokes painted onto the canvas) is now part of
+    // the base layer; clear the per-stroke list since they're already baked.
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, w, h);
       strokesRef.current = [];
       setHasContent(true);
-    };
-    snapshot.src = canvas.toDataURL('image/png');
+    } catch (e) {
+      console.warn('[Sketch] failed to bake fill snapshot', e);
+    }
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
