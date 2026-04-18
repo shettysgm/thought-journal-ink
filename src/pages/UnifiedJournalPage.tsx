@@ -110,7 +110,8 @@ function MobilePhotoCollage({ blobs }: { blobs: Blob[] }) {
   );
 }
 
-const DEFAULT_HEADER_COLOR = 'hsl(0 0% 100%)';
+// Default header — soft teal tint that matches the brand palette (--primary 174 55% 46%)
+const DEFAULT_HEADER_COLOR = 'hsl(174 55% 95%)';
 const DEFAULT_HEADER_PATTERN = 'dots';
 
 export default function UnifiedJournalPage() {
