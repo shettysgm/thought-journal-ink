@@ -29,9 +29,14 @@ type Stroke = {
 export default function SketchPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createEntry } = useEntries();
+  const { createEntry, entries, loadEntries } = useEntries();
   const [phoneNoticeAck, setPhoneNoticeAck] = useState(false);
   const [phone] = useState(() => isPhone());
+
+  // Load entries on mount so we can detect today's sketch
+  useEffect(() => {
+    if (entries.length === 0) loadEntries();
+  }, []);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
