@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, TouchEvent } from 'react';
-import { X, Feather, Brain, Shield, Sparkles, ChevronRight, CloudUpload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Feather, Brain, Shield, Sparkles, ChevronRight, Type, Mic, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useSettings } from '@/store/useSettings';
 import quillIcon from '@/assets/quill-icon-new.png';
 import lockIcon from '@/assets/lock-icon.png';
 import aiIcon from '@/assets/ai-icon.png';
 import expressIcon from '@/assets/express-ways-icon.png';
-import backupIcon from '@/assets/backup-icon.png';
 
 const INTRO_SEEN_KEY = 'cbt-journal-intro-seen';
 
@@ -45,15 +46,25 @@ const slides = [
     bgColor: "bg-therapeutic-warmth/20"
   },
   {
-    icon: CloudUpload,
-    title: "Back Up Your Journal",
-    description: "Export your entries anytime from Settings. Your data, your control.",
+    icon: Pencil,
+    title: "Choose Your Style",
+    description: "How do you like to capture your thoughts?",
     color: "text-primary",
     bgColor: "bg-primary/10"
   }
 ];
 
+type JournalingStyle = 'type' | 'voice' | 'sketch';
+
+const STYLE_OPTIONS: { id: JournalingStyle; label: string; description: string; icon: typeof Type; route: string }[] = [
+  { id: 'type', label: 'Type', description: 'Write with your keyboard', icon: Type, route: '/unified' },
+  { id: 'voice', label: 'Voice', description: 'Speak — we transcribe', icon: Mic, route: '/unified?template=daily-reflection' },
+  { id: 'sketch', label: 'Sketch', description: 'Draw, doodle, or handwrite', icon: Pencil, route: '/sketch' },
+];
+
 export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: MobileIntroOverlayProps) {
+  const navigate = useNavigate();
+  const { updateSettings } = useSettings();
   // Check localStorage immediately on mount to determine initial visibility
   const [isVisible, setIsVisible] = useState(() => {
     if (alwaysShow) return true;
@@ -61,6 +72,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     return !hasSeenIntro;
   });
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedStyle, setSelectedStyle] = useState<JournalingStyle | null>(null);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const slideRef = useRef<HTMLDivElement>(null);
@@ -70,6 +82,7 @@ export default function MobileIntroOverlay({ alwaysShow = false, openSignal }: M
     if (openSignal !== undefined && openSignal > 0) {
       setIsVisible(true);
       setCurrentSlide(0); // Reset to first slide
+      setSelectedStyle(null);
     }
   }, [openSignal]);
 
