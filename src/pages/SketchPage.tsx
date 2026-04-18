@@ -202,14 +202,15 @@ export default function SketchPage() {
 
   return (
     <div
-      className="min-h-screen bg-white dark:bg-background flex flex-col"
+      className="bg-white dark:bg-background flex flex-col overflow-hidden"
       style={{
+        height: '100dvh',
         paddingTop: 'max(3rem, calc(env(safe-area-inset-top, 20px) + 1rem))',
         paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
       }}
     >
       {/* Header */}
-      <header className="px-5 pb-3 flex items-center justify-between">
+      <header className="px-5 pb-3 flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-lg font-semibold text-foreground">Write & Sketch</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Draw, doodle, or handwrite</p>
@@ -225,8 +226,8 @@ export default function SketchPage() {
         </Button>
       </header>
 
-      {/* Canvas area */}
-      <div className="flex-1 px-3">
+      {/* Canvas area — must have a real height for the canvas to receive input */}
+      <div className="flex-1 min-h-0 px-3">
         <div
           ref={wrapRef}
           className="relative w-full h-full rounded-2xl border border-border/60 bg-[hsl(174_55%_98%)] shadow-soft overflow-hidden"
@@ -238,14 +239,14 @@ export default function SketchPage() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            onPointerLeave={onPointerUp}
-            className="absolute inset-0 cursor-crosshair touch-none"
+            className="absolute inset-0 w-full h-full cursor-crosshair touch-none select-none"
+            style={{ touchAction: 'none' }}
           />
           {!hasContent && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
                 <Pencil className="w-10 h-10 mx-auto mb-2 opacity-60" />
-                <p className="text-sm">Start drawing here</p>
+                <p className="text-sm">Tap and drag to draw</p>
               </div>
             </div>
           )}
