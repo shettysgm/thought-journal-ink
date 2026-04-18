@@ -113,7 +113,7 @@ export default function JournalPage() {
                           {template.title}
                         </p>
                         {template.id === 'sketch' && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                          <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
                             Better on iPad
                           </span>
                         )}
