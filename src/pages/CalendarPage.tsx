@@ -73,8 +73,17 @@ export default function CalendarPage() {
         const { getJournalEntry } = await import('@/lib/idb');
         const blobs: Record<string, Blob[]> = {};
         const drawings: Record<string, Blob> = {};
+        console.log('[Calendar] Loading blobs for', state.entries.length, 'entries');
         for (const entry of state.entries) {
           const raw = await getJournalEntry(entry.id) as any;
+          console.log('[Calendar] Entry', entry.id, {
+            hasDrawing: entry.hasDrawing,
+            templateId: entry.templateId,
+            rawKeys: raw ? Object.keys(raw) : null,
+            drawingBlobType: raw?.drawingBlob ? Object.prototype.toString.call(raw.drawingBlob) : 'none',
+            drawingBlobSize: raw?.drawingBlob?.size,
+            isBlob: raw?.drawingBlob instanceof Blob,
+          });
           if (raw?.bannerBlobs && Array.isArray(raw.bannerBlobs)) {
             blobs[entry.id] = raw.bannerBlobs;
           } else if (raw?.bannerBlob && raw.bannerBlob instanceof Blob) {
@@ -84,6 +93,7 @@ export default function CalendarPage() {
             drawings[entry.id] = raw.drawingBlob;
           }
         }
+        console.log('[Calendar] Final drawings map:', Object.keys(drawings).length, 'sketches');
         setBannerBlobs(blobs);
         setDrawingBlobs(drawings);
       } catch (e) {
