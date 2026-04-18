@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { useToast } from '@/hooks/use-toast';
+import { isPhone } from '@/lib/deviceDetection';
 
 const COLORS = [
   '#1f2937', // near-black
@@ -27,6 +28,8 @@ export default function SketchPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { createEntry } = useEntries();
+  const [phoneNoticeAck, setPhoneNoticeAck] = useState(false);
+  const [phone] = useState(() => isPhone());
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -199,6 +202,53 @@ export default function SketchPage() {
       setSaving(false);
     }
   };
+
+  // Phone-only intercept: this feature shines on iPad/tablet, but allow opt-in.
+  if (phone && !phoneNoticeAck) {
+    return (
+      <div
+        className="min-h-screen bg-white dark:bg-background px-5 flex flex-col"
+        style={{
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+          paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
+        }}
+      >
+        <div className="max-w-md mx-auto w-full flex-1 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Tablet className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">Best on iPad</h1>
+            <p className="text-base text-muted-foreground">
+              Write &amp; Sketch is designed for tablets and stylus input. On a phone the canvas is small
+              and harder to draw on.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              For the best handwriting and doodling experience, open Journal Inc on your iPad or
+              Android tablet.
+            </p>
+          </div>
+
+          <div className="w-full space-y-2 pt-2">
+            <Button
+              onClick={() => navigate('/journal')}
+              className="w-full h-12 rounded-full gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Journal
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setPhoneNoticeAck(true)}
+              className="w-full h-11 rounded-full text-muted-foreground hover:text-foreground"
+            >
+              Continue on phone anyway
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
