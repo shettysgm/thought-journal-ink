@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isSameDay } from 'date-fns';
 import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
+import { saveJournalEntry } from '@/lib/idb';
 import { useToast } from '@/hooks/use-toast';
 import { isPhone } from '@/lib/deviceDetection';
 
@@ -27,9 +29,14 @@ type Stroke = {
 export default function SketchPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { createEntry } = useEntries();
+  const { createEntry, entries, loadEntries } = useEntries();
   const [phoneNoticeAck, setPhoneNoticeAck] = useState(false);
   const [phone] = useState(() => isPhone());
+
+  // Load entries on mount so we can detect today's sketch
+  useEffect(() => {
+    if (entries.length === 0) loadEntries();
+  }, []);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -170,6 +177,17 @@ export default function SketchPage() {
   const handleSave = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
+
+    // Check for an existing sketch today; confirm replacement
+    const today = new Date();
+    const existingTodaySketch = entries.find(e =>
+      e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
+    );
+    if (existingTodaySketch) {
+      const ok = confirm("You already have a sketch for today. Replace it with this one?");
+      if (!ok) return;
+    }
+
     setSaving(true);
     try {
       // Composite onto a white background so the saved image isn't transparent
@@ -185,15 +203,27 @@ export default function SketchPage() {
         out.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png', 0.92)
       );
 
-      await createEntry({
-        text: '',
-        hasDrawing: true,
-        drawingBlob: blob,
-        templateId: 'sketch',
-        tags: ['sketch'],
-      } as any);
+      if (existingTodaySketch) {
+        // Overwrite the blob on the existing entry (updateEntry doesn't carry blobs)
+        await saveJournalEntry({
+          ...(existingTodaySketch as any),
+          drawingBlob: blob,
+          hasDrawing: true,
+          updatedAt: new Date().toISOString(),
+        });
+        await loadEntries();
+        toast({ title: 'Sketch replaced', description: "Today's sketch was updated." });
+      } else {
+        await createEntry({
+          text: '',
+          hasDrawing: true,
+          drawingBlob: blob,
+          templateId: 'sketch',
+          tags: ['sketch'],
+        } as any);
+        toast({ title: 'Sketch saved', description: 'Your drawing was added to your journal.' });
+      }
 
-      toast({ title: 'Sketch saved', description: 'Your drawing was added to your journal.' });
       navigate('/calendar');
     } catch (err) {
       console.error('[Sketch] save failed', err);
