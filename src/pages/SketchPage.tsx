@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
