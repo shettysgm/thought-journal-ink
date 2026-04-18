@@ -1359,6 +1359,19 @@ export default function SketchPage() {
             </button>
             <button
               type="button"
+              onClick={() => { setShowHelpers((s) => !s); setShowBrushes(false); setShowStamps(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                showHelpers || smartShape || perspective !== 'off' || symmetry !== 'off'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Smart helpers"
+              title="Smart helpers"
+            >
+              <Shapes className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
               onClick={handleAddPicture}
               className="w-10 h-10 rounded-full border border-border/60 text-foreground flex items-center justify-center"
               aria-label="Add picture"
