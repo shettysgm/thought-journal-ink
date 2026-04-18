@@ -17,6 +17,7 @@ const WhyCBTPage = lazy(() => import("./pages/WhyCBTPage"));
 const CounselorSearchPage = lazy(() => import("./pages/CounselorSearchPage"));
 const ThoughtRecordPage = lazy(() => import("./pages/ThoughtRecordPage"));
 const ActivityPlanPage = lazy(() => import("./pages/ActivityPlanPage"));
+const SketchPage = lazy(() => import("./pages/SketchPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -50,7 +51,8 @@ export default function Router() {
             <Route path="/why-cbt" element={<WhyCBTPage />} />
             <Route path="/thought-record" element={<ThoughtRecordPage />} />
             <Route path="/activity-plan" element={<ActivityPlanPage />} />
-            <Route path="/handwriting" element={<Navigate to="/text" replace />} />
+            <Route path="/sketch" element={<SketchPage />} />
+            <Route path="/handwriting" element={<Navigate to="/sketch" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
