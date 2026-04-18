@@ -69,7 +69,7 @@ export default function SketchPage() {
   // the sketch when saving so the saved PNG matches what the user saw).
   const [paper, setPaper] = useState<'plain' | 'lined'>('plain');
   const LINE_SPACING = 32; // CSS px between ruled lines
-  const LINE_COLOR = 'hsl(210 30% 82%)'; // soft blue-grey, paper-like
+  const LINE_COLOR = 'hsl(210 40% 65%)'; // notebook-ruled blue, clearly visible
 
   // Floating picture being placed (drag/zoom before commit). When non-null,
   // the canvas ignores pointer events and an overlay <img> is shown.
