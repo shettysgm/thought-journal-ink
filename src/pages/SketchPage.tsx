@@ -278,10 +278,13 @@ export default function SketchPage() {
     const pos = getPos(e);
 
     if (isFill) {
+      pushUndo();
       floodFill(pos.x, pos.y, color);
       return;
     }
 
+    // Snapshot before each stroke so undo restores the prior state
+    pushUndo();
     drawingRef.current = true;
     currentRef.current = {
       color,
