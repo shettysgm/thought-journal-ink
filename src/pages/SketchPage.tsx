@@ -203,6 +203,53 @@ export default function SketchPage() {
     }
   };
 
+  // Phone-only intercept: this feature shines on iPad/tablet, but allow opt-in.
+  if (phone && !phoneNoticeAck) {
+    return (
+      <div
+        className="min-h-screen bg-white dark:bg-background px-5 flex flex-col"
+        style={{
+          paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top, 20px) + 1.5rem))',
+          paddingBottom: 'max(6rem, calc(env(safe-area-inset-bottom, 0px) + 6rem))',
+        }}
+      >
+        <div className="max-w-md mx-auto w-full flex-1 flex flex-col items-center justify-center text-center space-y-6">
+          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Tablet className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">Best on iPad</h1>
+            <p className="text-base text-muted-foreground">
+              Write &amp; Sketch is designed for tablets and stylus input. On a phone the canvas is small
+              and harder to draw on.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              For the best handwriting and doodling experience, open Journal Inc on your iPad or
+              Android tablet.
+            </p>
+          </div>
+
+          <div className="w-full space-y-2 pt-2">
+            <Button
+              onClick={() => navigate('/journal')}
+              className="w-full h-12 rounded-full gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Journal
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setPhoneNoticeAck(true)}
+              className="w-full h-11 rounded-full text-muted-foreground hover:text-foreground"
+            >
+              Continue on phone anyway
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="bg-white dark:bg-background flex flex-col overflow-hidden"
