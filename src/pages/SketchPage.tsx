@@ -436,6 +436,7 @@ export default function SketchPage() {
     }
   };
 
+  const handleSave = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
 
