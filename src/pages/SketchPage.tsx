@@ -45,6 +45,9 @@ export default function SketchPage() {
   const currentRef = useRef<Stroke | null>(null);
   // Pre-existing sketch image (today's saved drawing) painted as the base layer
   const baseImageRef = useRef<HTMLImageElement | null>(null);
+  // Undo history: ImageData snapshots taken BEFORE each action
+  const undoStackRef = useRef<ImageData[]>([]);
+  const MAX_UNDO = 20;
 
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(STROKE_SIZES[1]);
