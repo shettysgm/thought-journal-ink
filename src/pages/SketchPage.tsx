@@ -19,10 +19,15 @@ const COLORS = [
 
 const STROKE_SIZES = [2, 4, 8, 14];
 
+type BrushType = 'pen' | 'pencil' | 'marker' | 'watercolor' | 'spray';
+type StampType = 'heart' | 'star' | 'arrow' | 'bubble';
+
 type Stroke = {
   color: string;
   size: number;
   isEraser: boolean;
+  brush: BrushType;
+  opacity: number;
   points: { x: number; y: number }[];
 };
 
