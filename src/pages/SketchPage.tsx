@@ -43,8 +43,14 @@ export default function SketchPage() {
   const drawingRef = useRef(false);
   const strokesRef = useRef<Stroke[]>([]);
   const currentRef = useRef<Stroke | null>(null);
-  // Pre-existing sketch image (today's saved drawing) painted as the base layer
+  // Pre-existing sketch image (today's saved drawing) painted as the base layer.
+  // Kept as an HTMLImageElement only for the very first preload paint; once any
+  // edit happens, baseSnapshotRef becomes the source of truth.
   const baseImageRef = useRef<HTMLImageElement | null>(null);
+  // Synchronous baked snapshot of the canvas (used as base layer after fills/undo).
+  // Storing ImageData (not an async Image) eliminates race conditions where an
+  // async snapshot.onload overwrites state set by a later undo.
+  const baseSnapshotRef = useRef<ImageData | null>(null);
   // Undo history: ImageData snapshots taken BEFORE each action
   const undoStackRef = useRef<ImageData[]>([]);
   const MAX_UNDO = 20;
