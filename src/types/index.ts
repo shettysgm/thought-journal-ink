@@ -46,6 +46,7 @@ export type AppSettings = {
   lastFeedbackAt?: string;
   reminderTime?: string; // HH:mm format, e.g. "20:00"
   reminderAutoScheduled?: boolean; // true once auto-scheduled on first launch
+  journalingStyle?: 'type' | 'voice' | 'sketch'; // user's preferred entry mode
 };
 
 export type Hit = { 
