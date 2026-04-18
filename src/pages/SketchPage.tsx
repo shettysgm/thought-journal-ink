@@ -177,6 +177,17 @@ export default function SketchPage() {
   const handleSave = async () => {
     const canvas = canvasRef.current;
     if (!canvas || !hasContent) return;
+
+    // Check for an existing sketch today; confirm replacement
+    const today = new Date();
+    const existingTodaySketch = entries.find(e =>
+      e.templateId === 'sketch' && isSameDay(new Date(e.createdAt), today)
+    );
+    if (existingTodaySketch) {
+      const ok = confirm("You already have a sketch for today. Replace it with this one?");
+      if (!ok) return;
+    }
+
     setSaving(true);
     try {
       // Composite onto a white background so the saved image isn't transparent
@@ -192,15 +203,27 @@ export default function SketchPage() {
         out.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png', 0.92)
       );
 
-      await createEntry({
-        text: '',
-        hasDrawing: true,
-        drawingBlob: blob,
-        templateId: 'sketch',
-        tags: ['sketch'],
-      } as any);
+      if (existingTodaySketch) {
+        // Overwrite the blob on the existing entry (updateEntry doesn't carry blobs)
+        await saveJournalEntry({
+          ...(existingTodaySketch as any),
+          drawingBlob: blob,
+          hasDrawing: true,
+          updatedAt: new Date().toISOString(),
+        });
+        await loadEntries();
+        toast({ title: 'Sketch replaced', description: "Today's sketch was updated." });
+      } else {
+        await createEntry({
+          text: '',
+          hasDrawing: true,
+          drawingBlob: blob,
+          templateId: 'sketch',
+          tags: ['sketch'],
+        } as any);
+        toast({ title: 'Sketch saved', description: 'Your drawing was added to your journal.' });
+      }
 
-      toast({ title: 'Sketch saved', description: 'Your drawing was added to your journal.' });
       navigate('/calendar');
     } catch (err) {
       console.error('[Sketch] save failed', err);
