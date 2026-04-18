@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X, Pipette, Sparkles, Heart, Star, ArrowUpRight, MessageCircle, Brush, SprayCan, Droplet } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X, Pipette, Sparkles, Heart, Star, ArrowUpRight, MessageCircle, Brush, SprayCan, Droplet, Shapes, Grid3x3, FlipHorizontal2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
@@ -66,9 +66,14 @@ export default function SketchPage() {
   const [brush, setBrush] = useState<BrushType>('pen');
   const [opacity, setOpacity] = useState(1);
   const [stabilize, setStabilize] = useState(false);
+  const [smartShape, setSmartShape] = useState(false);
+  const [perspective, setPerspective] = useState<'off' | '1pt' | '2pt'>('off');
+  const [symmetry, setSymmetry] = useState<'off' | 'vertical' | 'horizontal' | 'mandala'>('off');
+  const [mandalaSlices, setMandalaSlices] = useState(8);
   const [stamp, setStamp] = useState<StampType>('heart');
   const [showBrushes, setShowBrushes] = useState(false);
   const [showStamps, setShowStamps] = useState(false);
+  const [showHelpers, setShowHelpers] = useState(false);
   const isEraser = tool === 'eraser';
   const isFill = tool === 'fill';
   const isEyedropper = tool === 'eyedropper';
@@ -538,6 +543,115 @@ export default function SketchPage() {
     y: prev.y + (next.y - prev.y) * factor,
   });
 
+  // Mirror a point across the canvas based on the active symmetry mode.
+  // Returns ALL mirrored copies (not including the original).
+  const mirrorPoint = (p: { x: number; y: number }): { x: number; y: number }[] => {
+    const canvas = canvasRef.current;
+    if (!canvas || symmetry === 'off') return [];
+    const dpr = window.devicePixelRatio || 1;
+    const cx = canvas.width / dpr / 2;
+    const cy = canvas.height / dpr / 2;
+    if (symmetry === 'vertical') {
+      return [{ x: 2 * cx - p.x, y: p.y }];
+    }
+    if (symmetry === 'horizontal') {
+      return [{ x: p.x, y: 2 * cy - p.y }];
+    }
+    // Mandala: rotate around center for N slices
+    const out: { x: number; y: number }[] = [];
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    for (let i = 1; i < mandalaSlices; i++) {
+      const a = (i * Math.PI * 2) / mandalaSlices;
+      const cos = Math.cos(a);
+      const sin = Math.sin(a);
+      out.push({ x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos });
+    }
+    return out;
+  };
+
+  // Detect whether a freehand stroke looks like a circle, line, or rectangle.
+  // Returns a polished replacement point list, or null to keep the freehand stroke.
+  const detectShape = (pts: { x: number; y: number }[]): { x: number; y: number }[] | null => {
+    if (pts.length < 8) return null;
+
+    // Bounding box
+    let minX = pts[0].x, maxX = pts[0].x, minY = pts[0].y, maxY = pts[0].y;
+    for (const p of pts) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
+    const w = maxX - minX;
+    const h = maxY - minY;
+    if (w < 20 && h < 20) return null;
+
+    const start = pts[0];
+    const end = pts[pts.length - 1];
+    const closed = Math.hypot(start.x - end.x, start.y - end.y) < Math.max(w, h) * 0.25;
+
+    // 1) Straight line: small box on one axis
+    if (!closed && (w < 16 || h < 16)) {
+      return [start, end];
+    }
+
+    if (closed) {
+      // Test for circle: average distance from centroid is roughly constant
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      const dists = pts.map((p) => Math.hypot(p.x - cx, p.y - cy));
+      const meanR = dists.reduce((a, b) => a + b, 0) / dists.length;
+      const variance = dists.reduce((a, b) => a + (b - meanR) ** 2, 0) / dists.length;
+      const stdev = Math.sqrt(variance);
+      const aspect = Math.min(w, h) / Math.max(w, h);
+
+      // Circle: low variance AND nearly square bounding box
+      if (stdev / meanR < 0.22 && aspect > 0.75) {
+        const out: { x: number; y: number }[] = [];
+        const r = (w + h) / 4;
+        const steps = 64;
+        for (let i = 0; i <= steps; i++) {
+          const a = (i / steps) * Math.PI * 2;
+          out.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
+        }
+        return out;
+      }
+
+      // Rectangle: closed loop that isn't circular → snap to bounding rectangle
+      return [
+        { x: minX, y: minY },
+        { x: maxX, y: minY },
+        { x: maxX, y: maxY },
+        { x: minX, y: maxY },
+        { x: minX, y: minY },
+      ];
+    }
+
+    return null;
+  };
+
+  // Render a single segment of the in-progress stroke from point a → b at given coords
+  const renderLiveSegment = (
+    ctx: CanvasRenderingContext2D,
+    cur: Stroke,
+    a: { x: number; y: number },
+    b: { x: number; y: number }
+  ) => {
+    ctx.save();
+    ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
+    ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = cur.color;
+    ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+    ctx.restore();
+  };
+
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drawingRef.current || !currentRef.current) return;
     e.preventDefault();
@@ -550,41 +664,69 @@ export default function SketchPage() {
     }
     pts.push(pos);
 
-    // For complex brushes (watercolor/spray/pencil), redraw the whole current
-    // stroke for smoother appearance. For pen/marker, draw incrementally.
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
     const cur = currentRef.current;
-    if (cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker') {
-      if (pts.length >= 2) {
-        ctx.save();
-        ctx.lineCap = cur.brush === 'marker' ? 'square' : 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = cur.brush === 'marker' ? cur.size * 1.6 : cur.size;
-        ctx.globalCompositeOperation = cur.isEraser ? 'destination-out' : 'source-over';
-        ctx.strokeStyle = cur.color;
-        ctx.globalAlpha = cur.isEraser ? 1 : (cur.brush === 'marker' ? cur.opacity * 0.7 : cur.opacity);
-        ctx.beginPath();
-        const a = pts[pts.length - 2];
-        const b = pts[pts.length - 1];
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
-        ctx.restore();
+    const isSimpleBrush = cur.isEraser || cur.brush === 'pen' || cur.brush === 'marker';
+
+    if (isSimpleBrush && pts.length >= 2) {
+      const a = pts[pts.length - 2];
+      const b = pts[pts.length - 1];
+      renderLiveSegment(ctx, cur, a, b);
+      // Symmetry: also draw mirrored segment(s) live
+      if (symmetry !== 'off') {
+        const ma = mirrorPoint(a);
+        const mb = mirrorPoint(b);
+        for (let i = 0; i < ma.length; i++) {
+          renderLiveSegment(ctx, cur, ma[i], mb[i]);
+        }
       }
     } else {
       // Repaint the entire base + strokes to render textured brushes correctly
       redraw();
       drawStroke(ctx, cur);
+      if (symmetry !== 'off') {
+        const mirrored = pts.map((p) => mirrorPoint(p));
+        const copies = mirrored[0]?.length ?? 0;
+        for (let c = 0; c < copies; c++) {
+          drawStroke(ctx, { ...cur, points: mirrored.map((arr) => arr[c]) });
+        }
+      }
     }
   };
 
   const onPointerUp = () => {
     if (!drawingRef.current) return;
     drawingRef.current = false;
-    if (currentRef.current && currentRef.current.points.length > 0) {
-      strokesRef.current.push(currentRef.current);
+    const cur = currentRef.current;
+    if (cur && cur.points.length > 0) {
+      // Smart Shape: try to recognize circle / line / rect and replace points
+      if (smartShape && !cur.isEraser) {
+        const snapped = detectShape(cur.points);
+        if (snapped) {
+          cur.points = snapped;
+          // Repaint base + redraw the snapped stroke cleanly
+          redraw();
+          const ctx = canvasRef.current?.getContext('2d');
+          if (ctx) drawStroke(ctx, cur);
+        }
+      }
+      // Push the primary stroke
+      strokesRef.current.push(cur);
+      // Symmetry: persist mirrored copies as additional strokes so they survive redraws
+      if (symmetry !== 'off') {
+        const mirrored = cur.points.map((p) => mirrorPoint(p));
+        const copies = mirrored[0]?.length ?? 0;
+        for (let c = 0; c < copies; c++) {
+          strokesRef.current.push({ ...cur, points: mirrored.map((arr) => arr[c]) });
+        }
+        // Re-render so mirrored strokes from textured brushes appear baked-in
+        const ctx = canvasRef.current?.getContext('2d');
+        if (ctx) {
+          redraw();
+        }
+      }
       setHasContent(true);
     }
     currentRef.current = null;
@@ -994,6 +1136,63 @@ export default function SketchPage() {
               aria-hidden
             />
           )}
+          {/* Perspective grid overlay (1-point or 2-point) — pure SVG guides */}
+          {perspective !== 'off' && (
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              aria-hidden
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              {/* Horizon line */}
+              <line x1="0" y1="50" x2="100" y2="50" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.5" />
+              {perspective === '1pt' && Array.from({ length: 24 }).map((_, i) => {
+                const angle = (i / 24) * Math.PI * 2;
+                const x2 = 50 + Math.cos(angle) * 200;
+                const y2 = 50 + Math.sin(angle) * 200;
+                return <line key={i} x1="50" y1="50" x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.35" />;
+              })}
+              {perspective === '2pt' && (
+                <>
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const t = i / 15;
+                    const y = t * 100;
+                    return <line key={`l${i}`} x1="-20" y1="50" x2="100" y2={y} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.3" />;
+                  })}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const t = i / 15;
+                    const y = t * 100;
+                    return <line key={`r${i}`} x1="120" y1="50" x2="0" y2={y} stroke="hsl(var(--primary))" strokeWidth="0.1" opacity="0.3" />;
+                  })}
+                  {/* Vanishing-point markers */}
+                  <circle cx="-20" cy="50" r="0.6" fill="hsl(var(--primary))" />
+                  <circle cx="120" cy="50" r="0.6" fill="hsl(var(--primary))" />
+                </>
+              )}
+            </svg>
+          )}
+          {/* Symmetry guide lines */}
+          {symmetry !== 'off' && (
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              aria-hidden
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              {(symmetry === 'vertical' || symmetry === 'mandala') && (
+                <line x1="50" y1="0" x2="50" y2="100" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.55" />
+              )}
+              {(symmetry === 'horizontal' || symmetry === 'mandala') && (
+                <line x1="0" y1="50" x2="100" y2="50" stroke="hsl(var(--primary))" strokeWidth="0.15" strokeDasharray="1 1" opacity="0.55" />
+              )}
+              {symmetry === 'mandala' && Array.from({ length: mandalaSlices }).map((_, i) => {
+                const a = (i / mandalaSlices) * Math.PI * 2;
+                const x2 = 50 + Math.cos(a) * 80;
+                const y2 = 50 + Math.sin(a) * 80;
+                return <line key={i} x1="50" y1="50" x2={x2} y2={y2} stroke="hsl(var(--primary))" strokeWidth="0.08" opacity="0.35" />;
+              })}
+            </svg>
+          )}
           {!hasContent && !placement && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
@@ -1157,6 +1356,19 @@ export default function SketchPage() {
               title={stabilize ? 'Stabilization on' : 'Stabilization off'}
             >
               <Sparkles className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowHelpers((s) => !s); setShowBrushes(false); setShowStamps(false); setShowPalette(false); }}
+              className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+                showHelpers || smartShape || perspective !== 'off' || symmetry !== 'off'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border/60 text-foreground'
+              }`}
+              aria-label="Smart helpers"
+              title="Smart helpers"
+            >
+              <Shapes className="w-4 h-4" />
             </button>
             <button
               type="button"
@@ -1324,6 +1536,104 @@ export default function SketchPage() {
                 <span className="text-[10px] font-medium">{s.label}</span>
               </button>
             ))}
+          </div>
+        )}
+
+        {showHelpers && (
+          <div className="mt-2 rounded-2xl border border-border/60 bg-white shadow-soft p-3 space-y-3">
+            {/* Smart Shape toggle */}
+            <button
+              type="button"
+              onClick={() => setSmartShape((s) => !s)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-colors ${
+                smartShape ? 'bg-primary/10 border-primary/40 text-primary' : 'border-border/60 text-foreground hover:bg-muted'
+              }`}
+              aria-pressed={smartShape}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Shapes className="w-4 h-4" />
+                Smart Shape
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {smartShape ? 'On — auto-snap circles, lines, rects' : 'Off'}
+              </span>
+            </button>
+
+            {/* Perspective grid selector */}
+            <div>
+              <div className="flex items-center justify-between px-1 mb-1.5">
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Grid3x3 className="w-4 h-4" />
+                  Perspective Grid
+                </span>
+              </div>
+              <div className="inline-flex w-full rounded-full border border-border/60 p-0.5 bg-white">
+                {([
+                  { id: 'off', label: 'Off' },
+                  { id: '1pt', label: '1-Point' },
+                  { id: '2pt', label: '2-Point' },
+                ] as { id: typeof perspective; label: string }[]).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPerspective(p.id)}
+                    className={`flex-1 h-9 px-3 rounded-full text-xs font-medium transition-colors ${
+                      perspective === p.id ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                    }`}
+                    aria-pressed={perspective === p.id}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Symmetry mode selector */}
+            <div>
+              <div className="flex items-center justify-between px-1 mb-1.5">
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <FlipHorizontal2 className="w-4 h-4" />
+                  Symmetry
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {([
+                  { id: 'off', label: 'Off' },
+                  { id: 'vertical', label: 'Vert' },
+                  { id: 'horizontal', label: 'Horiz' },
+                  { id: 'mandala', label: 'Mandala' },
+                ] as { id: typeof symmetry; label: string }[]).map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSymmetry(s.id)}
+                    className={`h-9 px-2 rounded-full text-xs font-medium border transition-colors ${
+                      symmetry === s.id
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'border-border/60 text-foreground hover:bg-muted'
+                    }`}
+                    aria-pressed={symmetry === s.id}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              {symmetry === 'mandala' && (
+                <div className="flex items-center gap-3 px-1 mt-2">
+                  <span className="text-xs text-muted-foreground w-14 shrink-0">Slices</span>
+                  <input
+                    type="range"
+                    min={3}
+                    max={16}
+                    value={mandalaSlices}
+                    onChange={(e) => setMandalaSlices(Number(e.target.value))}
+                    className="flex-1 accent-primary"
+                    aria-label="Mandala slices"
+                  />
+                  <span className="text-xs tabular-nums text-foreground w-9 text-right">{mandalaSlices}</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
