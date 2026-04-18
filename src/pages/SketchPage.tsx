@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isSameDay } from 'date-fns';
-import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus } from 'lucide-react';
+import { Eraser, Undo2, Trash2, Check, Palette, Pencil, Tablet, ArrowLeft, PaintBucket, ImagePlus, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEntries } from '@/store/useEntries';
 import { saveJournalEntry } from '@/lib/idb';
@@ -64,6 +64,24 @@ export default function SketchPage() {
   const [hasContent, setHasContent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadedExisting, setLoadedExisting] = useState(false);
+
+  // Floating picture being placed (drag/zoom before commit). When non-null,
+  // the canvas ignores pointer events and an overlay <img> is shown.
+  type Placement = {
+    src: string;          // object URL (revoked on commit/cancel)
+    img: HTMLImageElement; // already-decoded image, used at commit time
+    x: number;            // CSS px, top-left within the canvas wrapper
+    y: number;
+    scale: number;        // multiplier on naturalWidth/Height
+  };
+  const [placement, setPlacement] = useState<Placement | null>(null);
+  // Refs used while dragging/pinching the overlay
+  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const pinchRef = useRef<{
+    pointers: Map<number, { x: number; y: number }>;
+    startDist: number;
+    startScale: number;
+  } | null>(null);
 
   // Resize canvas to fit container, redraw on resize
   const fitCanvas = useCallback(() => {
@@ -390,8 +408,13 @@ export default function SketchPage() {
     }
 
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+
+    // If a placement is already in progress, cancel it first (revoke URL).
+    if (placement) {
+      URL.revokeObjectURL(placement.src);
+      setPlacement(null);
+    }
 
     const url = URL.createObjectURL(file);
     try {
@@ -402,38 +425,162 @@ export default function SketchPage() {
         i.src = url;
       });
 
-      // Snapshot before mutating so undo works.
-      pushUndo();
-
-      // Fit the image inside the canvas (CSS pixel space) preserving aspect ratio,
-      // sized to ~80% of the smaller axis so it leaves room to draw around it.
+      // Initial scale: fit ~60% of the smaller axis so there's room to drag/zoom.
       const dpr = window.devicePixelRatio || 1;
       const cssW = canvas.width / dpr;
       const cssH = canvas.height / dpr;
-      const maxW = cssW * 0.8;
-      const maxH = cssH * 0.8;
-      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
-      const drawW = img.width * scale;
-      const drawH = img.height * scale;
-      const dx = (cssW - drawW) / 2;
-      const dy = (cssH - drawH) / 2;
+      const fit = Math.min((cssW * 0.6) / img.width, (cssH * 0.6) / img.height, 1);
+      const drawW = img.width * fit;
+      const drawH = img.height * fit;
+      const x = (cssW - drawW) / 2;
+      const y = (cssH - drawH) / 2;
 
-      ctx.drawImage(img, dx, dy, drawW, drawH);
-
-      // Bake into the synchronous base snapshot so future redraws preserve it.
-      try {
-        baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        strokesRef.current = [];
-        setHasContent(true);
-      } catch (err) {
-        console.warn('[Sketch] failed to bake picture snapshot', err);
-      }
+      setPlacement({ src: url, img, x, y, scale: fit });
+      toast({
+        title: 'Position your picture',
+        description: 'Drag to move, pinch or use +/− to resize, then tap ✓ to place.',
+      });
     } catch (err) {
       console.error('[Sketch] failed to load picture', err);
-      toast({ title: "Couldn't add picture", description: 'Please try a different image.', variant: 'destructive' });
-    } finally {
       URL.revokeObjectURL(url);
+      toast({ title: "Couldn't add picture", description: 'Please try a different image.', variant: 'destructive' });
     }
+  };
+
+  // Commit the floating picture onto the canvas at its current position/scale.
+  const commitPlacement = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx || !placement) return;
+
+    pushUndo();
+    const { img, x, y, scale } = placement;
+    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+    // Bake into synchronous base snapshot so future redraws / undo work.
+    try {
+      baseSnapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      strokesRef.current = [];
+      setHasContent(true);
+    } catch (err) {
+      console.warn('[Sketch] failed to bake picture snapshot', err);
+    }
+
+    URL.revokeObjectURL(placement.src);
+    setPlacement(null);
+  };
+
+  const cancelPlacement = () => {
+    if (!placement) return;
+    URL.revokeObjectURL(placement.src);
+    setPlacement(null);
+  };
+
+  // Min/max scale guards for zoom buttons + pinch.
+  const SCALE_MIN = 0.05;
+  const SCALE_MAX = 8;
+  const clampScale = (s: number) => Math.min(SCALE_MAX, Math.max(SCALE_MIN, s));
+
+  // Zoom around the center of the placed image (keeps it visually anchored).
+  const zoomPlacement = (factor: number) => {
+    setPlacement((p) => {
+      if (!p) return p;
+      const newScale = clampScale(p.scale * factor);
+      const oldW = p.img.width * p.scale;
+      const oldH = p.img.height * p.scale;
+      const newW = p.img.width * newScale;
+      const newH = p.img.height * newScale;
+      return {
+        ...p,
+        scale: newScale,
+        x: p.x + (oldW - newW) / 2,
+        y: p.y + (oldH - newH) / 2,
+      };
+    });
+  };
+
+  // Drag / pinch handlers for the floating picture overlay.
+  const onPlacementPointerDown = (e: React.PointerEvent<HTMLImageElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    if (!placement) return;
+
+    // If a second pointer arrives, switch into pinch-zoom mode.
+    if (dragRef.current && !pinchRef.current) {
+      const pointers = new Map<number, { x: number; y: number }>();
+      pointers.set(dragRef.current.pointerId, { x: dragRef.current.startX, y: dragRef.current.startY });
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const [a, b] = Array.from(pointers.values());
+      const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      pinchRef.current = { pointers, startDist: dist, startScale: placement.scale };
+      dragRef.current = null;
+      return;
+    }
+
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: placement.x,
+      origY: placement.y,
+    };
+  };
+
+  const onPlacementPointerMove = (e: React.PointerEvent<HTMLImageElement>) => {
+    if (!placement) return;
+
+    if (pinchRef.current) {
+      e.preventDefault();
+      const p = pinchRef.current;
+      if (!p.pointers.has(e.pointerId)) return;
+      p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const pts = Array.from(p.pointers.values());
+      if (pts.length < 2) return;
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+      const factor = dist / p.startDist;
+      const newScale = clampScale(p.startScale * factor);
+      setPlacement((cur) => {
+        if (!cur) return cur;
+        const oldW = cur.img.width * cur.scale;
+        const oldH = cur.img.height * cur.scale;
+        const newW = cur.img.width * newScale;
+        const newH = cur.img.height * newScale;
+        return {
+          ...cur,
+          scale: newScale,
+          x: cur.x + (oldW - newW) / 2,
+          y: cur.y + (oldH - newH) / 2,
+        };
+      });
+      return;
+    }
+
+    if (dragRef.current && dragRef.current.pointerId === e.pointerId) {
+      e.preventDefault();
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      setPlacement((cur) => (cur ? { ...cur, x: dragRef.current!.origX + dx, y: dragRef.current!.origY + dy } : cur));
+    }
+  };
+
+  const onPlacementPointerUp = (e: React.PointerEvent<HTMLImageElement>) => {
+    if (pinchRef.current) {
+      pinchRef.current.pointers.delete(e.pointerId);
+      if (pinchRef.current.pointers.size < 2) pinchRef.current = null;
+      return;
+    }
+    if (dragRef.current && dragRef.current.pointerId === e.pointerId) {
+      dragRef.current = null;
+    }
+  };
+
+  // Mouse-wheel zoom while placing (desktop).
+  const onPlacementWheel = (e: React.WheelEvent<HTMLImageElement>) => {
+    if (!placement) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    zoomPlacement(factor);
   };
 
   const handleSave = async () => {
@@ -557,7 +704,7 @@ export default function SketchPage() {
         <Button
           size="sm"
           onClick={handleSave}
-          disabled={!hasContent || saving}
+          disabled={!hasContent || saving || !!placement}
           className="rounded-full gap-1.5"
         >
           <Check className="w-4 h-4" />
@@ -579,15 +726,83 @@ export default function SketchPage() {
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
             className={`absolute inset-0 w-full h-full touch-none select-none ${isFill ? 'cursor-cell' : 'cursor-crosshair'}`}
-            style={{ touchAction: 'none' }}
+            style={{ touchAction: 'none', pointerEvents: placement ? 'none' : 'auto' }}
           />
-          {!hasContent && (
+          {!hasContent && !placement && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-muted-foreground/70">
                 <Pencil className="w-10 h-10 mx-auto mb-2 opacity-60" />
                 <p className="text-sm">Tap and drag to draw</p>
               </div>
             </div>
+          )}
+
+          {/* Floating placement overlay: drag to move, pinch / wheel / +- to zoom */}
+          {placement && (
+            <>
+              <img
+                src={placement.src}
+                alt="Placing"
+                draggable={false}
+                onPointerDown={onPlacementPointerDown}
+                onPointerMove={onPlacementPointerMove}
+                onPointerUp={onPlacementPointerUp}
+                onPointerCancel={onPlacementPointerUp}
+                onWheel={onPlacementWheel}
+                style={{
+                  position: 'absolute',
+                  left: placement.x,
+                  top: placement.y,
+                  width: placement.img.width * placement.scale,
+                  height: placement.img.height * placement.scale,
+                  touchAction: 'none',
+                  cursor: 'move',
+                  userSelect: 'none',
+                  // Soft outline so the user can see the bounds while placing.
+                  outline: '2px dashed hsl(var(--primary))',
+                  outlineOffset: '2px',
+                  borderRadius: 4,
+                  background: 'rgba(255,255,255,0.0)',
+                }}
+              />
+              {/* Floating action bar */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-3 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur shadow-soft border border-border/60 px-1.5 py-1">
+                <button
+                  type="button"
+                  onClick={() => zoomPlacement(1 / 1.15)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Zoom out"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => zoomPlacement(1.15)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Zoom in"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+                <span className="w-px h-6 bg-border mx-1" aria-hidden />
+                <button
+                  type="button"
+                  onClick={cancelPlacement}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted"
+                  aria-label="Cancel picture"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={commitPlacement}
+                  className="h-9 px-3 rounded-full bg-primary text-primary-foreground flex items-center gap-1 text-sm font-medium"
+                  aria-label="Place picture"
+                >
+                  <Check className="w-4 h-4" />
+                  Place
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
