@@ -348,6 +348,8 @@ export default function CalendarPage() {
               const customHeaderSticker = headerStickerIds.length > 0
                 ? ALL_STICKERS.find(s => s.id === headerStickerIds[0])
                 : null;
+              const drawingBlob = drawingBlobs[entry.id];
+              const isSketch = entry.templateId === 'sketch' || !!entry.hasDrawing;
               return (
                 <Card
                   key={entry.id}
@@ -356,7 +358,7 @@ export default function CalendarPage() {
                     getBorderClassName(entry.cardBorder)
                   )}
                   style={getPatternStyle(entry.cardBackground)}
-                  onClick={() => navigate(`/unified?edit=${entry.id}`)}
+                  onClick={() => { if (!isSketch) navigate(`/unified?edit=${entry.id}`); }}
                 >
                   {/* Template header - matches editor style */}
                   {entryTemplate && (
