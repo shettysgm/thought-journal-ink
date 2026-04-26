@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import MobileLayout from "./components/MobileLayout";
+import AnalyticsRouteTracker from "./components/AnalyticsRouteTracker";
 import { Loader2 } from "lucide-react";
 
 // Lazy load non-critical routes
@@ -33,6 +34,7 @@ export default function Router() {
   
   return (
     <BrowserRouter>
+      <AnalyticsRouteTracker />
       <MobileLayout>
         <Suspense fallback={<PageLoader />}>
           <Routes>
