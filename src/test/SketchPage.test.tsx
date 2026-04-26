@@ -123,7 +123,7 @@ describe('SketchPage - tools and controls', () => {
 
   it('opens color palette when picker is clicked', () => {
     renderPage();
-    const picker = screen.getByRole('button', { name: /pick color/i });
+    const picker = screen.getByRole('button', { name: 'Pick color' });
     fireEvent.click(picker);
     // Palette swatches use background-color inline styles
     const swatches = document.querySelectorAll('button[style*="background"]');
