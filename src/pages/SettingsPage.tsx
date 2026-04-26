@@ -443,7 +443,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
-                checked={!!analyticsEnabled}
+                checked={analyticsEnabled !== false}
                 onCheckedChange={(checked) => updateSettings({ analyticsEnabled: checked })}
               />
             </div>
