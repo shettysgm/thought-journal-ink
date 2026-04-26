@@ -251,6 +251,9 @@ export const useGameStore = create<GameState>()(
         }
         if (newlyUnlocked.length > 0) {
           set({ unlockedAchievements: unlocked });
+          for (const id of newlyUnlocked) {
+            trackEvent('achievement_unlocked', { achievement_id: id });
+          }
         }
         return newlyUnlocked;
       },
