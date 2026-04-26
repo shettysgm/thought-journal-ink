@@ -90,7 +90,7 @@ describe('SketchPage - tools and controls', () => {
 
   it('renders color picker and add picture buttons', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: /pick color/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pick color' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add picture/i })).toBeInTheDocument();
   });
 
