@@ -25,6 +25,7 @@ export default function SettingsPage() {
     aiAnalysisEnabled,
     appLockEnabled,
     reminderTime,
+    analyticsEnabled,
     loadSettings,
     updateSettings,
     setPassphrase,
