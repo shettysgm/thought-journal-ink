@@ -32,7 +32,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   aiAnalysisEnabled: true,
   appLockEnabled: false,
   failedAttempts: 0,
-  analyticsEnabled: false,
+  analyticsEnabled: true,
   unlocked: false,
   loading: true,
   error: null,
@@ -53,8 +53,8 @@ export const useSettings = create<SettingsState>((set, get) => ({
         }
       }
       set({ ...settings, loading: false });
-      // Sync analytics consent with persisted setting
-      if (settings.analyticsEnabled) enableAnalytics();
+      // Sync analytics consent — undefined (legacy users) defaults to ON (opt-out model)
+      if (settings.analyticsEnabled !== false) enableAnalytics();
       else disableAnalytics();
     } catch (error) {
       set({ error: 'Failed to load settings', loading: false });
