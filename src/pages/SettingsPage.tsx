@@ -434,6 +434,20 @@ export default function SettingsPage() {
               </Label>
             </div>
 
+            {/* Anonymous usage analytics (opt-in) */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+              <div className="space-y-1 pr-4">
+                <Label className="text-sm font-medium">Anonymous usage analytics</Label>
+                <p className="text-sm text-muted-foreground">
+                  Share anonymous usage stats (page views, feature counts) to help improve the app. No journal text is ever sent.
+                </p>
+              </div>
+              <Switch
+                checked={!!analyticsEnabled}
+                onCheckedChange={(checked) => updateSettings({ analyticsEnabled: checked })}
+              />
+            </div>
+
             
           </CardContent>
         </Card>
