@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { AppSettings } from '@/types';
 import { saveSettings, getSettings } from '@/lib/idb';
 import { hashPassphrase } from '@/lib/crypto';
+import { enableAnalytics, disableAnalytics } from '@/lib/analytics';
 
 const RESET_DELAY_MS = 24 * 60 * 60 * 1000; // 24 hours
 const MAX_FAILED_ATTEMPTS = 5;
@@ -31,6 +32,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   aiAnalysisEnabled: true,
   appLockEnabled: false,
   failedAttempts: 0,
+  analyticsEnabled: false,
   unlocked: false,
   loading: true,
   error: null,
@@ -51,6 +53,9 @@ export const useSettings = create<SettingsState>((set, get) => ({
         }
       }
       set({ ...settings, loading: false });
+      // Sync analytics consent with persisted setting
+      if (settings.analyticsEnabled) enableAnalytics();
+      else disableAnalytics();
     } catch (error) {
       set({ error: 'Failed to load settings', loading: false });
     }
@@ -73,10 +78,16 @@ export const useSettings = create<SettingsState>((set, get) => ({
       reminderTime: current.reminderTime,
       reminderAutoScheduled: current.reminderAutoScheduled,
       journalingStyle: current.journalingStyle,
+      analyticsEnabled: current.analyticsEnabled,
       ...updates,
     };
     await saveSettings(newSettings);
     set(newSettings);
+    // React to analytics consent changes
+    if (Object.prototype.hasOwnProperty.call(updates, 'analyticsEnabled')) {
+      if (updates.analyticsEnabled) enableAnalytics();
+      else disableAnalytics();
+    }
   },
 
   setPassphrase: async (passphrase: string) => {
