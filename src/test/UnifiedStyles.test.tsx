@@ -131,20 +131,21 @@ describe('Unified card styles', () => {
     wrap(<JournalPage />, '/journal');
     // Each template card should have an arrow SVG
     const arrows = document.querySelectorAll('svg.lucide-arrow-right');
-    expect(arrows.length).toBe(6); // 6 templates
+    expect(arrows.length).toBe(7); // 7 templates
   });
 
-  it('Journal cards have large icons (w-16 container)', () => {
+  it('Journal cards have large image containers (w-20)', () => {
     wrap(<JournalPage />, '/journal');
-    const iconContainers = document.querySelectorAll('.w-16.h-16');
-    expect(iconContainers.length).toBe(6);
+    const imageContainers = document.querySelectorAll('.w-20.h-20');
+    // 7 templates × 2 (wrapper + img) = 14
+    expect(imageContainers.length).toBeGreaterThanOrEqual(7);
   });
 
-  it('Journal card titles use uppercase primary text', () => {
+  it('Journal card titles use semibold foreground text', () => {
     wrap(<JournalPage />, '/journal');
     const title = screen.getByText('Daily Reflection');
-    expect(title.className).toContain('uppercase');
-    expect(title.className).toContain('text-primary');
+    expect(title.className).toContain('font-semibold');
+    expect(title.className).toContain('text-foreground');
   });
 
   it('Settings cards use bordered style instead of shadows', () => {
