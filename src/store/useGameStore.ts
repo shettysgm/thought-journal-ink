@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { trackEvent } from '@/lib/analytics';
 
 // === LEVEL SYSTEM ===
 const LEVELS = [
@@ -174,30 +175,49 @@ export const useGameStore = create<GameState>()(
 
       recordEntry: (wordCount) => {
         const state = get();
+        const prevLevel = getLevelInfo(state.xp).level;
         const newWords = state.totalWords + wordCount;
         const newEntries = state.totalEntries + 1;
         const baseXP = 20; // per entry
         const wordXP = Math.floor(wordCount / 10); // 1 XP per 10 words
+        const newXp = state.xp + baseXP + wordXP;
         set({
           totalWords: newWords,
           totalEntries: newEntries,
-          xp: state.xp + baseXP + wordXP,
+          xp: newXp,
         });
         get().updateChallengeProgress('write', 1);
         get().updateChallengeProgress('words', wordCount);
+        trackEvent('journal_entry_saved', {
+          word_count: wordCount,
+          total_entries: newEntries,
+        });
+        const newLevel = getLevelInfo(newXp).level;
+        if (newLevel > prevLevel) {
+          trackEvent('level_up', { level: newLevel });
+        }
       },
 
       recordQuiz: () => {
-        set((s) => ({
-          totalQuizzes: s.totalQuizzes + 1,
-          xp: s.xp + 30,
-        }));
+        const state = get();
+        const prevLevel = getLevelInfo(state.xp).level;
+        const newXp = state.xp + 30;
+        set({
+          totalQuizzes: state.totalQuizzes + 1,
+          xp: newXp,
+        });
         get().updateChallengeProgress('quiz', 1);
+        trackEvent('quiz_completed', { total_quizzes: state.totalQuizzes + 1 });
+        const newLevel = getLevelInfo(newXp).level;
+        if (newLevel > prevLevel) {
+          trackEvent('level_up', { level: newLevel });
+        }
       },
 
       recordPromptUsed: () => {
         set((s) => ({ xp: s.xp + 10 }));
         get().updateChallengeProgress('prompt', 1);
+        trackEvent('prompt_used', {});
       },
 
       checkAchievements: (streak) => {
