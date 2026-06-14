@@ -57,6 +57,7 @@ export function enableAnalytics() {
       window.dataLayer.push(args);
     };
     window.gtag('js', new Date());
+    window.gtag('consent', 'default', { analytics_storage: 'granted' });
     window.gtag('config', GA_MEASUREMENT_ID, {
       anonymize_ip: true,
       send_page_view: false, // we send these manually via trackPageView
