@@ -10,7 +10,7 @@ import { encryptText, decryptText } from '@/lib/crypto';
 import { useSettings } from './useSettings';
 import { format } from 'date-fns';
 import { scheduleAutoBackup } from '@/lib/autoBackup';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackFeature, setEntryCountForAnalytics } from '@/lib/analytics';
 
 interface EntriesState {
   entries: JournalEntry[];
