@@ -56,9 +56,9 @@ export function enableAnalytics() {
 
   if (!initialized) {
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer.push(args);
-    };
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    } as GtagFn;
     window.gtag('js', new Date());
     window.gtag('consent', 'default', { analytics_storage: 'granted' });
     window.gtag('config', GA_MEASUREMENT_ID, {
