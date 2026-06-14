@@ -52,14 +52,17 @@ export default function AIConsentDialog({ onConsentGiven, onConsentDeclined }: A
   const handleAccept = () => {
     localStorage.setItem(AI_CONSENT_KEY, 'accepted');
     setIsOpen(false);
+    import('@/lib/analytics').then(({ trackEvent }) => trackEvent('ai_consent', { choice: 'granted' }));
     onConsentGiven();
   };
 
   const handleDecline = () => {
     localStorage.setItem(AI_CONSENT_KEY, 'declined');
     setIsOpen(false);
+    import('@/lib/analytics').then(({ trackEvent }) => trackEvent('ai_consent', { choice: 'denied' }));
     onConsentDeclined();
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
