@@ -68,14 +68,15 @@ export function enableAnalytics() {
       anonymize_ip: true,
       send_page_view: false, // we send these manually via trackPageView
     });
+    applyUserProperties();
     window.gtag('event', 'page_view', {
       page_path: currentPath,
       page_title: currentTitle,
       page_location: window.location.href,
-    applyUserProperties();
-
+    });
     injectScript();
     initialized = true;
+
   } else {
     // Re-enable measurement after a previous opt-out
     window.gtag?.('consent', 'update', { analytics_storage: 'granted' });
