@@ -12,11 +12,10 @@ async function loadFresh() {
   vi.resetModules();
   // Reset DOM state used by the module
   document.head.innerHTML = '';
-  // @ts-expect-error allow reset
-  delete (window as any).gtag;
-  // @ts-expect-error allow reset
-  delete (window as any).dataLayer;
+  delete (window as unknown as Record<string, unknown>).gtag;
+  delete (window as unknown as Record<string, unknown>).dataLayer;
   return await import('@/lib/analytics');
+
 }
 
 describe('analytics', () => {
