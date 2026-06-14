@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import GroundingExercise from '@/components/GroundingExercise';
+import { trackEvent } from '@/lib/analytics';
 
 /* ── Breathing constants ── */
 const PHASES = [
@@ -119,7 +120,10 @@ function BreathingExercise() {
       )}
 
       <button
-        onClick={() => (isActive ? reset() : setIsActive(true))}
+        onClick={() => {
+          if (isActive) { reset(); }
+          else { setIsActive(true); trackEvent('breathing_started', {}); }
+        }}
         className="px-8 py-3 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95 touch-manipulation"
         style={{
           backgroundColor: isActive ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
