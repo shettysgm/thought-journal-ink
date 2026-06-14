@@ -77,7 +77,9 @@ export const useEntries = create<EntriesState>((set, get) => ({
       );
       
       console.log('Loaded entries from IndexedDB:', decryptedEntries);
+      setEntryCountForAnalytics(decryptedEntries.length);
       set({ entries: decryptedEntries, loading: false });
+
     } catch (error) {
       set({ error: 'Failed to load entries', loading: false });
     }
