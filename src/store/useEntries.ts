@@ -10,6 +10,7 @@ import { encryptText, decryptText } from '@/lib/crypto';
 import { useSettings } from './useSettings';
 import { format } from 'date-fns';
 import { scheduleAutoBackup } from '@/lib/autoBackup';
+import { trackEvent } from '@/lib/analytics';
 
 interface EntriesState {
   entries: JournalEntry[];
@@ -182,6 +183,20 @@ export const useEntries = create<EntriesState>((set, get) => ({
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
     }));
+
+    // Feature usage tracking (consent-gated, no content sent)
+    try {
+      const tags = entryData.tags || [];
+      const feature = tags[0] || (entryData.hasDrawing ? 'sketch' : entryData.hasAudio ? 'voice' : 'text');
+      const wordCount = entryData.text ? entryData.text.split(/\s+/).filter(Boolean).length : 0;
+      trackEvent('entry_created', {
+        feature,
+        template: entryData.templateId || 'none',
+        has_audio: !!entryData.hasAudio,
+        has_drawing: !!entryData.hasDrawing,
+        word_count: wordCount,
+      });
+    } catch {}
     
     // Process distortions asynchronously (don't block entry creation)
     if (settings.autoDetectDistortions && entryData.text) {

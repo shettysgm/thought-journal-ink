@@ -4,6 +4,7 @@ import { Scan, Fingerprint, Headphones, Wind, Cherry, ChevronRight, RotateCcw, C
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { trackEvent } from '@/lib/analytics';
 
 const STEPS = [
   { sense: 'See', count: 5, icon: Scan, prompt: 'Notice 5 things you can see' },
@@ -36,6 +37,7 @@ export default function GroundingExercise() {
       setStepIndex(i => i + 1);
     } else {
       setDone(true);
+      trackEvent('grounding_completed', {});
     }
   }, [stepIndex]);
 

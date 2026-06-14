@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { exportJournalsToFile } from '@/lib/exportJournals';
 import { useEntries } from '@/store/useEntries';
 import { Progress } from '@/components/ui/progress';
+import { trackEvent } from '@/lib/analytics';
 
 
 export default function SettingsPage() {
@@ -171,6 +172,7 @@ export default function SettingsPage() {
     setExporting(true);
     try {
       await exportJournalsToFile();
+      trackEvent('journals_exported', {});
       toast({
         title: "Journals Exported",
         description: "Your journal entries are ready to save to Files or iCloud Drive.",
