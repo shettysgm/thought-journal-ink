@@ -58,7 +58,11 @@ export default function QuizPage() {
         });
         setQuizCompleted(true);
         useGameStore.getState().recordQuiz();
+        import('@/lib/analytics').then(({ trackEvent }) =>
+          trackEvent('quiz_completed', { score: correctAnswers, total: questions.length })
+        );
       }
+
     }, 2000);
   };
 
