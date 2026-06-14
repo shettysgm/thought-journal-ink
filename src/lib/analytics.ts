@@ -72,7 +72,8 @@ export function enableAnalytics() {
       page_path: currentPath,
       page_title: currentTitle,
       page_location: window.location.href,
-    });
+    applyUserProperties();
+
     injectScript();
     initialized = true;
   } else {
