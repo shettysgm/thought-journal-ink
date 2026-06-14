@@ -199,6 +199,15 @@ export const useEntries = create<EntriesState>((set, get) => ({
         word_count: wordCount,
       });
     } catch {}
+
+    // After saving, possibly request an App Store review (native only, once, after 3rd entry)
+    try {
+      const totalEntries = get().entries.length; // already includes the new one
+      const { maybeRequestReview } = await import('@/lib/appReview');
+      // Small delay so the save UI settles before iOS shows the prompt
+      setTimeout(() => maybeRequestReview(totalEntries), 1500);
+    } catch {}
+
     
     // Process distortions asynchronously (don't block entry creation)
     if (settings.autoDetectDistortions && entryData.text) {

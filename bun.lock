@@ -5,7 +5,7 @@
     "": {
       "name": "vite_react_shadcn_ts",
       "dependencies": {
-        "@capacitor-community/in-app-review": "^7.1.0",
+        "@capacitor-community/in-app-review": "^7.0.0",
         "@capacitor-community/speech-recognition": "^7.0.1",
         "@capacitor/android": "^7.4.3",
         "@capacitor/cli": "^7.4.3",
