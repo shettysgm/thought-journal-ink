@@ -1,6 +1,7 @@
 import { getContextWindow } from "./context";
 import { simpleRedact } from "./redact";
 import { getDetectDistortionsUrl, API_CONFIG } from "../config/api";
+import { trackEvent } from "./analytics";
 
 export type DetectResponse = {
   distortions: { 
@@ -19,6 +20,7 @@ export type DetectResponse = {
 export async function detectWithAI(rawText: string): Promise<DetectResponse> {
   const text = simpleRedact(rawText); // Redact but send full text
   const context = await getContextWindow();
+  trackEvent('ai_detect_requested', { text_length: text.length });
   
   // Add timeout to prevent hanging
   const controller = new AbortController();
