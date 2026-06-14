@@ -110,3 +110,58 @@ export function trackEvent(name: string, params: Record<string, string | number 
   if (!enabled || !window.gtag) return;
   window.gtag('event', name, params);
 }
+
+/** Track use of a discrete feature (CBT tool, breathing, sketch, etc.). */
+export function trackFeature(feature: string, params: Record<string, string | number | boolean> = {}) {
+  trackEvent('feature_used', { feature, ...params });
+}
+
+function bucketEntries(n: number): string {
+  if (n <= 0) return '0';
+  if (n <= 5) return '1-5';
+  if (n <= 20) return '6-20';
+  if (n <= 50) return '21-50';
+  return '50+';
+}
+
+function detectPlatform(): string {
+  try {
+    if (Capacitor?.isNativePlatform?.()) return Capacitor.getPlatform();
+  } catch {}
+  return 'web';
+}
+
+function detectTheme(): string {
+  if (typeof document === 'undefined') return 'unknown';
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+}
+
+let cachedEntryCount = 0;
+export function setEntryCountForAnalytics(n: number) {
+  cachedEntryCount = n;
+  if (enabled && window.gtag) applyUserProperties();
+}
+
+function applyUserProperties() {
+  if (!window.gtag) return;
+  window.gtag('set', 'user_properties', {
+    app_version: (import.meta as any).env?.VITE_APP_VERSION || 'dev',
+    platform: detectPlatform(),
+    theme: detectTheme(),
+    entry_count_bucket: bucketEntries(cachedEntryCount),
+    is_returning: cachedEntryCount > 0,
+  });
+}
+
+// Lifecycle events
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (!enabled || !window.gtag) return;
+    if (document.visibilityState === 'hidden') {
+      trackEvent('app_background');
+    } else if (document.visibilityState === 'visible') {
+      trackEvent('app_foreground');
+    }
+  });
+}
+
