@@ -8,6 +8,9 @@
  * - Disabling the toggle stops further events and removes the GA cookies.
  */
 
+import { Capacitor } from '@capacitor/core';
+
+
 const GA_MEASUREMENT_ID = 'G-SEFR8M90X1';
 const SCRIPT_ID = 'ga4-gtag-script';
 
