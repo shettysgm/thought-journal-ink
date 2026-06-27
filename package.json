@@ -13,6 +13,8 @@
   "dependencies": {
     "@capacitor-community/in-app-review": "^7.0.0",
     "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor-firebase/analytics": "^7.5.0",
+    "@capacitor-firebase/app": "^7.5.0",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
