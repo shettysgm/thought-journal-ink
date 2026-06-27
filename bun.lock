@@ -7,6 +7,8 @@
       "dependencies": {
         "@capacitor-community/in-app-review": "^7.0.0",
         "@capacitor-community/speech-recognition": "^7.0.1",
+        "@capacitor-firebase/analytics": "^7.5.0",
+        "@capacitor-firebase/app": "^7.5.0",
         "@capacitor/android": "^7.4.3",
         "@capacitor/cli": "^7.4.3",
         "@capacitor/core": "^7.4.3",
@@ -122,6 +124,10 @@
     "@capacitor-community/in-app-review": ["@capacitor-community/in-app-review@7.1.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-qB0Q+qvPxF03UWoryZubyMkOCRqJF5xEILjt+VC4768yyilyss4k6qDjT6x9x7T4T8o8kmGgbPBJgwf1fsLa1A=="],
 
     "@capacitor-community/speech-recognition": ["@capacitor-community/speech-recognition@7.0.1", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-ykpBZziR575X0eURO5vXaD9gVrXXC/7Ra2qql/2KP6/jxWOqAFuw4eKjSPjwdAgGE6a/Z+v8FJm4SVh57MVwDA=="],
+
+    "@capacitor-firebase/analytics": ["@capacitor-firebase/analytics@7.5.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capacitor-firebase/analytics/-/analytics-7.5.0.tgz", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-PxMTltu0wa7uT/tpXEPos8mentU4kDoU7yJeSzLIeO6ysB2Qp7N2/4GamKP1ITpZ0OvUuU7fjG5zqAQj5xX2jg=="],
+
+    "@capacitor-firebase/app": ["@capacitor-firebase/app@7.5.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capacitor-firebase/app/-/app-7.5.0.tgz", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-umX3CvcxHV47X3rnjb9sWpqW1NZ/DcCpKbi/Usr/HJqZCZZRjpVCqlmZB/zvKJ0wF9kEtg3vJuvlvccudaPpSQ=="],
 
     "@capacitor/android": ["@capacitor/android@7.4.3", "", { "peerDependencies": { "@capacitor/core": "^7.4.0" } }, "sha512-VpjvnOcmYGPLgvXRhe3CGLs62Cg7sxOyp77NddCr+Y06qqgnoaj6OGeBVTc2DZlqZ6bSmh15JvFu82pkvmdgfQ=="],
 
